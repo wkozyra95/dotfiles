@@ -1,0 +1,23 @@
+[status]
+	submoduleSummary = true
+[pull]
+	rebase = true
+[merge]
+	conflictstyle = diff3
+[user]
+	email = wojciech.kozyra@swmansion.com
+	name = Wojciech Kozyra
+[push]
+	default = current
+[init]
+	defaultBranch = main
+[interactive]
+    diffFilter = diff-so-fancy --patch
+[diff-so-fancy]
+    markEmptyLines = false
+[core]
+    excludesfile = /home/wojtek/.gitignore
+    pager = diff-so-fancy | less --tabs=4
+    editor = nvim
+[includeIf "gitdir:~/goody/"]
+    path = ./.gitconfig-goody

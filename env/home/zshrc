@@ -1,0 +1,1 @@
+MYCLI_ZSH_SETUP_PATH=/home/wojtek/.cache/mycli/completion/zsh_setup && test -f $MYCLI_ZSH_SETUP_PATH && source $MYCLI_ZSH_SETUP_PATH;

@@ -1,0 +1,4 @@
+[user]
+    email = wojciech.kozyra@ongoody.com
+[core]
+    sshCommand = "ssh -i ~/.ssh/goody"
