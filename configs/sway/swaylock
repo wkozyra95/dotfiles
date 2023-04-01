@@ -1,0 +1,8 @@
+ignore-empty-password
+show-failed-attempts
+scaling=fill
+color=#330866
+image=DP-1:~/.dotfiles/configs/sway/wallpaper.png
+image=DP-2:~/.dotfiles/configs/sway/wallpaper.png
+image=DP-3:~/.dotfiles/configs/sway/wallpaper.png
+image=eDP-1:~/.dotfiles/configs/sway/wallpaper.png

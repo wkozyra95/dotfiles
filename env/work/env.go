@@ -1,0 +1,67 @@
+package work
+
+import (
+	"os"
+	"path"
+
+	"github.com/wkozyra95/dotfiles/action"
+	"github.com/wkozyra95/dotfiles/env"
+	"github.com/wkozyra95/dotfiles/env/common"
+)
+
+var (
+	homeDir            = os.Getenv("HOME")
+	expoConfig         = common.ExpoConfig
+	expoLauncherConfig = common.ExpoLauncherConfig(path.Join(homeDir, "expo"))
+)
+
+var Config = env.EnvironmentConfig{
+	Workspaces: []env.Workspace{
+		expoConfig.LegacyExpoCli(path.Join(homeDir, "expo/expo-cli")),
+		expoConfig.EasCli(path.Join(homeDir, "expo/eas-cli")),
+		expoConfig.EasBuild(path.Join(homeDir, "expo/eas-build")),
+		expoConfig.Turtle(path.Join(homeDir, "expo/turtle-v2")),
+		expoConfig.UniverseWWW(path.Join(homeDir, "expo/universe/server/www")),
+		expoConfig.UniverseWebsite(path.Join(homeDir, "expo/universe/server/website")),
+		expoConfig.TurtleClassic(path.Join(homeDir, "expo/turtle")),
+		expoConfig.ExpoSdk(path.Join(homeDir, "expo/expo")),
+		expoConfig.ExpoSdkGl(path.Join(homeDir, "expo/expo/packages/expo-gl")),
+		expoConfig.EASBuildCache(path.Join(homeDir, "expo/eas-build-cache")),
+		common.DotfilesWorkspace,
+		common.HomeWorkspace,
+	},
+	Actions: []env.LauncherAction{
+		expoLauncherConfig.EasCli,
+		expoLauncherConfig.ExpoCliRebuild,
+		expoLauncherConfig.ExpoDocs,
+		expoLauncherConfig.Submit,
+		expoLauncherConfig.Turtle,
+		expoLauncherConfig.Submit,
+		expoLauncherConfig.UniverseWWW,
+		expoLauncherConfig.UniverseWWWUnit,
+		expoLauncherConfig.UniverseWebsite,
+		expoLauncherConfig.UniverseWebsiteInternal,
+	},
+	Init: []env.InitAction{
+		{Args: []string{"google-chrome-stable", "--proxy-pac-url=http://localhost:2000/proxy.pac"}},
+		{Args: []string{"slack"}},
+		{Args: []string{"alacritty", "--class", "workspace2"}},
+		{Args: []string{"alacritty", "--class", "workspace6"}},
+	},
+	Backup: env.BackupConfig{
+		GpgKeyring: true,
+		Secrets: map[string]string{
+			path.Join(homeDir, ".secrets"): "secrets",
+			path.Join(homeDir, ".ssh"):     "ssh",
+		},
+		Data: map[string]string{
+			path.Join(homeDir, ".secrets"): "secrets",
+			path.Join(homeDir, ".ssh"):     "ssh",
+		},
+	},
+	CustomSetupAction: func(ctx env.Context) action.Object {
+		return action.List{
+			action.EnsureSymlink(ctx.FromEnvDir("gitconfig-goody"), ctx.FromHome(".gitconfig-goody")),
+		}
+	},
+}

@@ -1,0 +1,10 @@
+vendor
+*.swo
+*.swp
+bin/mycli
+bin/mycli-linux
+bin/mycli-darwin
+
+./secrets
+
+*.spl

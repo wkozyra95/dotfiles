@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+$HOME/.volta/tools/image/packages/vscode-langservers-extracted/bin/vscode-eslint-language-server $@

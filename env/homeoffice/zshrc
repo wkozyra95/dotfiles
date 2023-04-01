@@ -1,0 +1,23 @@
+export LOCAL_BIN="$HOME/.dotfiles/env/homeoffice/bin"
+export PATH="$HOME/.nix-profile/bin:$LOCAL_BIN:$PATH"
+
+# The next line updates PATH for the Google Cloud SDK.
+[ -f "$HOME/google-cloud-sdk/path.zsh.inc" ] && source "$HOME/google-cloud-sdk/path.zsh.inc"
+
+# The next line enables shell command completion for gcloud.
+[ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ] && source "$HOME/google-cloud-sdk/completion.zsh.inc"
+
+alias eas_dev=$HOME/expo/eas-cli/packages/eas-cli/bin/run
+alias eas_local=$HOME/.dotfiles/env/homeoffice/eas_local.sh
+
+[ -e /home/wojtek/.nix-profile/etc/profile.d/nix.sh ] && source $HOME/.nix-profile/etc/profile.d/nix.sh
+
+export DISABLE_NVM=1
+export VOLTA_HOME="$HOME/.volta"
+grep --silent "$VOLTA_HOME/bin" <<< $PATH || export PATH="$VOLTA_HOME/bin:$PATH"
+
+MYCLI_ZSH_SETUP_PATH=/home/wojtek/.cache/mycli/completion/zsh_setup && test -f $MYCLI_ZSH_SETUP_PATH && source $MYCLI_ZSH_SETUP_PATH;
+EAS_AC_ZSH_SETUP_PATH=/home/wojtek/.cache/eas-cli/autocomplete/zsh_setup && test -f $EAS_AC_ZSH_SETUP_PATH && source $EAS_AC_ZSH_SETUP_PATH;
+compdef $HOME/expo/eas-cli/bin/run='eas'
+compdef $HOME/.dotfiles/env/homeoffice/eas_local.sh='eas'
+

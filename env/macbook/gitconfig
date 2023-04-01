@@ -1,0 +1,23 @@
+[status]
+    submoduleSummary = true
+[pull]
+    rebase = true
+[merge]
+    conflictstyle = diff3
+[user]
+    email = wojciech.kozyra@swmansion.com
+    name = Wojciech Kozyra
+[push]
+    default = current
+[init]
+    defaultBranch = main
+[core]
+    excludesfile = /home/wojtek/.gitignore
+    editor = nvim
+[filter "lfs"]
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true
+[includeIf "gitdir:~/goody/"]
+    path = ./.gitconfig-goody
