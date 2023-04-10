@@ -103,6 +103,7 @@ func SetupEnvirionmentCoreAction(ctx context.Context) a.Object {
 		a.EnsureSymlink(ctx.FromHome(".dotfiles/configs/alacritty.yml"), ctx.FromHome(".alacritty.yml")),
 		a.EnsureSymlink(ctx.FromHome(".dotfiles/configs/zshrc"), ctx.FromHome(".zshrc")),
 		a.EnsureSymlink(ctx.FromHome(".dotfiles/configs/vimrc"), ctx.FromHome(".vimrc")),
+		a.EnsureSymlink(ctx.FromHome(".dotfiles/configs/ideavimrc"), ctx.FromHome(".ideavimrc")),
 		a.EnsureSymlink(ctx.FromHome(".dotfiles/configs/nvim"), ctx.FromHome(".config/nvim")),
 		a.EnsureSymlink(ctx.FromHome(".dotfiles/configs/gtk-3.0"), ctx.FromHome(".config/gtk-3.0")),
 		a.ShellCommand("mkdir", "-p", ctx.FromHome("Dropbox/notes")),

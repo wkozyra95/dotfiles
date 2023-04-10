@@ -1,0 +1,22 @@
+set scrolloff=5
+
+let mapleader = " "
+
+" Do incremental searching.
+set incsearch
+set relativenumber
+set number
+set clipboard+=unnamed
+
+" Don't use Ex mode, use Q for formatting.
+map Q gq
+
+map <C-p> <Action>(GotoFile)
+nmap gu <Action>(GotoNextError)
+nmap gi <Action>(GotoPreviousError)
+nmap <space>ar <Action>(GotoNextError)
+nmap <space>af <Action>(ReformatCode)
+nmap <space>ff <Action>(FindInPath)
+nmap gr <Action>(ShowUsages)
+
+" Find more examples here: https://jb.gg/share-ideavimrc
