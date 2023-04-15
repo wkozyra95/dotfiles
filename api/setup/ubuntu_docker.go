@@ -55,7 +55,7 @@ func SetupUbuntuInDocker(ctx context.Context, opts SetupEnvironmentOptions) erro
 				ctx.FromHome(".fzf"),
 			),
 		},
-		SetupEnvirionmentCoreAction(ctx),
+		SetupEnvironmentCoreAction(ctx),
 		nvim.NvimEnsureLazyNvimInstalled(ctx),
 		nvim.NvimInstallAction(ctx, "65046c830e14f8988d9c3b477187f6b871e45af2"),
 	}

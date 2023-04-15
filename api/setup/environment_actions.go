@@ -80,7 +80,7 @@ func SetupLspAction(ctx context.Context, opts SetupLspActionOpts) a.Object {
 	}
 }
 
-func SetupEnvirionmentCoreAction(ctx context.Context) a.Object {
+func SetupEnvironmentCoreAction(ctx context.Context) a.Object {
 	return a.List{
 		a.WithCondition{
 			If: a.Not(a.FuncCond(func() (bool, error) {
