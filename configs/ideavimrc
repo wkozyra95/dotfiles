@@ -12,6 +12,7 @@ set clipboard+=unnamed
 map Q gq
 
 map <C-p> <Action>(GotoFile)
+map <C-h> <Action>(QuickJavaDoc)
 nmap gu <Action>(GotoNextError)
 nmap gi <Action>(GotoPreviousError)
 nmap <space>ar <Action>(GotoNextError)

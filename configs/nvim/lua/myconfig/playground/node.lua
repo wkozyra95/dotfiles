@@ -12,7 +12,7 @@ local function start_playground(user_command_opts)
     local fargs = user_command_opts.fargs or {}
     local name = fargs[1]
     module.ensure_commands()
-    local playground_path = name and (path.cache() .. "/playground/" .. name) or
+    local playground_path = name and (path.cache() .. "/node/playground/" .. name) or
         ("/tmp/nvim_node_" .. vim.fn.localtime())
     _.rpc_run({name = "node:playground:create", path = playground_path})
     local buffers = vim.api.nvim_list_bufs()
@@ -71,7 +71,7 @@ local function playground_node_shell()
 end
 
 local function playground_complete()
-    local files = _.rpc_run({name = "directory:preview", path = path.cache() .. "/playground"})
+    local files = _.rpc_run({name = "directory:preview", path = path.cache() .. "/node/playground"})
     local names = {}
     for _, file in ipairs(files) do
         table.insert(names, file.name)

@@ -26,9 +26,10 @@ func DockerPlaygroundCreate(playgroundPath string, image string) error {
 func DockerPlaygroundShell(playgroundPath string) error {
 	return api.AlacrittyCall(
 		api.AlacrittyConfig{
-			Command: "zsh",
-			Args:    []string{"-c", "docker build -t test . && docker run -it test"},
-			Cwd:     playgroundPath,
+			Command:     "zsh",
+			Args:        []string{"-c", "docker build -t test . && docker run -it test"},
+			Cwd:         playgroundPath,
+			ShouldRetry: true,
 		},
 	)
 }

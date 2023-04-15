@@ -152,13 +152,13 @@ func NodePlaygroundDelete(playgroundPath string) error {
 
 func NodePlaygroundNodeShell(playgroundPath string) error {
 	return api.AlacrittyCall(
-		api.AlacrittyConfig{Command: "./node_modules/.bin/ts-node", Cwd: playgroundPath},
+		api.AlacrittyConfig{Command: "./node_modules/.bin/ts-node", Cwd: playgroundPath, ShouldRetry: true},
 	)
 }
 
 func NodePlaygroundZshShell(playgroundPath string) error {
 	return api.AlacrittyCall(
-		api.AlacrittyConfig{Command: "zsh", Cwd: playgroundPath},
+		api.AlacrittyConfig{Command: "zsh", Cwd: playgroundPath, ShouldRetry: false},
 	)
 }
 

@@ -12,7 +12,7 @@ local function start_playground(user_command_opts)
     local fargs = user_command_opts.fargs or {}
     local image = fargs[1]
     module.ensure_commands()
-    local playground_path = image and (path.cache() .. "/playground/" .. image) or
+    local playground_path = image and (path.cache() .. "/docker/playground/" .. image) or
         ("/tmp/nvim_docker_" .. vim.fn.localtime())
     _.rpc_run({name = "docker:playground:create", path = playground_path, image = image or "ubuntu"})
     local buffers = vim.api.nvim_list_bufs()
@@ -49,7 +49,7 @@ local function playground_shell()
 end
 
 local function playground_complete()
-    local files = _.rpc_run({name = "directory:preview", path = path.cache() .. "/playground"})
+    local files = _.rpc_run({name = "directory:preview", path = path.cache() .. "/docker/playground"})
     local names = {}
     for _, file in ipairs(files) do
         table.insert(names, file.name)

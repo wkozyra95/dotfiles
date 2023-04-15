@@ -20,6 +20,9 @@ type FileInfo struct {
 
 func GetDirectoryPreview(directory string, opts DirectoryPreviewOptions) ([]FileInfo, error) {
 	results := make([]FileInfo, 0, opts.MaxElements)
+	if err := os.MkdirAll(directory, 0777); err != nil {
+		return nil, err
+	}
 	dirContent, readDirErr := os.ReadDir(directory)
 	if readDirErr != nil {
 		return nil, readDirErr

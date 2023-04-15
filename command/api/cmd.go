@@ -13,6 +13,7 @@ import (
 	"github.com/wkozyra95/dotfiles/api/helper"
 	"github.com/wkozyra95/dotfiles/api/language"
 	"github.com/wkozyra95/dotfiles/api/setup/nvim"
+	"github.com/wkozyra95/dotfiles/api/sway"
 	"github.com/wkozyra95/dotfiles/api/tool"
 	"github.com/wkozyra95/dotfiles/logger"
 )
@@ -129,6 +130,15 @@ var endpoints = map[string]endpoint{
 			return map[string]string{}
 		},
 	},
+	"terminal:new": {
+		name: "terminal:new",
+		handler: func(ctx context.Context, o object) interface{} {
+			if err := sway.OpenTerminal(ctx); err != nil {
+				panic(err)
+			}
+			return map[string]string{}
+		},
+	},
 }
 
 func getStringField(o object, field string) string {
@@ -145,27 +155,36 @@ func getStringField(o object, field string) string {
 
 // RegisterCmds ...
 func RegisterCmds(rootCmd *cobra.Command) {
+	simple := false
 	apiCmd := &cobra.Command{
 		Use:   "api",
 		Short: "mycli api",
 		Long:  "api used by other tools, all commands return json to stdout",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			decodedInput, decodeErr := base64.StdEncoding.DecodeString(args[0])
-			if decodeErr != nil {
-				panic(decodeErr)
+			var input map[string]any
+			var inputName string
+			if simple {
+				inputName = args[0]
+			} else {
+				decodedInput, decodeErr := base64.StdEncoding.DecodeString(args[0])
+				if decodeErr != nil {
+					panic(decodeErr)
+				}
+				input = map[string]interface{}{}
+				if err := json.Unmarshal(decodedInput, &input); err != nil {
+					panic(err)
+				}
+				if input == nil || input["name"] == nil {
+					panic(fmt.Errorf("missing endpoint name"))
+				}
+				name, inputNameIsString := (input["name"]).(string)
+				if !inputNameIsString {
+					panic(fmt.Errorf("\"name\" has to be a string"))
+				}
+				inputName = name
 			}
-			input := map[string]interface{}{}
-			if err := json.Unmarshal(decodedInput, &input); err != nil {
-				panic(err)
-			}
-			if input == nil || input["name"] == nil {
-				panic(fmt.Errorf("missing endpoint name"))
-			}
-			inputName, inputNameIsString := (input["name"]).(string)
-			if !inputNameIsString {
-				panic(fmt.Errorf("\"name\" has to be a string"))
-			}
+
 			endpoint, endpointExists := endpoints[inputName]
 			if !endpointExists {
 				panic(fmt.Errorf("endpoint %s does not exists", inputName))
@@ -179,6 +198,9 @@ func RegisterCmds(rootCmd *cobra.Command) {
 			fmt.Printf("%s\n", string(serialized))
 		},
 	}
-
+	apiCmd.PersistentFlags().BoolVar(
+		&simple, "simple", false,
+		"simple api call (api argument is just a name and it's not base64 encoded)",
+	)
 	rootCmd.AddCommand(apiCmd)
 }

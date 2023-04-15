@@ -9,24 +9,32 @@ import (
 )
 
 type AlacrittyConfig struct {
-	Command string
-	Args    []string
-	Cwd     string
+	Command     string
+	Args        []string
+	Cwd         string
+	ShouldRetry bool
+	Async       bool
 }
 
 func AlacrittyCall(params AlacrittyConfig) error {
 	config := map[string]interface{}{
-		"name":    "launch",
-		"command": params.Command,
-		"args":    params.Args,
-		"cwd":     params.Cwd,
+		"name":         "launch",
+		"command":      params.Command,
+		"args":         params.Args,
+		"cwd":          params.Cwd,
+		"should_retry": params.ShouldRetry,
 	}
 	rawJson, jsonMarshalErr := json.Marshal(config)
 	if jsonMarshalErr != nil {
 		return jsonMarshalErr
 	}
 	baseEncodedString := base64.StdEncoding.EncodeToString(rawJson)
-	return exec.Command().Run("alacritty", "-e", "mycli", "api", baseEncodedString)
+	if params.Async {
+		_, err := exec.Command().Start("alacritty", "-e", "mycli", "api", baseEncodedString)
+		return err
+	} else {
+		return exec.Command().Run("alacritty", "-e", "mycli", "api", baseEncodedString)
+	}
 }
 
 func AlacrittyRun(params map[string]interface{}) error {
@@ -40,6 +48,9 @@ func AlacrittyRun(params map[string]interface{}) error {
 	for {
 		if err := exec.Command().WithStdio().WithCwd(params["cwd"].(string)).Run(params["command"].(string), args...); err != nil {
 			fmt.Printf(err.Error())
+		}
+		if shouldRetry, isBool := (params["should_retry"]).(bool); isBool && !shouldRetry {
+			return nil
 		}
 		fmt.Println("Press the Enter Key to continue")
 		fmt.Scanln()

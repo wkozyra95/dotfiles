@@ -42,7 +42,7 @@ input * {
 #
 # Basics:
 #
-    bindsym $mod+Return exec $term
+    bindsym $mod+Return exec mycli api --simple terminal:new
     bindsym $mod+Shift+c kill
     bindsym $mod+Shift+b exec swaylock --config ~/.dotfiles/configs/sway/swaylock
     bindsym $mod+Ctrl+q exec swaymsg exit

@@ -76,6 +76,7 @@ local mapping = {
         ["n>"] = {"<cmd>tab split<cr>"},
         ["p>"] = {actions.actions.find_files.fn},
         ["s>"] = {
+            {"viw", "n"},
             ref(tree, "selection_init"),
             ref(tree, "selection_inc"),            -- active after selection init
         },
