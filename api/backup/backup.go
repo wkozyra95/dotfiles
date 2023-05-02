@@ -3,12 +3,15 @@ package backup
 import (
 	"errors"
 	"fmt"
+	"os"
+	"path"
 
 	"github.com/wkozyra95/dotfiles/action"
 	"github.com/wkozyra95/dotfiles/api/context"
 	"github.com/wkozyra95/dotfiles/logger"
 	"github.com/wkozyra95/dotfiles/tool/drive"
 	"github.com/wkozyra95/dotfiles/utils/exec"
+	"github.com/wkozyra95/dotfiles/utils/file"
 	"github.com/wkozyra95/dotfiles/utils/prompt"
 )
 
@@ -269,4 +272,22 @@ func Connect(ctx context.Context) error {
 		log.Infof(connectionErr.Error())
 	}
 	return nil
+}
+
+func BackupZSHHistory(ctx context.Context) error {
+	historyFilePath := path.Join(ctx.Homedir, ".zsh_history")
+	historyBackupFilePath := path.Join(ctx.Homedir, ".zsh_history.backup")
+	historyFileInfo, statHistoryErr := os.Stat(historyFilePath)
+	if statHistoryErr != nil {
+		return statHistoryErr
+	}
+	backupFileInfo, statBackupErr := os.Stat(historyBackupFilePath)
+	if statBackupErr != nil && !errors.Is(statBackupErr, os.ErrNotExist) {
+		return statBackupErr
+	}
+	if statBackupErr == nil && historyFileInfo.Size() < backupFileInfo.Size() {
+		// TODO: send desktop notification when this happens
+		return nil
+	}
+	return file.Copy(historyFilePath, historyBackupFilePath)
 }

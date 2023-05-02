@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/wkozyra95/dotfiles/action"
 	"github.com/wkozyra95/dotfiles/api"
+	"github.com/wkozyra95/dotfiles/api/backup"
 	"github.com/wkozyra95/dotfiles/api/context"
 	"github.com/wkozyra95/dotfiles/api/helper"
 	"github.com/wkozyra95/dotfiles/api/language"
@@ -134,6 +135,15 @@ var endpoints = map[string]endpoint{
 		name: "terminal:new",
 		handler: func(ctx context.Context, o object) interface{} {
 			if err := sway.OpenTerminal(ctx); err != nil {
+				panic(err)
+			}
+			return map[string]string{}
+		},
+	},
+	"backup:zsh_history": {
+		name: "terminal:new",
+		handler: func(ctx context.Context, o object) interface{} {
+			if err := backup.BackupZSHHistory(ctx); err != nil {
 				panic(err)
 			}
 			return map[string]string{}

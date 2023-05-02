@@ -147,6 +147,7 @@ var Config = env.EnvironmentConfig{
 	Init: []env.InitAction{
 		{Args: []string{"alacritty", "--class", "workspace2"}},
 		{Args: []string{"firefox"}},
+		{Args: []string{"mycli", "api", "--simple", "backup:zsh_history"}},
 	},
 	Backup: env.BackupConfig{
 		GpgKeyring: true,

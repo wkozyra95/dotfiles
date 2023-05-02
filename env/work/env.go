@@ -47,6 +47,7 @@ var Config = env.EnvironmentConfig{
 		{Args: []string{"slack"}},
 		{Args: []string{"alacritty", "--class", "workspace2"}},
 		{Args: []string{"alacritty", "--class", "workspace6"}},
+		{Args: []string{"mycli", "api", "--simple", "backup:zsh_history"}},
 	},
 	Backup: env.BackupConfig{
 		GpgKeyring: true,
