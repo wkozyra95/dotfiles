@@ -9,7 +9,7 @@ setopt INC_APPEND_HISTORY
 setopt SHARE_HISTORY
 
 plugins=(
-    git common-aliases cp docker golang vi-mode vim-interaction #kubectl
+    git common-aliases cp docker golang vi-mode vim-interaction
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -32,7 +32,8 @@ export ANDROID_SDK_ROOT="$HOME/Android/Sdk"
 export ANDROID_HOME="$HOME/Android/Sdk"
 export ANDROID_SDK="$HOME/Android/Sdk"
 
-export DISABLE_UNTRACKED_FILES_DIRTY=true # improve performance on large repos
+# Uncomment when working with huge repositories
+# export DISABLE_UNTRACKED_FILES_DIRTY=true # improve performance on large repos
 
 alias gti=git
 alias g=git

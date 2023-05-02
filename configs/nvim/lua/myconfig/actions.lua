@@ -28,7 +28,8 @@ local actions = {
     restart = {name = "restart", fn = lsp.restart},
     find_files = {
         name = "find files",
-        fn = function() tel_builtin.find_files({no_ignore = tel.state.show_ignored, hidden = true}) end
+        fn = function() tel_builtin.find_files({no_ignore = tel.state.show_ignored, hidden = true,
+                follow = true}) end
     },
     grep_files = {
         name = "grep all",
