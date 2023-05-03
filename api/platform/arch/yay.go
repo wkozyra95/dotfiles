@@ -66,7 +66,7 @@ func (y Yay) Desktop() api.Package {
 	return yayPackage{
 		"gnu-free-fonts",
 		"adobe-source-code-pro-fonts",
-		"ttf-nerd-fonts-symbols-2048-em-mono",
+		"ttf-nerd-fonts-symbols-mono",
 
 		"pipewire",
 		"pipewire-pulse",
