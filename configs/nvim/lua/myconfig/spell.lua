@@ -5,7 +5,7 @@ local function spell_file_rebuild()
     for _, spell_file_name in pairs(vim.fn.readdir(spell_dir)) do
         if (spell_file_name == string.gsub(spell_file_name, ".spl$", "")) then
             local spell_file_path = spell_dir .. "/" .. spell_file_name
-            vim.cmd.mkspell(spell_file_path)
+            vim.cmd.mkspell {args = {spell_file_path}, bang = true}
         end
     end
 end
