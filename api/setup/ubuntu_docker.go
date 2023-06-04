@@ -1,7 +1,6 @@
 package setup
 
 import (
-	"fmt"
 	"os"
 
 	a "github.com/wkozyra95/dotfiles/action"
@@ -37,11 +36,11 @@ func SetupUbuntuInDocker(ctx context.Context, opts SetupEnvironmentOptions) erro
 		SetupLanguageToolchainAction(ctx, SetupLanguageToolchainActionOpts(opts)),
 		SetupLspAction(ctx, SetupLspActionOpts(opts)),
 		a.WithCondition{
-			If: a.And(a.Const(os.Getenv("GITHUB_TOKEN") != ""), a.Not(a.PathExists(ctx.FromHome(".dotfiles")))),
+			If: a.Not(a.PathExists(ctx.FromHome(".dotfiles"))),
 			Then: a.ShellCommand(
 				"git",
 				"clone",
-				fmt.Sprintf("https://wkozyra95:%s@github.com/wkozyra95/dotfiles.git", os.Getenv("GITHUB_TOKEN")),
+				"https://github.com/wkozyra95/dotfiles.git",
 				ctx.FromHome(".dotfiles"),
 			),
 		},
@@ -57,7 +56,7 @@ func SetupUbuntuInDocker(ctx context.Context, opts SetupEnvironmentOptions) erro
 		},
 		SetupEnvironmentCoreAction(ctx),
 		nvim.NvimEnsureLazyNvimInstalled(ctx),
-		nvim.NvimInstallAction(ctx, "65046c830e14f8988d9c3b477187f6b871e45af2"),
+		nvim.NvimInstallAction(ctx, "4e5061dba765df2a74ac4a8182f6e7fe21da125d"),
 	}
 	return a.Run(cmds)
 }

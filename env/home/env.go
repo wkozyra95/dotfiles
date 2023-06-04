@@ -163,6 +163,20 @@ var Config = env.EnvironmentConfig{
 			path.Join(homeDir, "notes"):        "notes",
 		},
 	},
+	DockerEnvsSpec: []env.DockerEnvSpec{
+		{
+			Name:           "ubuntu",
+			ImageName:      "mycli-ubuntu-image",
+			DockerfilePath: path.Join(homeDir, ".dotfiles/configs/dockerfiles/ubuntu.Dockerfile"),
+			ContainerName:  "ubuntu",
+		},
+		{
+			Name:           "expo-sdk",
+			ImageName:      "mycli-expo-sdk-image",
+			DockerfilePath: path.Join(homeDir, ".dotfiles/configs/dockerfiles/expo-sdk.Dockerfile"),
+			ContainerName:  "expo-sdk",
+		},
+	},
 	CustomSetupAction: func(ctx env.Context) action.Object {
 		pkgInstaller := arch.Yay{}
 		return action.List{

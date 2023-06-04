@@ -26,6 +26,7 @@ func main() {
 	command.RegisterBtrfsCmds(rootCmd)
 	command.RegisterGitCmds(rootCmd)
 	command.RegisterCompletionCmds(rootCmd)
+	command.RegisterDockerCmds(rootCmd)
 
 	rootCmd.Execute()
 }

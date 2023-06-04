@@ -72,12 +72,20 @@ type InitAction struct {
 	Cwd  string   `json:"cwd"`
 }
 
+type DockerEnvSpec struct {
+	Name           string `json:"name"`
+	ImageName      string `json:"image-name"`
+	DockerfilePath string `json:"dockerfile-path"`
+	ContainerName  string `json:"container-name-prefix"`
+}
+
 type EnvironmentConfig struct {
 	Workspaces        []Workspace
 	Actions           []LauncherAction
 	Backup            BackupConfig
 	Init              []InitAction
 	CustomSetupAction func(Context) action.Object
+	DockerEnvsSpec    []DockerEnvSpec
 }
 
 type LazyValue[T any] (func() T)

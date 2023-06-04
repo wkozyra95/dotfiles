@@ -37,7 +37,7 @@ local ensure_installed = {
     "graphql",
     "hcl",
     "heex",
-    "help",
+    "vimdoc",
     "hjson",
     "html",
     -- "java",

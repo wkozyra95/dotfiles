@@ -1,9 +1,7 @@
 package setup
 
 import (
-	"os"
 	"path"
-	"strings"
 
 	a "github.com/wkozyra95/dotfiles/action"
 	"github.com/wkozyra95/dotfiles/api/context"
@@ -82,12 +80,6 @@ func SetupLspAction(ctx context.Context, opts SetupLspActionOpts) a.Object {
 
 func SetupEnvironmentCoreAction(ctx context.Context) a.Object {
 	return a.List{
-		a.WithCondition{
-			If: a.Not(a.FuncCond(func() (bool, error) {
-				return strings.Contains(os.Getenv("SHELL"), "zsh"), nil
-			})),
-			Then: a.ShellCommand("chsh", "-s", "/usr/bin/zsh"),
-		},
 		a.WithCondition{
 			If: a.Not(
 				a.PathExists(path.Join(ctx.Homedir, ".oh-my-zsh")),

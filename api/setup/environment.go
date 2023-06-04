@@ -1,6 +1,9 @@
 package setup
 
 import (
+	"os"
+	"strings"
+
 	a "github.com/wkozyra95/dotfiles/action"
 	"github.com/wkozyra95/dotfiles/api"
 	"github.com/wkozyra95/dotfiles/api/context"
@@ -23,6 +26,12 @@ func SetupEnvironment(ctx context.Context, opts SetupEnvironmentOptions) error {
 		},
 		SetupLanguageToolchainAction(ctx, SetupLanguageToolchainActionOpts(opts)),
 		SetupLspAction(ctx, SetupLspActionOpts(opts)),
+		a.WithCondition{
+			If: a.Not(a.FuncCond(func() (bool, error) {
+				return strings.Contains(os.Getenv("SHELL"), "zsh"), nil
+			})),
+			Then: a.ShellCommand("sudo", "chsh", "-s", "/usr/bin/zsh"),
+		},
 		SetupEnvironmentCoreAction(ctx),
 		nvim.NvimEnsureLazyNvimInstalled(ctx),
 		nvim.NvimInstallAction(ctx, "4e5061dba765df2a74ac4a8182f6e7fe21da125d"),

@@ -21,3 +21,10 @@ func Map[T any, P any](list []T, mapFn func(T) P) []P {
 func Identity[T any](t T) T {
 	return t
 }
+
+func Must[T any](obj T, err error) T {
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
