@@ -28,6 +28,10 @@ export PATH="$HOME/Android/Sdk/tools:$PATH"
 export PATH="$HOME/Android/Sdk/cmdline-tools/latest/bin:$PATH"
 
 export NVM_DIR="$HOME/.nvm"
+export VOLTA_HOME="$HOME/.volta"
+
+export PATH="$VOLTA_HOME/bin:$PATH"
+
 export ANDROID_SDK_ROOT="$HOME/Android/Sdk"
 export ANDROID_HOME="$HOME/Android/Sdk"
 export ANDROID_SDK="$HOME/Android/Sdk"
@@ -39,11 +43,15 @@ alias gti=git
 alias g=git
 alias ggpush='git push --set-upstream origin $(git_current_branch)'
 
-[ -s ~/.zshrc.secrets ] && source ~/.zshrc.secrets
-[ -s ~/.zshrc.local ] && source ~/.zshrc.local
+function try_source() {
+    test -s $1 && source $1
+}
 
-if [ ! -z "$CURRENT_ENV" ] && [ -s "$HOME/.dotfiles/env/$CURRENT_ENV/zshrc" ] ; then
-    source ~/.dotfiles/env/$CURRENT_ENV/zshrc
+try_source $HOME/.zshrc.secrets
+try_source $HOME/.zshrc.local
+
+if [ ! -z "$CURRENT_ENV" ]; then
+    try_source $HOME/.dotfiles/env/$CURRENT_ENV/zshrc
 fi
 
 [ -x "$(command -v direnv)" ] && eval "$(direnv hook zsh)"
@@ -60,14 +68,15 @@ elif [ -s $HOME/.fzf/shell/key-bindings.zsh ]; then
     source "$HOME/.fzf/shell/key-bindings.zsh"
 fi
 
-[ -z "$DISABLE_NVM" ] && [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -z "$DISABLE_NVM" ] && [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+if [ -z "$DISABLE_NVM"]; then
+    try_source $NVM_DIR/nvm.sh
+    try_source $NVM_DIR/bash_completion
+fi
 
-if [[ -f "$HOME/.rvm/scripts/rvm" ]]; then
+if [[ -s "$HOME/.rvm/scripts/rvm" ]]; then
     export PATH="$HOME/.rvm/bin:$PATH"
     source $HOME/.rvm/scripts/rvm
 fi
 
-export VOLTA_HOME="$HOME/.volta"
-export PATH="$VOLTA_HOME/bin:$PATH"
-
+try_source $HOME/.cache/mycli/completion/zsh_setup
+try_source $HOME/.cache/eas-cli/autocomplete/zsh_setup

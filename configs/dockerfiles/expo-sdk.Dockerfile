@@ -70,7 +70,6 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v$NVM_VERSION/install.
   && nvm install $NODE_VERSION \
   && npm install -g yarn@$YARN_VERSION
 
-ENV CURRENT_ENV=docker
 RUN curl -L -o mycli https://github.com/wkozyra95/dotfiles/releases/download/v0.0.0/mycli-linux && \
   chmod +x mycli && \
   ./mycli tool setup:environment:docker

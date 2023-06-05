@@ -115,7 +115,7 @@ func registerSetupCommands(rootCmd *cobra.Command) {
 		Use:   "setup:environment:docker",
 		Short: "command that should be run inside dockerfile that provisions the system",
 		Run: func(cmd *cobra.Command, args []string) {
-			ctx := context.CreateContext()
+			ctx := context.CreateContextForEnvironment("docker")
 			if err := setup.SetupUbuntuInDocker(ctx, setup.SetupEnvironmentOptions{Reinstall: true}); err != nil {
 				log.Errorln(err.Error())
 			}

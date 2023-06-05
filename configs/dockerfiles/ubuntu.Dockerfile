@@ -4,7 +4,6 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV USERNAME=wojtek
-ENV CURRENT_ENV=docker
 
 RUN dpkg --add-architecture i386 \
   && apt-get update \

@@ -98,6 +98,7 @@ func SetupEnvironmentCoreAction(ctx context.Context) a.Object {
 		a.EnsureSymlink(ctx.FromHome(".dotfiles/configs/ideavimrc"), ctx.FromHome(".ideavimrc")),
 		a.EnsureSymlink(ctx.FromHome(".dotfiles/configs/nvim"), ctx.FromHome(".config/nvim")),
 		a.EnsureSymlink(ctx.FromHome(".dotfiles/configs/gtk-3.0"), ctx.FromHome(".config/gtk-3.0")),
+		a.EnsureSymlink(ctx.FromHome(".dotfiles/configs/docker"), ctx.FromHome(".docker")),
 		a.ShellCommand("mkdir", "-p", ctx.FromHome("Dropbox/notes")),
 		a.EnsureSymlink(ctx.FromHome("Dropbox/notes"), ctx.FromHome("notes")),
 		a.EnsureSymlink(ctx.FromEnvDir("gitconfig"), ctx.FromHome(".gitconfig")),

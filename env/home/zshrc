@@ -1,2 +1,0 @@
-MYCLI_ZSH_SETUP_PATH=/home/wojtek/.cache/mycli/completion/zsh_setup && test -f $MYCLI_ZSH_SETUP_PATH && source $MYCLI_ZSH_SETUP_PATH;
-EAS_AC_ZSH_SETUP_PATH=/home/wojtek/.cache/eas-cli/autocomplete/zsh_setup && test -f $EAS_AC_ZSH_SETUP_PATH && source $EAS_AC_ZSH_SETUP_PATH;

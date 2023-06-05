@@ -7,6 +7,7 @@ import (
 	"github.com/wkozyra95/dotfiles/api"
 	"github.com/wkozyra95/dotfiles/api/context"
 	"github.com/wkozyra95/dotfiles/api/setup/nvim"
+	"github.com/wkozyra95/dotfiles/utils/exec"
 )
 
 func SetupUbuntuInDocker(ctx context.Context, opts SetupEnvironmentOptions) error {
@@ -37,12 +38,15 @@ func SetupUbuntuInDocker(ctx context.Context, opts SetupEnvironmentOptions) erro
 		SetupLspAction(ctx, SetupLspActionOpts(opts)),
 		a.WithCondition{
 			If: a.Not(a.PathExists(ctx.FromHome(".dotfiles"))),
-			Then: a.ShellCommand(
-				"git",
-				"clone",
-				"https://github.com/wkozyra95/dotfiles.git",
-				ctx.FromHome(".dotfiles"),
-			),
+			Then: a.List{
+				a.ShellCommand(
+					"git",
+					"clone",
+					"https://github.com/wkozyra95/dotfiles.git",
+					ctx.FromHome(".dotfiles"),
+				),
+				a.Execute(exec.Command().WithCwd(ctx.FromHome(".dotfiles")), "make"),
+			},
 		},
 		a.WithCondition{
 			If: a.Not(a.PathExists(ctx.FromHome(".fzf"))),
