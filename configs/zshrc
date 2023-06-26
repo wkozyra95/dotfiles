@@ -68,7 +68,7 @@ elif [ -s $HOME/.fzf/shell/key-bindings.zsh ]; then
     source "$HOME/.fzf/shell/key-bindings.zsh"
 fi
 
-if [ -z "$DISABLE_NVM"]; then
+if [ -z "$DISABLE_NVM" ]; then
     try_source $NVM_DIR/nvm.sh
     try_source $NVM_DIR/bash_completion
 fi

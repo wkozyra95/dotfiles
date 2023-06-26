@@ -39,7 +39,7 @@ func ElixirLspInstallAction(ctx context.Context, reinstall bool) action.Object {
 		installer.DownloadInstallOptions{
 			Path:        ctx.FromHome(".cache/nvim/myconfig/elixirls"),
 			ArchivePath: ctx.FromHome(".cache/nvim/myconfig/elixirls.zip"),
-			Url:         "https://github.com/elixir-lsp/elixir-ls/releases/latest/download/elixir-ls.zip",
+			Url:         "https://github.com/elixir-lsp/elixir-ls/releases/download/v0.15.0/elixir-ls-v0.15.0.zip",
 			Reinstall:   reinstall,
 		},
 		action.ShellCommand("chmod", "+x", ctx.FromHome(".cache/nvim/myconfig/elixirls/language_server.sh")),
