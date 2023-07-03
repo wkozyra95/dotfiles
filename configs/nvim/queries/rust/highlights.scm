@@ -1,0 +1,4 @@
+;; extends
+; highlights
+
+((_) @spell )

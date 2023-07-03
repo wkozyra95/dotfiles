@@ -16,6 +16,10 @@ local handlers = {
     scss = format.preset_2,
     sh = format.preset_2,
     cpp = format.preset_2,
+    rust = function()
+        format.preset(4)
+        spell.preset("rust")
+    end,
     go = function()
         format.preset(4)
         spell.preset("go")
