@@ -96,9 +96,9 @@ local function lsp_status()
     if warnings and warnings > 0 then
         table.insert(status, icons.indicator_warnings .. " " .. warnings)
     end
-    local progress = vim.lsp.util.get_progress_messages()
-    if progress[1] then
-        return progress[1].title .. " " .. icons.indicator_load .. " "
+    local progress = vim.lsp.status()
+    if progress ~= "" then
+        return progress .. " " .. icons.indicator_load .. " "
     end
     return #status > 0 and table.concat(status, " ") or icons.indicator_ok .. " "
 end
