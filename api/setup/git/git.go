@@ -25,7 +25,9 @@ func RepoInstallAction(ctx context.Context, options RepoInstallOptions, installA
 		return exec.Command().WithStdio().WithCwd(path)
 	}
 	installPrefix := ctx.FromHome(".local")
-	hashFile := path.Join(installPrefix, fmt.Sprintf(".%s.hash", options.Name))
+	hashFileName := fmt.Sprintf(".%s.hash", options.Name)
+	shortPath := fmt.Sprintf("~/.local/%s", hashFileName)
+	hashFile := path.Join(installPrefix, hashFileName)
 	return action.List{
 		action.WithCondition{
 			If: action.Not(action.PathExists(options.Path)),
@@ -35,16 +37,18 @@ func RepoInstallAction(ctx context.Context, options RepoInstallOptions, installA
 			},
 		},
 		action.WithCondition{
-			If: action.FuncCond(func() (bool, error) {
-				if !file.Exists(hashFile) {
-					return true, nil
-				}
-				file, readErr := os.ReadFile(hashFile)
-				if readErr != nil {
-					return false, readErr
-				}
-				return strings.Trim(string(file), "\n ") != options.CommitHash, nil
-			}),
+			If: action.FuncCond(
+				fmt.Sprintf("content of %s is matching %s", shortPath, options.CommitHash),
+				func() (bool, error) {
+					if !file.Exists(hashFile) {
+						return true, nil
+					}
+					file, readErr := os.ReadFile(hashFile)
+					if readErr != nil {
+						return false, readErr
+					}
+					return strings.Trim(string(file), "\n ") != options.CommitHash, nil
+				}),
 			Then: action.List{
 				action.ShellCommand("mkdir", "-p", installPrefix),
 				action.Execute(withCwd(options.Path), "git", "fetch", "origin"),
@@ -61,7 +65,7 @@ func RepoInstallAction(ctx context.Context, options RepoInstallOptions, installA
 					"-xfd",
 				),
 				installAction,
-				action.Func(func() error {
+				action.Func(fmt.Sprintf("Update %s", shortPath), func() error {
 					var stderr, stdout bytes.Buffer
 					err := exec.Command().
 						WithCwd(options.Path).

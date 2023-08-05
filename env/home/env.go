@@ -188,7 +188,7 @@ var Config = env.EnvironmentConfig{
 				}),
 			}),
 			action.WithCondition{
-				If: action.FuncCond(func() (bool, error) { return os.Getenv("NVM_DIR") == "", nil }),
+				If: action.FuncCond("NVM_DIR not set", func() (bool, error) { return os.Getenv("NVM_DIR") == "", nil }),
 				Then: action.List{
 					action.ShellCommand(
 						"bash",
@@ -199,7 +199,7 @@ var Config = env.EnvironmentConfig{
 				},
 			},
 			action.WithCondition{
-				If: action.FuncCond(func() (bool, error) {
+				If: action.FuncCond("40_no-sudo-timeout does not exist", func() (bool, error) {
 					err := exec.Command().
 						WithBufout(&bytes.Buffer{}, &bytes.Buffer{}).
 						Run("sudo", "ls", "/etc/sudoers.d/40_no-sudo-timeout")

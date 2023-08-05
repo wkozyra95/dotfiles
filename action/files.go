@@ -10,127 +10,74 @@ import (
 	"github.com/wkozyra95/dotfiles/utils/http"
 )
 
-type ensureSymlinkArgs struct {
-	source      string
-	destination string
-}
-
-var ensureSymlink = SimpleActionBuilder[ensureSymlinkArgs]{
-	CreateRun: func(args ensureSymlinkArgs) func() error {
-		return func() error {
-			return file.EnsureSymlink(args.source, args.destination)
-		}
-	},
-	String: func(args ensureSymlinkArgs) string {
-		return fmt.Sprintf("Symlink(%s -> %s)", args.destination, args.source)
-	},
-}.Init()
-
 func EnsureSymlink(source string, destination string) Object {
-	return ensureSymlink(ensureSymlinkArgs{source: source, destination: destination})
+	return SimpleAction{
+		Run: func() error {
+			return file.EnsureSymlink(source, destination)
+		},
+		Label: fmt.Sprintf("Symlink(%s -> %s)", destination, source),
+	}
 }
-
-type ensureTextArgs struct {
-	Path   string
-	Text   string
-	Regexp *regexp.Regexp
-}
-
-var ensureText = SimpleActionBuilder[ensureTextArgs]{
-	CreateRun: func(args ensureTextArgs) func() error {
-		return func() error {
-			return file.EnsureTextWithRegexp(args.Path, args.Text, args.Regexp)
-		}
-	},
-	String: func(args ensureTextArgs) string {
-		text := strings.Split(args.Text, "\n")
-		if len(text) > 3 {
-			text = text[0:2]
-		}
-		joined := strings.Join(text, "\n# ")
-		return fmt.Sprintf("ensure text %s\n# %s", args.Path, joined)
-	},
-}.Init()
 
 func EnsureText(path string, text string, rg *regexp.Regexp) Object {
-	return ensureText(ensureTextArgs{
-		Path:   path,
-		Text:   text,
-		Regexp: rg,
-	})
-}
+	split := strings.Split(text, "\n")
+	if len(split) > 2 {
+		split = split[0:2]
+	}
+	joined := strings.Join(split, "\n# ")
+	label := fmt.Sprintf("ensure text %s\n# %s", path, joined)
 
-type commandActionArgs struct {
-	args []string
-	cmd  *exec.Cmd
+	return SimpleAction{
+		Run: func() error {
+			return file.EnsureTextWithRegexp(path, text, rg)
+		},
+		Label: label,
+	}
 }
-
-var commandAction = SimpleActionBuilder[commandActionArgs]{
-	CreateRun: func(c commandActionArgs) func() error {
-		return func() error {
-			return c.cmd.Run(c.args[0], c.args[1:]...)
-		}
-	},
-	String: func(c commandActionArgs) string {
-		return strings.Join(c.args, " ")
-	},
-}.Init()
 
 func ShellCommand(args ...string) Object {
-	return commandAction(commandActionArgs{
-		args: append([]string{}, args...),
-		cmd:  exec.Command().WithStdio(),
-	})
+	label := fmt.Sprintf("Shell(%s)", strings.Join(args, " "))
+	return SimpleAction{
+		Run: func() error {
+			return exec.Command().WithStdio().Run(args[0], args[1:]...)
+		},
+		Label: label,
+	}
 }
 
 func Execute(cmd *exec.Cmd, args ...string) Object {
-	return commandAction(commandActionArgs{
-		args: append([]string{}, args...),
-		cmd:  cmd,
-	})
+	label := fmt.Sprintf("Shell(%s)", strings.Join(args, " "))
+	return SimpleAction{
+		Run: func() error {
+			return cmd.WithStdio().Run(args[0], args[1:]...)
+		},
+		Label: label,
+	}
 }
 
-var PathExists = SimpleConditionBuilder[string]{
-	CreateCondition: func(arg string) func() (bool, error) {
-		return func() (bool, error) {
-			return file.Exists(arg), nil
-		}
-	},
-	String: func(s string) string {
-		return fmt.Sprintf("PathExists(%s)", s)
-	},
-}.Init()
-
-var CommandExists = SimpleConditionBuilder[string]{
-	CreateCondition: func(arg string) func() (bool, error) {
-		return func() (bool, error) {
-			return exec.CommandExists(arg), nil
-		}
-	},
-	String: func(s string) string {
-		return fmt.Sprintf("CommandExists(%s)", s)
-	},
-}.Init()
-
-type downloadFileArgs struct {
-	path string
-	url  string
+func PathExists(path string) Condition {
+	return SimpleCondition{
+		Check: func() (bool, error) {
+			return file.Exists(path), nil
+		},
+		Label: fmt.Sprintf("PathExists(%s)", path),
+	}
 }
 
-var downloadFile = SimpleActionBuilder[downloadFileArgs]{
-	CreateRun: func(dfa downloadFileArgs) func() error {
-		return func() error {
-			return http.DownloadFile(dfa.url, dfa.path)
-		}
-	},
-	String: func(dfa downloadFileArgs) string {
-		return fmt.Sprintf("DownloadFile(%s -> %s)", dfa.url, dfa.path)
-	},
-}.Init()
+func CommandExists(cmd string) Condition {
+	return SimpleCondition{
+		Check: func() (bool, error) {
+			return exec.CommandExists(cmd), nil
+		},
+		Label: fmt.Sprintf("CommandExists(%s)", cmd),
+	}
+}
 
 func DownloadFile(url string, path string) Object {
-	return downloadFile(downloadFileArgs{
-		path: path,
-		url:  url,
-	})
+	return SimpleAction{
+		Run: func() error {
+			return http.DownloadFile(url, path)
+		},
+		Label: fmt.Sprintf("DownloadFile(%s -> %s)", url, path),
+	}
 }

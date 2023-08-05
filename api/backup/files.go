@@ -10,20 +10,13 @@ import (
 	"github.com/wkozyra95/dotfiles/utils/exec"
 )
 
-type fileSyncActionArgs struct {
-	src string
-	dst string
-}
-
-var fileSyncAction = action.SimpleActionBuilder[fileSyncActionArgs]{
-	CreateRun: func(args fileSyncActionArgs) func() error {
-		return func() error {
-			fileInfo, statErr := os.Stat(args.src)
+func fileSyncAction(src string, dst string) action.Object {
+	return action.SimpleAction{
+		Run: func() error {
+			fileInfo, statErr := os.Stat(src)
 			if statErr != nil {
 				return statErr
 			}
-			src := args.src
-			dst := args.dst
 			if fileInfo.IsDir() {
 				src = fmt.Sprintf("%s/", src)
 				dst = fmt.Sprintf("%s/", dst)
@@ -43,12 +36,10 @@ var fileSyncAction = action.SimpleActionBuilder[fileSyncActionArgs]{
 						src, dst,
 					}, " "),
 				)
-		}
-	},
-	String: func(args fileSyncActionArgs) string {
-		return fmt.Sprintf("Syncing files %s -> %s", args.src, args.dst)
-	},
-}.Init()
+		},
+		Label: fmt.Sprintf("Syncing files %s -> %s", src, dst),
+	}
+}
 
 func backupFilesAction(rootDir string, mapPaths map[string]string) action.Object {
 	dirPath := path.Join(rootDir, "files")
@@ -56,10 +47,10 @@ func backupFilesAction(rootDir string, mapPaths map[string]string) action.Object
 	for srcPath, destinationPath := range mapPaths {
 		rsyncActions = append(rsyncActions, action.WithCondition{
 			If: action.PathExists(srcPath),
-			Then: fileSyncAction(fileSyncActionArgs{
-				src: srcPath,
-				dst: path.Join(dirPath, destinationPath),
-			}),
+			Then: fileSyncAction(
+				srcPath,
+				path.Join(dirPath, destinationPath),
+			),
 		})
 	}
 	return append(
@@ -74,10 +65,10 @@ func restoreFilesAction(rootDir string, mapPaths map[string]string) action.Objec
 	for srcPath, destinationPath := range mapPaths {
 		rsyncActions = append(rsyncActions, action.WithCondition{
 			If: action.PathExists(path.Join(dirPath, destinationPath)),
-			Then: fileSyncAction(fileSyncActionArgs{
-				src: path.Join(dirPath, destinationPath),
-				dst: srcPath,
-			}),
+			Then: fileSyncAction(
+				path.Join(dirPath, destinationPath),
+				srcPath,
+			),
 		})
 	}
 	return append(

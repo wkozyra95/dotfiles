@@ -1,6 +1,7 @@
 package action
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -18,15 +19,16 @@ var expectedOutput = ` - example one line output
    second line
    third line
  - example one line output
+ - If: !!true
+   Then:
+     example one line output
  - If: true
-   Then: example one line output
- - If: true
-   Then: 
+   Then:
      first line
      second line
      third line
  - If: true
-   Then: 
+   Then:
      - first line
        second line
        third line
@@ -34,29 +36,40 @@ var expectedOutput = ` - example one line output
        second line
        third line
  - If: true
-   Then: example one line output
+   Then:
+     example one line output
  - first line
    second line
-   third line`
+   third line
+ - With single action:
+     first line
+     second line
+     third line
+ - With list:
+     - example one line output
+     - first line
+       second line
+       third line
+ - With condition:
+     If: true
+     Then:
+       - example one line output
+       - example one line output`
 
-var fakeAction = SimpleActionBuilder[string]{
-	CreateRun: func(args string) func() error {
-		return func() error {
-			return nil
-		}
-	},
-	String: func(args string) string {
-		return args
-	},
-}.Init()
+func fakeAction(text string) Object {
+	return SimpleAction{
+		Run:   func() error { return nil },
+		Label: text,
+	}
+}
 
 func TestNodePrint(t *testing.T) {
-	err := List{
+	actions := List{
 		fakeAction(oneliner),
 		fakeAction(multiliner),
 		fakeAction(oneliner),
 		WithCondition{
-			If:   Const(true),
+			If:   Not(Not(Const(true))),
 			Then: fakeAction(oneliner),
 		},
 		WithCondition{
@@ -81,6 +94,34 @@ func TestNodePrint(t *testing.T) {
 				},
 			},
 		},
-	}.run(actionCtx{}, 0)
-	assert.Equal(t, nil, err)
+		Scope("With single action", func() Object {
+			return fakeAction(multiliner)
+		}),
+		Scope("With list", func() Object {
+			return List{
+				fakeAction(oneliner),
+				fakeAction(multiliner),
+			}
+		}),
+		Scope("With condition", func() Object {
+			return WithCondition{
+				If: Const(true),
+				Then: List{
+					fakeAction(oneliner),
+					fakeAction(oneliner),
+				},
+			}
+		}),
+	}
+	result := []string{}
+	err := actions.build().run(actionCtx{
+		&printer{
+			printFn: func(s string) {
+				result = append(result, s)
+			},
+			stack: []string{" "},
+		},
+	})
+	assert.Nil(t, err)
+	assert.Equal(t, expectedOutput, strings.Join(result, "\n"))
 }

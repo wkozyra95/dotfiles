@@ -30,7 +30,7 @@ func mainArchStage(ctx desktopSetupContext) a.Object {
 		a.ShellCommand("hwclock", "--systohc", "--utc"),
 		a.ShellCommand("locale-gen"),
 		a.ShellCommand("pacman", "-S", "sudo", "git", "vim", "neovim", "go", "dhcp", "zsh", "openssh"),
-		a.Scope(func() a.Object {
+		a.Scope("Prompt for hostname:", func() a.Object {
 			response := prompt.TextPrompt("/etc/hostname")
 			if response == "" {
 				return a.Err(fmt.Errorf("Empty value is not allowed"))
@@ -65,7 +65,7 @@ func mainArchStage(ctx desktopSetupContext) a.Object {
 		),
 		a.ShellCommand("systemctl", "enable", "NetworkManager"),
 		a.ShellCommand("systemctl", "enable", "sshd"),
-		a.Func(func() error {
+		a.Func("Select CPU vendor", func() error {
 			selected, didSelect := prompt.SelectPrompt(
 				"Select CPU vendor",
 				[]string{"amd", "intel"},
@@ -81,7 +81,7 @@ func mainArchStage(ctx desktopSetupContext) a.Object {
 			}
 			return nil
 		}),
-		a.Func(func() error {
+		a.Func("Select GPU vendor", func() error {
 			selected, didSelect := prompt.SelectPrompt(
 				"Select GPU vendor",
 				[]string{"amd", "intel", "nvidia"},

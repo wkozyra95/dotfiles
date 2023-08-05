@@ -9,13 +9,16 @@ import (
 )
 
 func isBitwardenAuthenticated() action.Condition {
-	return action.FuncCond(func() (bool, error) {
-		if !exec.CommandExists("bw") {
-			return false, nil
-		}
-		err := exec.Command().Run("bw", "login", "--check")
-		return err == nil, nil
-	})
+	return action.FuncCond(
+		"bw is authenticated",
+		func() (bool, error) {
+			if !exec.CommandExists("bw") {
+				return false, nil
+			}
+			err := exec.Command().Run("bw", "login", "--check")
+			return err == nil, nil
+		},
+	)
 }
 
 func backupBitwardenAction(rootDir string) action.Object {

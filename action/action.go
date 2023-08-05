@@ -1,42 +1,23 @@
 package action
 
 import (
-	"fmt"
-	"strings"
-
-	"github.com/davecgh/go-spew/spew"
 	"github.com/wkozyra95/dotfiles/logger"
 	"github.com/wkozyra95/dotfiles/utils/prompt"
 )
 
 var log = logger.NamedLogger("action")
 
-func printAction(depth int, text string) {
-	split := strings.Split(text, "\n")
-	for i := range split {
-		split[i] = fmt.Sprintf("%s%s", strings.Repeat("   ", depth), split[i])
-	}
-	fmt.Println(strings.Join(split, "\n"))
-}
-
 type actionCtx struct {
-	print bool
+	printer *printer
 }
 
 type Condition interface {
-	check(ctx actionCtx) (bool, error)
-	build() node
+	check(actionCtx) (bool, error)
 	string() string
 }
 
 type Object interface {
-	run(ctx actionCtx, depth int) error
 	build() node
-	string() string
-}
-
-type node struct {
-	children []node
 }
 
 type List []Object
@@ -44,61 +25,42 @@ type List []Object
 func (l List) build() node {
 	children := []node{}
 	for _, child := range l {
-		children = append(children, child.build())
+		if listChild, isList := child.(List); isList {
+			children = append(children, listChild.build().(listNode).children...)
+		} else {
+			children = append(children, child.build())
+		}
 	}
-	return node{
-		children: children,
+	return listNode{children}
+}
+
+type optional struct {
+	object Object
+	label  string
+}
+
+func Optional(label string, o Object) Object {
+	return optional{
+		object: o,
+		label:  label,
 	}
 }
 
-func (l List) run(ctx actionCtx, depth int) error {
-	for _, action := range l {
-		if ctx.print {
-			lines := strings.Split(action.string(), "\n")
-			if action.string() == "condition" {
-				// empty
-			} else if len(lines) == 1 {
-				printAction(depth, fmt.Sprintf(" - %s", lines[0]))
-			} else {
-				printAction(depth, fmt.Sprintf(" - %s", lines[0]))
-				printAction(depth+1, strings.Join(lines[1:], "\n"))
+func (o optional) build() node {
+	return wrappedNode{
+		child:         o.object.build(),
+		optionalLabel: o.label,
+		wrapper: func(ctx actionCtx, innerNode node) error {
+			err := innerNode.run(ctx)
+			if err != nil {
+				log.Error(err)
+				if !prompt.ConfirmPrompt("Action failed, do you want to continue?") {
+					return err
+				}
 			}
-		}
-		err := action.run(ctx, depth+1)
-		if err != nil {
-			return err
-		}
+			return nil
+		},
 	}
-	return nil
-}
-
-func (l List) string() string {
-	return ""
-}
-
-type Optional struct {
-	Object Object
-}
-
-func (o Optional) build() node {
-	return node{
-		children: []node{o.Object.build()},
-	}
-}
-
-func (o Optional) run(ctx actionCtx, depth int) error {
-	err := o.Object.run(ctx, depth+1)
-	if err != nil {
-		log.Error(err)
-		if !prompt.ConfirmPrompt("Install failed, do you want to continue?") {
-			return err
-		}
-	}
-	return nil
-}
-
-func (o Optional) string() string {
-	return ""
 }
 
 type WithCondition struct {
@@ -107,140 +69,102 @@ type WithCondition struct {
 	Else Object
 }
 
-func (a WithCondition) run(ctx actionCtx, depth int) error {
-	if ctx.print {
-		// This is hack, build action tree and print based on that
-		printAction(depth-1, fmt.Sprintf(" - If: %s", a.If.string()))
-	}
-	result, err := a.If.check(ctx)
-	if err != nil {
-		return err
-	}
-	if result {
-		if ctx.print {
-			printAction(depth, fmt.Sprintf("Then: %s", a.Then.string()))
-		}
-		return a.Then.run(ctx, depth+1)
-	} else if a.Else != nil {
-		if ctx.print {
-			printAction(depth, fmt.Sprintf("Else: %s", a.Else.string()))
-		}
-		return a.Else.run(ctx, depth+1)
+type ConditionResultType bool
+
+func (c ConditionResultType) String() string {
+	if c {
+		return "Then"
 	} else {
-		if ctx.print {
-			printAction(depth, fmt.Sprintf("Else: do nothing"))
-		}
+		return "Else"
 	}
-	return nil
 }
 
 func (a WithCondition) build() node {
-	return node{
-		children: []node{
-			a.If.build(),
-			a.Then.build(),
-			a.Else.build(),
+	var thenBranch node
+	var elseBranch node
+	if a.Then != nil {
+		thenBranch = a.Then.build()
+	}
+	if a.Else != nil {
+		elseBranch = a.Else.build()
+	}
+	return selectNode[ConditionResultType]{
+		selector: selector[ConditionResultType]{
+			check: func(ctx actionCtx) (ConditionResultType, error) {
+				val, err := a.If.check(ctx)
+				return ConditionResultType(val), err
+			},
+			string:        a.If.string,
+			conditionName: "If",
+		},
+		children: map[ConditionResultType]node{
+			true:  thenBranch,
+			false: elseBranch,
 		},
 	}
 }
 
-func (a WithCondition) string() string {
-	return "condition"
-}
-
-type SimpleActionBuilder[T any] struct {
-	CreateRun func(T) func() error
-	String    func(T) string
-}
-
 type SimpleAction struct {
-	runImpl     func() error
-	description string
-}
-
-func (s SimpleAction) run(ctx actionCtx, depth int) error {
-	return s.runImpl()
+	Run   func() error
+	Label string
 }
 
 func (s SimpleAction) build() node {
-	return node{}
-}
-
-func (a SimpleAction) string() string {
-	return a.description
-}
-
-func (s SimpleActionBuilder[T]) Init() func(T) Object {
-	return func(t T) Object {
-		description := ""
-		if s.String != nil {
-			description = s.String(t)
-		} else {
-			description = strings.TrimRight(spew.Sdump(t), "\n ")
-		}
-		return SimpleAction{
-			runImpl:     s.CreateRun(t),
-			description: description,
-		}
+	return leafNode{
+		action: func(ac actionCtx) error {
+			return s.Run()
+		},
+		description: s.Label,
 	}
 }
 
-var Func = SimpleActionBuilder[func() error]{
-	CreateRun: func(fn func() error) func() error {
-		return func() error {
-			return fn()
-		}
-	},
-}.Init()
-
-type scope struct {
-	fn func() Object
+func Func(label string, fn func() error) Object {
+	return SimpleAction{
+		Run:   fn,
+		Label: label,
+	}
 }
 
-func (s scope) run(ctx actionCtx, depth int) error {
-	return s.fn().run(ctx, depth)
+type scope struct {
+	label string
+	fn    func() Object
 }
 
 func (s scope) build() node {
-	return s.fn().build()
+	return scopeNode{
+		nodeProvider: func(ctx actionCtx) node {
+			return s.fn().build()
+		},
+		label: s.label,
+	}
 }
 
-func (a scope) string() string {
-	return ""
+func Scope(name string, fn func() Object) Object {
+	return scope{name, fn}
 }
-
-func Scope(fn func() Object) Object {
-	return scope{fn}
-}
-
-var nop = SimpleActionBuilder[struct{}]{
-	CreateRun: func(ignored struct{}) func() error {
-		return func() error {
-			return nil
-		}
-	},
-}.Init()
 
 func Nop() Object {
-	return nop(struct{}{})
+	return SimpleAction{
+		Run:   func() error { return nil },
+		Label: "nop",
+	}
 }
 
-var errAction = SimpleActionBuilder[error]{
-	CreateRun: func(err error) func() error {
-		return func() error {
-			return err
-		}
-	},
-}.Init()
-
 func Err(err error) Object {
-	return errAction(err)
+	return SimpleAction{
+		Run:   func() error { return err },
+		Label: err.Error(),
+	}
 }
 
 func Run(o Object) error {
-	return o.run(actionCtx{print: true}, 0)
+	return o.build().run(actionCtx{printer: &printer{
+		printFn: func(s string) { println(s) },
+	}})
 }
 
 func RunSilent(o Object) error {
-	return o.run(actionCtx{print: false}, 0)
+	return o.build().run(actionCtx{printer: &printer{
+		printFn: func(s string) {},
+	}})
 }

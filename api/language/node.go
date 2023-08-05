@@ -36,28 +36,14 @@ var tsconfig = map[string]any{
 	},
 }
 
-type nodePackageInstallActionArgs struct {
-	pkg             string
-	shouldReinstall bool
-}
-
 func NodePackageInstallAction(pkg string, shouldReinstall bool) action.Object {
-	return nodePackageInstallAction(nodePackageInstallActionArgs{
-		pkg:             pkg,
-		shouldReinstall: shouldReinstall,
-	})
+	return action.Func(
+		fmt.Sprintf("npm install -g %s", pkg),
+		func() error {
+			return installNodePackage(pkg, shouldReinstall)
+		},
+	)
 }
-
-var nodePackageInstallAction = action.SimpleActionBuilder[nodePackageInstallActionArgs]{
-	CreateRun: func(p nodePackageInstallActionArgs) func() error {
-		return func() error {
-			return installNodePackage(p.pkg, p.shouldReinstall)
-		}
-	},
-	String: func(p nodePackageInstallActionArgs) string {
-		return fmt.Sprintf("npm install -g %s", p.pkg)
-	},
-}.Init()
 
 func isVoltaPackageInstalled(pkg string) (bool, error) {
 	var stdout bytes.Buffer

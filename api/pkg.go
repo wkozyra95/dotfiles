@@ -20,22 +20,21 @@ type PackageInstaller interface {
 	Desktop() Package
 }
 
-var PackageInstallAction = action.SimpleActionBuilder[[]Package]{
-	CreateRun: func(pkgs []Package) func() error {
-		return func() error {
-			for _, pkg := range pkgs {
+func PackageInstallAction(packages []Package) action.Object {
+	packageNames := []string{}
+	for _, pkg := range packages {
+		packageNames = append(packageNames, fmt.Sprintf(" - %s", pkg.String()))
+	}
+	label := fmt.Sprintf("Install system packages:\n%s", strings.Join(packageNames, "\n"))
+	return action.SimpleAction{
+		Run: func() error {
+			for _, pkg := range packages {
 				if err := pkg.Install(); err != nil {
 					return err
 				}
 			}
 			return nil
-		}
-	},
-	String: func(pkgs []Package) string {
-		packages := []string{}
-		for _, pkg := range pkgs {
-			packages = append(packages, fmt.Sprintf(" - %s", pkg.String()))
-		}
-		return fmt.Sprintf("Install system packages:\n%s", strings.Join(packages, "\n"))
-	},
-}.Init()
+		},
+		Label: label,
+	}
+}

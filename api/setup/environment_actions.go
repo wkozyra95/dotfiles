@@ -18,45 +18,57 @@ type SetupLspActionOpts struct {
 }
 
 func SetupLanguageToolchainAction(ctx context.Context, opts SetupLanguageToolchainActionOpts) a.Object {
+	reinstallCond := a.LabeledConst("reinstall", opts.Reinstall)
 	return a.List{
 		a.WithCondition{
 			If: a.CommandExists("go"),
 			Then: a.List{
-				language.GoInstallAction("modd", "github.com/cortesi/modd/cmd/modd@latest", opts.Reinstall),
-				language.GoInstallAction("golines", "github.com/segmentio/golines@latest", opts.Reinstall),
-				language.GoInstallAction("gofumpt", "mvdan.cc/gofumpt@latest", opts.Reinstall),
-				language.GoInstallAction(
-					"golangci-lint",
-					"github.com/golangci/golangci-lint/cmd/golangci-lint@latest",
-					opts.Reinstall,
-				),
+				a.WithCondition{
+					If:   a.Or(a.Not(a.CommandExists("modd")), reinstallCond),
+					Then: a.ShellCommand("go", "install", "github.com/cortesi/modd/cmd/modd@latest"),
+				},
+				a.WithCondition{
+					If:   a.Or(a.Not(a.CommandExists("golines")), reinstallCond),
+					Then: a.ShellCommand("go", "install", "github.com/segmentio/golines@latest"),
+				},
+				a.WithCondition{
+					If:   a.Or(a.Not(a.CommandExists("gofumpt")), reinstallCond),
+					Then: a.ShellCommand("go", "install", "mvdan.cc/gofumpt@latest"),
+				},
+				a.WithCondition{
+					If:   a.Or(a.Not(a.CommandExists("golangci-lint")), reinstallCond),
+					Then: a.ShellCommand("go", "install", "github.com/golangci/golangci-lint/cmd/golangci-lint@latest"),
+				},
 			},
 		},
 		a.WithCondition{
 			// can't check for cmake-format because lsp server also provides executable with that name
-			If:   a.Or(a.Not(a.CommandExists("cmake-lint")), a.Const(opts.Reinstall)),
+			If:   a.Or(a.Not(a.CommandExists("cmake-lint")), a.LabeledConst("reinstall", opts.Reinstall)),
 			Then: a.ShellCommand("pip3", "install", "cmakelang"),
 		},
 	}
 }
 
 func SetupLspAction(ctx context.Context, opts SetupLspActionOpts) a.Object {
-	return a.Optional{
-		Object: a.List{
+	reinstallCond := a.LabeledConst("reinstall", opts.Reinstall)
+	return a.Optional(
+		"(optional) Setup LSPs",
+		a.List{
 			a.WithCondition{
 				If: a.CommandExists("go"),
 				Then: a.List{
-					language.GoInstallAction("gopls", "golang.org/x/tools/gopls@latest", opts.Reinstall),
-					language.GoInstallAction(
-						"efm-langserver",
-						"github.com/mattn/efm-langserver@latest",
-						opts.Reinstall,
-					),
-					language.GoInstallAction(
-						"golangci-lint-langserver",
-						"github.com/nametake/golangci-lint-langserver@latest",
-						opts.Reinstall,
-					),
+					a.WithCondition{
+						If:   a.Or(a.Not(a.CommandExists("gopls")), reinstallCond),
+						Then: a.ShellCommand("go", "install", "golang.org/x/tools/gopls@latest"),
+					},
+					a.WithCondition{
+						If:   a.Or(a.Not(a.CommandExists("efm-langserver")), reinstallCond),
+						Then: a.ShellCommand("go", "install", "github.com/mattn/efm-langserver@latest"),
+					},
+					a.WithCondition{
+						If:   a.Or(a.Not(a.CommandExists("golangci-lint-langserver")), reinstallCond),
+						Then: a.ShellCommand("go", "install", "github.com/nametake/golangci-lint-langserver@latest"),
+					},
 				},
 			},
 			a.WithCondition{
@@ -70,12 +82,12 @@ func SetupLspAction(ctx context.Context, opts SetupLspActionOpts) a.Object {
 				},
 			},
 			a.WithCondition{
-				If:   a.Or(a.Not(a.CommandExists("cmake-language-server")), a.Const(opts.Reinstall)),
+				If:   a.Or(a.Not(a.CommandExists("cmake-language-server")), reinstallCond),
 				Then: a.ShellCommand("pip3", "install", "cmake-language-server"),
 			},
 			nvim.LuaLspInstallAction(ctx, "6ef1608d857e0179c4db7a14037df84dbef676c8"),
 		},
-	}
+	)
 }
 
 func SetupEnvironmentCoreAction(ctx context.Context) a.Object {
@@ -104,7 +116,7 @@ func SetupEnvironmentCoreAction(ctx context.Context) a.Object {
 		a.EnsureSymlink(ctx.FromEnvDir("gitconfig"), ctx.FromHome(".gitconfig")),
 		a.EnsureSymlink(ctx.FromEnvDir("gitignore"), ctx.FromHome(".gitignore")),
 		a.EnsureSymlink(ctx.FromHome(".dotfiles/configs/direnv"), ctx.FromHome(".config/direnv")),
-		a.Scope(func() a.Object {
+		a.Scope("Run custom environment hooks", func() a.Object {
 			if ctx.EnvironmentConfig.CustomSetupAction != nil {
 				return ctx.EnvironmentConfig.CustomSetupAction(ctx)
 			}

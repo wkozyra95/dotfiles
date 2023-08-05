@@ -29,6 +29,15 @@ type (
 	}
 )
 
+func SimpleHandler(fn func(context.Context, object) error) func(context.Context, object) interface{} {
+	return func(ctx context.Context, input object) interface{} {
+		if err := fn(ctx, input); err != nil {
+			panic(err)
+		}
+		return map[string]string{}
+	}
+}
+
 var endpoints = map[string]endpoint{
 	"workspaces:list": {
 		name: "workspaces:list",
@@ -51,103 +60,69 @@ var endpoints = map[string]endpoint{
 	},
 	"launch": {
 		name: "launch",
-		handler: func(ctx context.Context, input object) interface{} {
-			if err := api.AlacrittyRun(input); err != nil {
-				panic(err)
-			}
-			return map[string]string{}
-		},
+		handler: SimpleHandler(func(ctx context.Context, input object) error {
+			return api.AlacrittyRun(input)
+		}),
 	},
 	"node:playground:delete": {
 		name: "node:playground:delete",
-		handler: func(ctx context.Context, input object) interface{} {
-			if err := language.NodePlaygroundDelete(getStringField(input, "path")); err != nil {
-				panic(err)
-			}
-			return map[string]string{}
-		},
+		handler: SimpleHandler(func(ctx context.Context, input object) error {
+			return language.NodePlaygroundDelete(getStringField(input, "path"))
+		}),
 	},
 	"node:playground:create": {
 		name: "node:playground:create",
-		handler: func(ctx context.Context, input object) interface{} {
-			if err := language.NodePlaygroundCreate(getStringField(input, "path")); err != nil {
-				panic(err)
-			}
-			return map[string]string{}
-		},
+		handler: SimpleHandler(func(ctx context.Context, input object) error {
+			return language.NodePlaygroundCreate(getStringField(input, "path"))
+		}),
 	},
 	"node:playground:node-shell": {
 		name: "node:playground:node-shell",
-		handler: func(ctx context.Context, input object) interface{} {
-			if err := language.NodePlaygroundNodeShell(getStringField(input, "path")); err != nil {
-				panic(err)
-			}
-			return map[string]string{}
-		},
+		handler: SimpleHandler(func(ctx context.Context, input object) error {
+			return language.NodePlaygroundNodeShell(getStringField(input, "path"))
+		}),
 	},
 	"node:playground:zsh-shell": {
 		name: "node:playground:zsh-shell",
-		handler: func(ctx context.Context, input object) interface{} {
-			if err := language.NodePlaygroundZshShell(getStringField(input, "path")); err != nil {
-				panic(err)
-			}
-			return map[string]string{}
-		},
+		handler: SimpleHandler(func(ctx context.Context, input object) error {
+			return language.NodePlaygroundZshShell(getStringField(input, "path"))
+		}),
 	},
 	"node:playground:install": {
 		name: "node:playground:install",
-		handler: func(ctx context.Context, input object) interface{} {
-			err := language.NodePlaygroundInstall(getStringField(input, "path"), getStringField(input, "package"))
-			if err != nil {
-				panic(err)
-			}
-			return map[string]string{}
-		},
+		handler: SimpleHandler(func(ctx context.Context, input object) error {
+			return language.NodePlaygroundInstall(getStringField(input, "path"), getStringField(input, "package"))
+		}),
 	},
 	"docker:playground:create": {
 		name: "docker:playground:create",
-		handler: func(ctx context.Context, input object) interface{} {
-			if err := tool.DockerPlaygroundCreate(getStringField(input, "path"), getStringField(input, "image")); err != nil {
-				panic(err)
-			}
-			return map[string]string{}
-		},
+		handler: SimpleHandler(func(ctx context.Context, input object) error {
+			return tool.DockerPlaygroundCreate(getStringField(input, "path"), getStringField(input, "image"))
+		}),
 	},
 	"docker:playground:shell": {
 		name: "docker:playground:shell",
-		handler: func(ctx context.Context, input object) interface{} {
-			if err := tool.DockerPlaygroundShell(getStringField(input, "path")); err != nil {
-				panic(err)
-			}
-			return map[string]string{}
-		},
+		handler: SimpleHandler(func(ctx context.Context, input object) error {
+			return tool.DockerPlaygroundShell(getStringField(input, "path"))
+		}),
 	},
 	"elixir:lsp:install": {
 		name: "elixir:lsp:install",
-		handler: func(ctx context.Context, o object) interface{} {
-			if err := action.RunSilent(nvim.ElixirLspInstallAction(ctx, true)); err != nil {
-				panic(err)
-			}
-			return map[string]string{}
-		},
+		handler: SimpleHandler(func(ctx context.Context, input object) error {
+			return action.RunSilent(nvim.ElixirLspInstallAction(ctx, true))
+		}),
 	},
 	"terminal:new": {
 		name: "terminal:new",
-		handler: func(ctx context.Context, o object) interface{} {
-			if err := sway.OpenTerminal(ctx); err != nil {
-				panic(err)
-			}
-			return map[string]string{}
-		},
+		handler: SimpleHandler(func(ctx context.Context, input object) error {
+			return sway.OpenTerminal(ctx)
+		}),
 	},
 	"backup:zsh_history": {
 		name: "terminal:new",
-		handler: func(ctx context.Context, o object) interface{} {
-			if err := backup.BackupZSHHistory(ctx); err != nil {
-				panic(err)
-			}
-			return map[string]string{}
-		},
+		handler: SimpleHandler(func(ctx context.Context, input object) error {
+			return backup.BackupZSHHistory(ctx)
+		}),
 	},
 }
 

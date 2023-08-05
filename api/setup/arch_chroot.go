@@ -156,7 +156,7 @@ func ProvisionArchChroot() error {
 		),
 		a.WithCondition{
 			If: a.Const(luksEnabled),
-			Then: a.Scope(func() a.Object {
+			Then: a.Scope("read LUKS partition UUID", func() a.Object {
 				var stdout bytes.Buffer
 				err := exec.Command().
 					WithBufout(&stdout, &bytes.Buffer{}).

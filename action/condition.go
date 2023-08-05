@@ -2,9 +2,6 @@ package action
 
 import (
 	"fmt"
-	"strings"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
 type not struct {
@@ -20,12 +17,6 @@ func (a not) check(ctx actionCtx) (bool, error) {
 	return !result, resultErr
 }
 
-func (a not) build() node {
-	return node{
-		children: []node{a.Condition.build()},
-	}
-}
-
 func (a not) string() string {
 	return fmt.Sprintf("!%s", a.Condition.string())
 }
@@ -34,10 +25,6 @@ type Const bool
 
 func (a Const) check(ctx actionCtx) (bool, error) {
 	return bool(a), nil
-}
-
-func (a Const) build() node {
-	return node{}
 }
 
 func (a Const) string() string {
@@ -51,12 +38,6 @@ type or struct {
 
 func Or(c1 Condition, c2 Condition) Condition {
 	return or{cond1: c1, cond2: c2}
-}
-
-func (a or) build() node {
-	return node{
-		children: []node{a.cond1.build(), a.cond2.build()},
-	}
 }
 
 func (a or) check(ctx actionCtx) (bool, error) {
@@ -87,12 +68,6 @@ func And(c1 Condition, c2 Condition) Condition {
 	return and{cond1: c1, cond2: c2}
 }
 
-func (a and) build() node {
-	return node{
-		children: []node{a.cond1.build(), a.cond2.build()},
-	}
-}
-
 func (a and) check(ctx actionCtx) (bool, error) {
 	r1, err1 := a.cond1.check(ctx)
 	if err1 != nil {
@@ -112,47 +87,37 @@ func (a and) string() string {
 	return fmt.Sprintf("%s && %s", a.cond1.string(), a.cond2.string())
 }
 
-type SimpleConditionBuilder[T any] struct {
-	String          func(T) string
-	CreateCondition func(T) func() (bool, error)
-}
-
 type SimpleCondition struct {
-	checkImpl   func() (bool, error)
-	description string
+	Check func() (bool, error)
+	Label string
 }
 
 func (s SimpleCondition) check(ctx actionCtx) (bool, error) {
-	return s.checkImpl()
-}
-
-func (s SimpleCondition) build() node {
-	return node{}
+	return s.Check()
 }
 
 func (a SimpleCondition) string() string {
-	return a.description
+	return a.Label
 }
 
-func (s SimpleConditionBuilder[T]) Init() func(T) Condition {
-	return func(t T) Condition {
-		description := ""
-		if s.String != nil {
-			description = s.String(t)
-		} else {
-			description = strings.TrimRight(spew.Sdump(t), "\n ")
-		}
-		return SimpleCondition{
-			checkImpl:   s.CreateCondition(t),
-			description: description,
-		}
+func FuncCond(label string, fn func() (bool, error)) Condition {
+	return SimpleCondition{
+		Check: func() (bool, error) {
+			return fn()
+		},
+		Label: label,
 	}
 }
 
-var FuncCond = SimpleConditionBuilder[func() (bool, error)]{
-	CreateCondition: func(fn func() (bool, error)) func() (bool, error) {
-		return func() (bool, error) {
-			return fn()
-		}
-	},
-}.Init()
+func LabeledConst(labelName string, value bool) Condition {
+	label := labelName
+	if !value {
+		label = fmt.Sprintf("!%s", labelName)
+	}
+	return SimpleCondition{
+		Check: func() (bool, error) {
+			return value, nil
+		},
+		Label: label,
+	}
+}

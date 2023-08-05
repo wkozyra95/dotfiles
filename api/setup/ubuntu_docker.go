@@ -28,7 +28,7 @@ func SetupUbuntuInDocker(ctx context.Context, opts SetupEnvironmentOptions) erro
 					Then: a.ShellCommand("tar", "-C", "/usr/local", "-xzf", "/tmp/go1.20.2.linux-amd64.tar.gz"),
 					Else: a.ShellCommand("sudo", "tar", "-C", "/usr/local", "-xzf", "/tmp/go1.20.2.linux-amd64.tar.gz"),
 				},
-				a.Func(func() error {
+				a.Func("Add /usr/local/go/bin to PATH", func() error {
 					os.Setenv("PATH", "/usr/local/go/bin:"+os.Getenv("PATH"))
 					return nil
 				}),

@@ -141,7 +141,7 @@ func RestoreRootSnapshot() error {
 			path.Join("/run/btrfs-root/", snapshot.Path),
 			rootPartition,
 		),
-		a.Func(func() error {
+		a.Func("copy subvolume children", func() error {
 			tmpRootId, tmpRootIdErr := getSubvolumeId(rootPartitionBackup)
 			if tmpRootIdErr != nil {
 				return tmpRootIdErr

@@ -79,7 +79,7 @@ func ProvisionUsbArchInstaller(ctx context.Context) error {
 			"-o", path.Join(workingdir, "out"),
 			workingdir,
 		),
-		a.Func(func() error {
+		a.Func("Write iso to drive", func() error {
 			files, fileErr := ioutil.ReadDir(path.Join(workingdir, "out"))
 			if fileErr != nil {
 				return fileErr

@@ -27,9 +27,9 @@ func SetupEnvironment(ctx context.Context, opts SetupEnvironmentOptions) error {
 		SetupLanguageToolchainAction(ctx, SetupLanguageToolchainActionOpts(opts)),
 		SetupLspAction(ctx, SetupLspActionOpts(opts)),
 		a.WithCondition{
-			If: a.Not(a.FuncCond(func() (bool, error) {
-				return strings.Contains(os.Getenv("SHELL"), "zsh"), nil
-			})),
+			If: a.FuncCond("current shell is not zsh", func() (bool, error) {
+				return !strings.Contains(os.Getenv("SHELL"), "zsh"), nil
+			}),
 			Then: a.ShellCommand("sudo", "chsh", "-s", "/usr/bin/zsh"),
 		},
 		SetupEnvironmentCoreAction(ctx),
