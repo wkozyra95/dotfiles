@@ -117,7 +117,7 @@ local function select_action()
     end
 
     local actions_list = {}
-    for k, v in pairs(workspaces.current.vim.actions or {}) do
+    for _, v in pairs(workspaces.current.vim.actions or {}) do
         table.insert(actions_list, create_local_action(v))
     end
     for k, v in pairs(actions) do

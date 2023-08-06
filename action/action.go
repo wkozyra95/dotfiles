@@ -129,7 +129,7 @@ type scope struct {
 func (s scope) build() node {
 	return scopeNode{
 		nodeProvider: s.fn().build,
-		label: s.label,
+		label:        s.label,
 	}
 }
 

@@ -75,7 +75,8 @@ vim.schedule(
 
 local function git_branch()
     local j = Job:new(
-        {command = "git", args = {"branch", "--show-current"}, cwd = vim.fn.fnamemodify(0, ":h")}
+    ---@diagnostic disable-next-line: missing-fields
+        {command = "git", args = {"branch", "--show-current"}, cwd = vim.fn.fnamemodify("", ":h")}
     )
 
     local ok, result = pcall(function() return vim.trim(j:sync()[1]) end)
@@ -113,7 +114,7 @@ local function statusline()
     local file = "%f"
 
     local lsp = ""
-    if (#vim.lsp.buf_get_clients() > 0) then
+    if (#vim.lsp.get_clients() > 0) then
         lsp = lsp_status() .. " "
     end
 

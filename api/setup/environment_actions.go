@@ -44,7 +44,7 @@ func SetupLanguageToolchainAction(ctx context.Context, opts SetupLanguageToolcha
 		a.WithCondition{
 			// can't check for cmake-format because lsp server also provides executable with that name
 			If:   a.Or(a.Not(a.CommandExists("cmake-lint")), a.LabeledConst("reinstall", opts.Reinstall)),
-			Then: a.ShellCommand("pip3", "install", "cmakelang"),
+			Then: a.ShellCommand("pipx", "install", "cmakelang"),
 		},
 	}
 }
@@ -83,9 +83,9 @@ func SetupLspAction(ctx context.Context, opts SetupLspActionOpts) a.Object {
 			},
 			a.WithCondition{
 				If:   a.Or(a.Not(a.CommandExists("cmake-language-server")), reinstallCond),
-				Then: a.ShellCommand("pip3", "install", "cmake-language-server"),
+				Then: a.ShellCommand("pipx", "install", "cmake-language-server"),
 			},
-			nvim.LuaLspInstallAction(ctx, "6ef1608d857e0179c4db7a14037df84dbef676c8"),
+			nvim.LuaLspInstallAction(ctx, "b96ab075f43e04d5bb42566df4f7c172b35a3df8"),
 		},
 	)
 }

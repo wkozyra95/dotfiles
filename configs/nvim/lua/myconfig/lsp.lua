@@ -19,7 +19,7 @@ local function lsp(opts)
         local lsp_fn
         -- if client does not support capability
         if opts.required_capability then
-            for _, client in pairs(vim.lsp.buf_get_clients()) do
+            for _, client in pairs(vim.lsp.get_clients()) do
                 if client.server_capabilities[opts.required_capability] == true then
                     lsp_fn = opts.lsp_func
                     break
@@ -71,7 +71,7 @@ module.formatSelected = lsp {
 module.rename = vim.lsp.buf.rename
 module.codeAction = vim.lsp.buf.code_action
 module.restart = function()
-    vim.lsp.stop_client(vim.lsp.get_active_clients())
+    vim.lsp.stop_client(vim.lsp.get_clients())
     vim.cmd.edit()
 end
 module.autoFix = function() print("autoFix not supported") end
@@ -190,8 +190,10 @@ function module.apply()
 
     lspkind.init()
 
+    ---@diagnostic disable-next-line: missing-fields
     cmp.setup {
         snippet = {expand = function(args) require("luasnip").lsp_expand(args.body) end},
+        ---@diagnostic disable-next-line: missing-fields
         completion = {completeopt = "menu,noselect"},
         preselect = cmp.PreselectMode.None,
         mapping = {
@@ -210,6 +212,7 @@ function module.apply()
             {name = "buffer",  keyword_length = 5},
             {name = "path"},
         },
+        ---@diagnostic disable-next-line: missing-fields
         formatting = {
             format = lspkind.cmp_format(
                 {with_text = false, menu = ({buffer = "[Buffer]", nvim_lsp = "[LSP]"})}

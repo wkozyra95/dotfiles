@@ -35,6 +35,7 @@ function module.run(input)
 
     local command = table.remove(args, 1)
 
+    ---@diagnostic disable-next-line: missing-fields
     Job:new {
         command = command,
         args = args,
@@ -55,6 +56,7 @@ function module.run_async(input)
 
     local command = table.remove(args, 1)
 
+    ---@diagnostic disable-next-line: missing-fields
     Job:new {
         command = command,
         args = args,
@@ -111,6 +113,7 @@ end
 function module.rpc_run(action)
     local json_string = vim.json.encode(action)
     local encoded = base64.encode(json_string)
+    ---@diagnostic disable-next-line: missing-fields
     local job = Job:new {
         command = "mycli",
         args = {"api", encoded},
@@ -130,6 +133,7 @@ end
 function module.rpc_start(action, cb)
     local json_string = vim.json.encode(action)
     local encoded = base64.encode(json_string)
+    ---@diagnostic disable-next-line: missing-fields
     return Job:new {
         command = "mycli",
         args = {"api", encoded},

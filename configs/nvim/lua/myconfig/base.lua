@@ -5,7 +5,7 @@ local icons = require("nvim-web-devicons")
 function module.apply()
     vim.cmd.filetype("plugin indent on")
     vim.cmd.syntax("enable")
-    vim.g.AutoPairs = {["("] = ")",["["] = "]",["{"] = "}",["`"] = "`",["```"] = "```"}
+    vim.g.AutoPairs = {["("] = ")", ["["] = "]", ["{"] = "}", ["`"] = "`", ["```"] = "```"}
 
     vim.g.surround_no_mappings = 1
     local group = vim.api.nvim_create_augroup("main", {clear = true})

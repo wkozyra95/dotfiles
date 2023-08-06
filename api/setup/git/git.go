@@ -38,7 +38,7 @@ func RepoInstallAction(ctx context.Context, options RepoInstallOptions, installA
 		},
 		action.WithCondition{
 			If: action.FuncCond(
-				fmt.Sprintf("content of %s is matching %s", shortPath, options.CommitHash),
+				fmt.Sprintf("content of %s does not match %s", shortPath, options.CommitHash),
 				func() (bool, error) {
 					if !file.Exists(hashFile) {
 						return true, nil

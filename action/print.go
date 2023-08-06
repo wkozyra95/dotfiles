@@ -6,12 +6,9 @@ import (
 	"strings"
 )
 
-type printerStackItem string
-
 type printer struct {
-	printFn          func(string)
-	stack            []string
-	printAllBranches bool
+	printFn func(string)
+	stack   []string
 }
 
 func (p *printer) startList() {
@@ -133,15 +130,15 @@ func sprint(printer *printer, n node) {
 	case leafNode:
 		printer.printLeafNode(node)
 	case wrappedNode:
-	    if node.optionalLabel != "" {
-	    	printer.startScope(node.optionalLabel)
-	    	defer printer.endScope()
-	    }
+		if node.optionalLabel != "" {
+			printer.startScope(node.optionalLabel)
+			defer printer.endScope()
+		}
 		sprint(printer, node.child)
 	case scopeNode:
-	   printer.startScope(node.label)
-	   defer printer.endScope()
-	   sprint(printer, node.nodeProvider())
+		printer.startScope(node.label)
+		defer printer.endScope()
+		sprint(printer, node.nodeProvider())
 	case selectNode[ConditionResultType]:
 		startSelectNodeCondition(printer, node)
 		for selectName, child := range node.children {

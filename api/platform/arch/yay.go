@@ -59,6 +59,7 @@ func (y Yay) ShellTools() api.Package {
 		"ranger",
 		"clojure-lsp-bin",
 		"jq",
+		"python-pipx",
 	}
 }
 
