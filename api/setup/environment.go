@@ -12,6 +12,7 @@ import (
 
 type SetupEnvironmentOptions struct {
 	Reinstall bool
+	DryRun    bool
 }
 
 func SetupEnvironment(ctx context.Context, opts SetupEnvironmentOptions) error {
@@ -24,8 +25,8 @@ func SetupEnvironment(ctx context.Context, opts SetupEnvironmentOptions) error {
 				ctx.PkgInstaller.Desktop(),
 			}),
 		},
-		SetupLanguageToolchainAction(ctx, SetupLanguageToolchainActionOpts(opts)),
-		SetupLspAction(ctx, SetupLspActionOpts(opts)),
+		SetupLanguageToolchainAction(ctx, SetupLanguageToolchainActionOpts{Reinstall: opts.Reinstall}),
+		SetupLspAction(ctx, SetupLspActionOpts{Reinstall: opts.Reinstall}),
 		a.WithCondition{
 			If: a.FuncCond("current shell is not zsh", func() (bool, error) {
 				return !strings.Contains(os.Getenv("SHELL"), "zsh"), nil
@@ -36,5 +37,10 @@ func SetupEnvironment(ctx context.Context, opts SetupEnvironmentOptions) error {
 		nvim.NvimEnsureLazyNvimInstalled(ctx),
 		nvim.NvimInstallAction(ctx, "f660b794808ac809ee8cafe82ddd824840bc8e2c"),
 	}
-	return a.Run(cmds)
+	if opts.DryRun {
+		a.Print(cmds)
+		return nil
+	} else {
+		return a.Run(cmds)
+	}
 }

@@ -34,8 +34,8 @@ func SetupUbuntuInDocker(ctx context.Context, opts SetupEnvironmentOptions) erro
 				}),
 			},
 		},
-		SetupLanguageToolchainAction(ctx, SetupLanguageToolchainActionOpts(opts)),
-		SetupLspAction(ctx, SetupLspActionOpts(opts)),
+		SetupLanguageToolchainAction(ctx, SetupLanguageToolchainActionOpts{Reinstall: opts.Reinstall}),
+		SetupLspAction(ctx, SetupLspActionOpts{Reinstall: opts.Reinstall}),
 		a.WithCondition{
 			If: a.Not(a.PathExists(ctx.FromHome(".dotfiles"))),
 			Then: a.List{

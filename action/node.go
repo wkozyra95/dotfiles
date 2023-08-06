@@ -81,13 +81,13 @@ func (n wrappedNode) run(ctx actionCtx) error {
 }
 
 type scopeNode struct {
-	nodeProvider func(ctx actionCtx) node
+	nodeProvider func() node
 	label        string
 }
 
 func (n scopeNode) run(ctx actionCtx) error {
 	ctx.printer.startScope(n.label)
 	defer ctx.printer.endScope()
-	build := n.nodeProvider(ctx)
+	build := n.nodeProvider()
 	return build.run(ctx)
 }

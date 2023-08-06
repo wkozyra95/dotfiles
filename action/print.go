@@ -1,6 +1,7 @@
 package action
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 )
@@ -102,4 +103,51 @@ func (p *printer) prefixSecondaryLine() string {
 		l += len(i)
 	}
 	return strings.Repeat(" ", l)
+}
+
+func Sprint(o Object) string {
+	var buf bytes.Buffer
+	printer := &printer{
+		printFn: func(s string) {
+			buf.WriteString(s)
+			buf.WriteString("\n")
+		},
+	}
+
+	sprint(printer, o.build())
+	return buf.String()
+}
+
+func Print(o Object) {
+	println(Sprint(o))
+}
+
+func sprint(printer *printer, n node) {
+	switch node := n.(type) {
+	case listNode:
+		printer.startList()
+		defer printer.endList()
+		for _, child := range node.children {
+			sprint(printer, child)
+		}
+	case leafNode:
+		printer.printLeafNode(node)
+	case wrappedNode:
+	    if node.optionalLabel != "" {
+	    	printer.startScope(node.optionalLabel)
+	    	defer printer.endScope()
+	    }
+		sprint(printer, node.child)
+	case scopeNode:
+	   printer.startScope(node.label)
+	   defer printer.endScope()
+	   sprint(printer, node.nodeProvider())
+	case selectNode[ConditionResultType]:
+		startSelectNodeCondition(printer, node)
+		for selectName, child := range node.children {
+			printer.startSelectNodeBranch(selectName.String())
+			sprint(printer, child)
+			printer.endSelectNodeBranch()
+		}
+	}
 }

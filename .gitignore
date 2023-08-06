@@ -7,4 +7,4 @@ bin/mycli-darwin
 
 ./secrets
 
-*.spl
+configs/nvim/spell

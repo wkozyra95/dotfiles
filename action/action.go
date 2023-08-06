@@ -80,13 +80,12 @@ func (c ConditionResultType) String() string {
 }
 
 func (a WithCondition) build() node {
-	var thenBranch node
-	var elseBranch node
+	children := map[ConditionResultType]node{}
 	if a.Then != nil {
-		thenBranch = a.Then.build()
+		children[true] = a.Then.build()
 	}
 	if a.Else != nil {
-		elseBranch = a.Else.build()
+		children[false] = a.Else.build()
 	}
 	return selectNode[ConditionResultType]{
 		selector: selector[ConditionResultType]{
@@ -97,10 +96,7 @@ func (a WithCondition) build() node {
 			string:        a.If.string,
 			conditionName: "If",
 		},
-		children: map[ConditionResultType]node{
-			true:  thenBranch,
-			false: elseBranch,
-		},
+		children: children,
 	}
 }
 
@@ -132,9 +128,7 @@ type scope struct {
 
 func (s scope) build() node {
 	return scopeNode{
-		nodeProvider: func(ctx actionCtx) node {
-			return s.fn().build()
-		},
+		nodeProvider: s.fn().build,
 		label: s.label,
 	}
 }

@@ -9,15 +9,13 @@ import (
 )
 
 func registerSetupCommands(rootCmd *cobra.Command) {
-	var setupEnvReinstall bool
+	var setupEnvOptions setup.SetupEnvironmentOptions
 	setupEnvCmd := &cobra.Command{
 		Use:   "setup:environment",
 		Short: "Install tools + prepare config files",
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := context.CreateContext()
-			if err := setup.SetupEnvironment(ctx, setup.SetupEnvironmentOptions{
-				Reinstall: setupEnvReinstall,
-			}); err != nil {
+			if err := setup.SetupEnvironment(ctx, setupEnvOptions); err != nil {
 				log.Error(err)
 			}
 		},
@@ -128,8 +126,12 @@ func registerSetupCommands(rootCmd *cobra.Command) {
 	)
 
 	setupEnvCmd.PersistentFlags().BoolVar(
-		&setupEnvReinstall, "reinstall", false,
+		&setupEnvOptions.Reinstall, "reinstall", false,
 		"reinstall packages even if they are already installed",
+	)
+	setupEnvCmd.PersistentFlags().BoolVar(
+		&setupEnvOptions.DryRun, "dry-run", false,
+		"only print actions",
 	)
 
 	rootCmd.AddCommand(setupEnvCmd)
