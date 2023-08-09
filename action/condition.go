@@ -12,7 +12,7 @@ func Not(c Condition) Condition {
 	return not{Condition: c}
 }
 
-func (a not) check(ctx actionCtx) (bool, error) {
+func (a not) check(ctx internalCtx) (bool, error) {
 	result, resultErr := a.Condition.check(ctx)
 	return !result, resultErr
 }
@@ -23,7 +23,7 @@ func (a not) string() string {
 
 type Const bool
 
-func (a Const) check(ctx actionCtx) (bool, error) {
+func (a Const) check(ctx internalCtx) (bool, error) {
 	return bool(a), nil
 }
 
@@ -40,7 +40,7 @@ func Or(c1 Condition, c2 Condition) Condition {
 	return or{cond1: c1, cond2: c2}
 }
 
-func (a or) check(ctx actionCtx) (bool, error) {
+func (a or) check(ctx internalCtx) (bool, error) {
 	r1, err1 := a.cond1.check(ctx)
 	if err1 != nil {
 		return false, err1
@@ -68,7 +68,7 @@ func And(c1 Condition, c2 Condition) Condition {
 	return and{cond1: c1, cond2: c2}
 }
 
-func (a and) check(ctx actionCtx) (bool, error) {
+func (a and) check(ctx internalCtx) (bool, error) {
 	r1, err1 := a.cond1.check(ctx)
 	if err1 != nil {
 		return false, err1
@@ -92,7 +92,7 @@ type SimpleCondition struct {
 	Label string
 }
 
-func (s SimpleCondition) check(ctx actionCtx) (bool, error) {
+func (s SimpleCondition) check(ctx internalCtx) (bool, error) {
 	return s.Check()
 }
 

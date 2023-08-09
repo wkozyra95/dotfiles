@@ -33,7 +33,7 @@ func RegisterCompletionCmds(rootCmd *cobra.Command) {
 					),
 					regexp.MustCompile("(?s).*"),
 				),
-				action.Func("Generate completion file", func() error {
+				action.Func("Generate completion file", func(action.Context) error {
 					return cmd.Root().GenZshCompletionFile(ctx.FromHome(".cache/mycli/completion/zsh/_mycli"))
 				}),
 			})

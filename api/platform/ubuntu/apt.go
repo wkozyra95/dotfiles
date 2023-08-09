@@ -73,6 +73,7 @@ func (a Apt) ShellTools() api.Package {
 		"btop",
 		"curl",
 		"wget",
+		"pipx",
 
 		// for neovim form source
 		"gettext", "libtool-bin", "g++", "pkg-config",

@@ -12,7 +12,7 @@ import (
 
 func EnsureSymlink(source string, destination string) Object {
 	return SimpleAction{
-		Run: func() error {
+		Run: func(Context) error {
 			return file.EnsureSymlink(source, destination)
 		},
 		Label: fmt.Sprintf("Symlink(%s -> %s)", destination, source),
@@ -28,7 +28,7 @@ func EnsureText(path string, text string, rg *regexp.Regexp) Object {
 	label := fmt.Sprintf("ensure text %s\n# %s", path, joined)
 
 	return SimpleAction{
-		Run: func() error {
+		Run: func(Context) error {
 			return file.EnsureTextWithRegexp(path, text, rg)
 		},
 		Label: label,
@@ -38,8 +38,8 @@ func EnsureText(path string, text string, rg *regexp.Regexp) Object {
 func ShellCommand(args ...string) Object {
 	label := fmt.Sprintf("Shell(%s)", strings.Join(args, " "))
 	return SimpleAction{
-		Run: func() error {
-			return exec.Command().WithStdio().Run(args[0], args[1:]...)
+		Run: func(ctx Context) error {
+			return exec.Command().WithBufout(ctx.Stdout, ctx.Stderr).Run(args[0], args[1:]...)
 		},
 		Label: label,
 	}
@@ -48,8 +48,8 @@ func ShellCommand(args ...string) Object {
 func Execute(cmd *exec.Cmd, args ...string) Object {
 	label := fmt.Sprintf("Shell(%s)", strings.Join(args, " "))
 	return SimpleAction{
-		Run: func() error {
-			return cmd.WithStdio().Run(args[0], args[1:]...)
+		Run: func(ctx Context) error {
+			return cmd.WithBufout(ctx.Stdout, ctx.Stderr).Run(args[0], args[1:]...)
 		},
 		Label: label,
 	}
@@ -75,7 +75,7 @@ func CommandExists(cmd string) Condition {
 
 func DownloadFile(url string, path string) Object {
 	return SimpleAction{
-		Run: func() error {
+		Run: func(Context) error {
 			return http.DownloadFile(url, path)
 		},
 		Label: fmt.Sprintf("DownloadFile(%s -> %s)", url, path),

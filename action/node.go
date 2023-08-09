@@ -1,11 +1,11 @@
 package action
 
 type node interface {
-	run(actionCtx) error
+	run(internalCtx) error
 }
 
 type selector[T any] struct {
-	check         func(ctx actionCtx) (T, error)
+	check         func(ctx internalCtx) (T, error)
 	string        func() string
 	conditionName string
 }
@@ -14,7 +14,7 @@ type listNode struct {
 	children []node
 }
 
-func (n listNode) run(ctx actionCtx) error {
+func (n listNode) run(ctx internalCtx) error {
 	ctx.printer.startList()
 	defer ctx.printer.endList()
 	for _, node := range n.children {
@@ -35,7 +35,7 @@ type selectNode[T conditionalKey] struct {
 	children map[T]node
 }
 
-func (n selectNode[T]) run(ctx actionCtx) error {
+func (n selectNode[T]) run(ctx internalCtx) error {
 	startSelectNodeCondition(ctx.printer, n)
 	selected, selectErr := n.selector.check(ctx)
 	if selectErr != nil {
@@ -53,13 +53,15 @@ func (n selectNode[T]) run(ctx actionCtx) error {
 }
 
 type leafNode struct {
-	action      func(actionCtx) error
+	action      func(internalCtx) error
 	description string
 }
 
-func (n leafNode) run(ctx actionCtx) error {
+func (n leafNode) run(ctx internalCtx) error {
 	ctx.printer.printLeafNode(n)
-	return n.action(ctx)
+	err := n.action(ctx)
+	ctx.printer.resetFn()
+	return err
 }
 
 func (n leafNode) String() string {
@@ -68,11 +70,11 @@ func (n leafNode) String() string {
 
 type wrappedNode struct {
 	child         node
-	wrapper       func(ctx actionCtx, innerNode node) error
+	wrapper       func(ctx internalCtx, innerNode node) error
 	optionalLabel string
 }
 
-func (n wrappedNode) run(ctx actionCtx) error {
+func (n wrappedNode) run(ctx internalCtx) error {
 	if n.optionalLabel != "" {
 		ctx.printer.startScope(n.optionalLabel)
 		defer ctx.printer.endScope()
@@ -85,7 +87,7 @@ type scopeNode struct {
 	label        string
 }
 
-func (n scopeNode) run(ctx actionCtx) error {
+func (n scopeNode) run(ctx internalCtx) error {
 	ctx.printer.startScope(n.label)
 	defer ctx.printer.endScope()
 	build := n.nodeProvider()

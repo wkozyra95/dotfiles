@@ -119,7 +119,7 @@ var endpoints = map[string]endpoint{
 		}),
 	},
 	"backup:zsh_history": {
-		name: "terminal:new",
+		name: "backup:zsh_history",
 		handler: SimpleHandler(func(ctx context.Context, input object) error {
 			return backup.BackupZSHHistory(ctx)
 		}),

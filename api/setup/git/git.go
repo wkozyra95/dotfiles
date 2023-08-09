@@ -22,7 +22,7 @@ type RepoInstallOptions struct {
 
 func RepoInstallAction(ctx context.Context, options RepoInstallOptions, installAction action.Object) action.Object {
 	withCwd := func(path string) *exec.Cmd {
-		return exec.Command().WithStdio().WithCwd(path)
+		return exec.Command().WithCwd(path)
 	}
 	installPrefix := ctx.FromHome(".local")
 	hashFileName := fmt.Sprintf(".%s.hash", options.Name)
@@ -65,7 +65,7 @@ func RepoInstallAction(ctx context.Context, options RepoInstallOptions, installA
 					"-xfd",
 				),
 				installAction,
-				action.Func(fmt.Sprintf("Update %s", shortPath), func() error {
+				action.Func(fmt.Sprintf("Update %s", shortPath), func(action.Context) error {
 					var stderr, stdout bytes.Buffer
 					err := exec.Command().
 						WithCwd(options.Path).

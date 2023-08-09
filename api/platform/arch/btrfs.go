@@ -141,7 +141,7 @@ func RestoreRootSnapshot() error {
 			path.Join("/run/btrfs-root/", snapshot.Path),
 			rootPartition,
 		),
-		a.Func("copy subvolume children", func() error {
+		a.Func("copy subvolume children", func(ctx a.Context) error {
 			tmpRootId, tmpRootIdErr := getSubvolumeId(rootPartitionBackup)
 			if tmpRootIdErr != nil {
 				return tmpRootIdErr
@@ -154,11 +154,11 @@ func RestoreRootSnapshot() error {
 				pathSuffix := strings.TrimPrefix(child.Path, "__current/root-tmp/")
 				destinationPath := path.Join(rootPartition, pathSuffix)
 				srcPath := path.Join("/run/btrfs-root", child.Path)
-				fmt.Printf("reattach volume %s -> %s\n", srcPath, destinationPath)
-				if err := exec.Command().WithStdio().Run("sudo", "rmdir", destinationPath); err != nil {
+				_, _ = ctx.Stdout.Write([]byte(fmt.Sprintf("reattach volume %s -> %s\n", srcPath, destinationPath)))
+				if err := exec.Command().WithBufout(ctx.Stdout, ctx.Stderr).Run("sudo", "rmdir", destinationPath); err != nil {
 					return err
 				}
-				err := exec.Command().WithStdio().Run(
+				err := exec.Command().WithBufout(ctx.Stdout, ctx.Stderr).Run(
 					"sudo", "mv",
 					srcPath,
 					destinationPath,

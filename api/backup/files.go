@@ -12,7 +12,7 @@ import (
 
 func fileSyncAction(src string, dst string) action.Object {
 	return action.SimpleAction{
-		Run: func() error {
+		Run: func(ctx action.Context) error {
 			fileInfo, statErr := os.Stat(src)
 			if statErr != nil {
 				return statErr
@@ -22,7 +22,7 @@ func fileSyncAction(src string, dst string) action.Object {
 				dst = fmt.Sprintf("%s/", dst)
 			}
 			return exec.Command().
-				WithStdio().
+				WithBufout(ctx.Stdout, ctx.Stderr).
 				Run(
 					"bash", "-c",
 					strings.Join([]string{

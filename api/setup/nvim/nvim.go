@@ -13,7 +13,7 @@ import (
 
 func NvimInstallAction(ctx context.Context, commitHash string) action.Object {
 	withCwd := func(path string) *exec.Cmd {
-		return exec.Command().WithStdio().WithCwd(path)
+		return exec.Command().WithCwd(path)
 	}
 	cloneDir := ctx.FromHome(".cache/nvim_source")
 	return git.RepoInstallAction(ctx, git.RepoInstallOptions{
@@ -48,7 +48,7 @@ func ElixirLspInstallAction(ctx context.Context, reinstall bool) action.Object {
 
 func LuaLspInstallAction(ctx context.Context, commitHash string) action.Object {
 	withCwd := func(path string) *exec.Cmd {
-		return exec.Command().WithStdio().WithCwd(path)
+		return exec.Command().WithCwd(path)
 	}
 	cloneDir := ctx.FromHome(".cache/nvim/myconfig/lua_lsp")
 	return git.RepoInstallAction(ctx, git.RepoInstallOptions{

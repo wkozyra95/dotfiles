@@ -74,11 +74,11 @@ func SetupLspAction(ctx context.Context, opts SetupLspActionOpts) a.Object {
 			a.WithCondition{
 				If: a.CommandExists("npm"),
 				Then: a.List{
-					language.NodePackageInstallAction("typescript-language-server", opts.Reinstall),
-					language.NodePackageInstallAction("typescript", opts.Reinstall),
-					language.NodePackageInstallAction("eslint_d", opts.Reinstall),
-					language.NodePackageInstallAction("vscode-langservers-extracted", opts.Reinstall),
-					language.NodePackageInstallAction("yaml-language-server", opts.Reinstall),
+					language.NodePackageInstallAction("typescript-language-server", reinstallCond),
+					language.NodePackageInstallAction("typescript", reinstallCond),
+					language.NodePackageInstallAction("eslint_d", reinstallCond),
+					language.NodePackageInstallAction("vscode-langservers-extracted", reinstallCond),
+					language.NodePackageInstallAction("yaml-language-server", reinstallCond),
 				},
 			},
 			a.WithCondition{

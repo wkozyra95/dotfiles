@@ -1,18 +1,27 @@
 package action
 
 import (
+	"io"
+
+	"github.com/wkozyra95/dotfiles/action/printer"
 	"github.com/wkozyra95/dotfiles/logger"
 	"github.com/wkozyra95/dotfiles/utils/prompt"
 )
 
 var log = logger.NamedLogger("action")
 
-type actionCtx struct {
-	printer *printer
+type Context struct {
+	Stdout io.Writer
+	Stderr io.Writer
+}
+
+type internalCtx struct {
+	printer   *actionPrinter
+	publicCtx Context
 }
 
 type Condition interface {
-	check(actionCtx) (bool, error)
+	check(internalCtx) (bool, error)
 	string() string
 }
 
@@ -50,7 +59,7 @@ func (o optional) build() node {
 	return wrappedNode{
 		child:         o.object.build(),
 		optionalLabel: o.label,
-		wrapper: func(ctx actionCtx, innerNode node) error {
+		wrapper: func(ctx internalCtx, innerNode node) error {
 			err := innerNode.run(ctx)
 			if err != nil {
 				log.Error(err)
@@ -89,7 +98,7 @@ func (a WithCondition) build() node {
 	}
 	return selectNode[ConditionResultType]{
 		selector: selector[ConditionResultType]{
-			check: func(ctx actionCtx) (ConditionResultType, error) {
+			check: func(ctx internalCtx) (ConditionResultType, error) {
 				val, err := a.If.check(ctx)
 				return ConditionResultType(val), err
 			},
@@ -101,20 +110,20 @@ func (a WithCondition) build() node {
 }
 
 type SimpleAction struct {
-	Run   func() error
+	Run   func(Context) error
 	Label string
 }
 
 func (s SimpleAction) build() node {
 	return leafNode{
-		action: func(ac actionCtx) error {
-			return s.Run()
+		action: func(c internalCtx) error {
+			return s.Run(c.publicCtx)
 		},
 		description: s.Label,
 	}
 }
 
-func Func(label string, fn func() error) Object {
+func Func(label string, fn func(Context) error) Object {
 	return SimpleAction{
 		Run:   fn,
 		Label: label,
@@ -139,26 +148,43 @@ func Scope(name string, fn func() Object) Object {
 
 func Nop() Object {
 	return SimpleAction{
-		Run:   func() error { return nil },
+		Run:   func(Context) error { return nil },
 		Label: "nop",
 	}
 }
 
 func Err(err error) Object {
 	return SimpleAction{
-		Run:   func() error { return err },
+		Run:   func(Context) error { return err },
 		Label: err.Error(),
 	}
 }
 
+func newCtx() internalCtx {
+	p := printer.New()
+	return internalCtx{
+		printer: &actionPrinter{
+			printFn: p.PersistentPrintln,
+			resetFn: p.ResetActionBuffer,
+		},
+		publicCtx: Context{
+			Stdout: p.ActionStdout(),
+			Stderr: p.ActionStderr(),
+		},
+	}
+}
+
 func Run(o Object) error {
-	return o.build().run(actionCtx{printer: &printer{
-		printFn: func(s string) { println(s) },
-	}})
+	ctx := newCtx()
+	if err := o.build().run(ctx); err != nil {
+		return err
+	}
+	return nil
 }
 
 func RunSilent(o Object) error {
-	return o.build().run(actionCtx{printer: &printer{
-		printFn: func(s string) {},
-	}})
+	ctx := newCtx()
+	ctx.printer.printFn = func(s string) {}
+
+	return o.build().run(ctx)
 }

@@ -8,6 +8,7 @@ require (
 	github.com/docker/docker v23.0.0-rc.1+incompatible
 	github.com/fatih/color v1.13.0
 	github.com/google/go-github/v50 v50.2.0
+	github.com/gosuri/uilive v0.0.4
 	github.com/juju/mutex v0.0.0-20180619145857-d21b13acf4bf
 	github.com/manifoldco/promptui v0.9.0
 	github.com/opencontainers/image-spec v1.0.3-0.20220303224323-02efb9a75ee1

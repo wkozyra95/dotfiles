@@ -65,7 +65,7 @@ func mainArchStage(ctx desktopSetupContext) a.Object {
 		),
 		a.ShellCommand("systemctl", "enable", "NetworkManager"),
 		a.ShellCommand("systemctl", "enable", "sshd"),
-		a.Func("Select CPU vendor", func() error {
+		a.Func("Select CPU vendor", func(ctx a.Context) error {
 			selected, didSelect := prompt.SelectPrompt(
 				"Select CPU vendor",
 				[]string{"amd", "intel"},
@@ -74,14 +74,15 @@ func mainArchStage(ctx desktopSetupContext) a.Object {
 			if !didSelect {
 				return nil
 			}
+			cmd := exec.Command().WithBufout(ctx.Stdout, ctx.Stderr)
 			if selected == "amd" {
-				return exec.Command().WithStdio().Run("pacman", "-S", "amd-ucode")
+				return cmd.Run("pacman", "-S", "amd-ucode")
 			} else if selected == "intel" {
-				return exec.Command().WithStdio().Run("pacman", "-S", "intel-ucode")
+				return cmd.Run("pacman", "-S", "intel-ucode")
 			}
 			return nil
 		}),
-		a.Func("Select GPU vendor", func() error {
+		a.Func("Select GPU vendor", func(ctx a.Context) error {
 			selected, didSelect := prompt.SelectPrompt(
 				"Select GPU vendor",
 				[]string{"amd", "intel", "nvidia"},
@@ -91,7 +92,8 @@ func mainArchStage(ctx desktopSetupContext) a.Object {
 				return nil
 			}
 			if selected == "amd" {
-				return exec.Command().WithStdio().Run("pacman", "-S", "vulkan-radeon")
+				cmd := exec.Command().WithBufout(ctx.Stdout, ctx.Stderr)
+				return cmd.Run("pacman", "-S", "vulkan-radeon")
 			}
 			return nil
 		}),

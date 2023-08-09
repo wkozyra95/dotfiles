@@ -36,13 +36,28 @@ var tsconfig = map[string]any{
 	},
 }
 
-func NodePackageInstallAction(pkg string, shouldReinstall bool) action.Object {
-	return action.Func(
-		fmt.Sprintf("npm install -g %s", pkg),
-		func() error {
-			return installNodePackage(pkg, shouldReinstall)
+func NodePackageInstallAction(pkg string, reinstallCond action.Condition) action.Object {
+	return action.WithCondition{
+		If: action.CommandExists("volta"),
+		Then: action.WithCondition{
+			If: action.Or(
+				action.FuncCond(fmt.Sprintf("is %s installed", pkg), func() (bool, error) {
+					return isVoltaPackageInstalled(pkg)
+				}),
+				reinstallCond,
+			),
+			Then: action.ShellCommand("volta", "install", pkg),
 		},
-	)
+		Else: action.WithCondition{
+			If: action.Or(
+				action.FuncCond(fmt.Sprintf("is %s installed", pkg), func() (bool, error) {
+					return isGlobalNpmPackageInstalled(pkg)
+				}),
+				reinstallCond,
+			),
+			Then: action.ShellCommand("npm", "-g", "install", pkg),
+		},
+	}
 }
 
 func isVoltaPackageInstalled(pkg string) (bool, error) {
@@ -73,28 +88,6 @@ func isGlobalNpmPackageInstalled(pkg string) (bool, error) {
 		}
 	}
 	return false, nil
-}
-
-func installNodePackage(p string, shouldReinstall bool) error {
-	if exec.CommandExists("volta") {
-		isInstalled, err := isVoltaPackageInstalled(p)
-		if err != nil {
-			return err
-		}
-		if isInstalled && !shouldReinstall {
-			return nil
-		}
-		return exec.Command().WithStdio().Run("volta", "install", p)
-	} else {
-		isInstalled, err := isGlobalNpmPackageInstalled(p)
-		if err != nil {
-			return err
-		}
-		if isInstalled && !shouldReinstall {
-			return nil
-		}
-		return exec.Command().WithStdio().Run("npm", "-g", "install", p)
-	}
 }
 
 func NodePlaygroundCreate(playgroundPath string) error {

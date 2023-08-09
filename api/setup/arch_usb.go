@@ -2,7 +2,6 @@ package setup
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 
@@ -79,8 +78,8 @@ func ProvisionUsbArchInstaller(ctx context.Context) error {
 			"-o", path.Join(workingdir, "out"),
 			workingdir,
 		),
-		a.Func("Write iso to drive", func() error {
-			files, fileErr := ioutil.ReadDir(path.Join(workingdir, "out"))
+		a.Func("Write iso to drive", func(a.Context) error {
+			files, fileErr := os.ReadDir(path.Join(workingdir, "out"))
 			if fileErr != nil {
 				return fileErr
 			}
@@ -90,7 +89,7 @@ func ProvisionUsbArchInstaller(ctx context.Context) error {
 			if !prompt.ConfirmPrompt(fmt.Sprintf("Do you want to copy files to %s device", target)) {
 				return fmt.Errorf("Aborting ...")
 			}
-			return tool.DD{
+			return tool.DD{ // TODO: use stdio from ctx
 				Input:       outputIso,
 				Output:      target,
 				ChunkSizeKB: 4 * 1024,
