@@ -65,7 +65,7 @@ func mainArchStage(ctx desktopSetupContext) a.Object {
 		),
 		a.ShellCommand("systemctl", "enable", "NetworkManager"),
 		a.ShellCommand("systemctl", "enable", "sshd"),
-		a.Func("Select CPU vendor", func(ctx a.Context) error {
+		a.Func("Select CPU vendor", func() error {
 			selected, didSelect := prompt.SelectPrompt(
 				"Select CPU vendor",
 				[]string{"amd", "intel"},
@@ -74,7 +74,7 @@ func mainArchStage(ctx desktopSetupContext) a.Object {
 			if !didSelect {
 				return nil
 			}
-			cmd := exec.Command().WithBufout(ctx.Stdout, ctx.Stderr)
+			cmd := exec.Command().WithStdio()
 			if selected == "amd" {
 				return cmd.Run("pacman", "-S", "amd-ucode")
 			} else if selected == "intel" {
@@ -82,7 +82,7 @@ func mainArchStage(ctx desktopSetupContext) a.Object {
 			}
 			return nil
 		}),
-		a.Func("Select GPU vendor", func(ctx a.Context) error {
+		a.Func("Select GPU vendor", func() error {
 			selected, didSelect := prompt.SelectPrompt(
 				"Select GPU vendor",
 				[]string{"amd", "intel", "nvidia"},
@@ -92,7 +92,7 @@ func mainArchStage(ctx desktopSetupContext) a.Object {
 				return nil
 			}
 			if selected == "amd" {
-				cmd := exec.Command().WithBufout(ctx.Stdout, ctx.Stderr)
+				cmd := exec.Command().WithStdio()
 				return cmd.Run("pacman", "-S", "vulkan-radeon")
 			}
 			return nil
@@ -153,7 +153,7 @@ func ProvisionArchDesktop(stage string) error {
 		username: "wojtek",
 	}
 	if stage == "" {
-		return a.Run(a.List{
+		return a.RunActions(a.List{
 			archDesktopStages["main"](ctx),
 			archDesktopStages["grub-install"](ctx),
 			archDesktopStages["grub-theme"](ctx),
@@ -163,6 +163,6 @@ func ProvisionArchDesktop(stage string) error {
 		if !hasStage {
 			return fmt.Errorf("Stage %s does not exists", stage)
 		}
-		return a.Run(stageAction(ctx))
+		return a.RunActions(stageAction(ctx))
 	}
 }

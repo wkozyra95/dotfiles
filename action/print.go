@@ -7,9 +7,8 @@ import (
 )
 
 type actionPrinter struct {
-	printFn func(string)
-	resetFn func()
-	stack   []string
+	printFn  func(string)
+	stack    []string
 }
 
 func (p *actionPrinter) startList() {
@@ -103,7 +102,7 @@ func (p *actionPrinter) prefixSecondaryLine() string {
 	return strings.Repeat(" ", l)
 }
 
-func Sprint(o Object) string {
+func SprintActionTree(o Object) string {
 	var buf bytes.Buffer
 	printer := &actionPrinter{
 		printFn: func(s string) {
@@ -112,40 +111,40 @@ func Sprint(o Object) string {
 		},
 	}
 
-	sprint(printer, o.build())
+	printer.sprint(o.build())
 	return buf.String()
 }
 
-func Print(o Object) {
-	println(Sprint(o))
+func PrintActionTree(o Object) {
+	fmt.Print(SprintActionTree(o))
 }
 
-func sprint(printer *actionPrinter, n node) {
+func (p *actionPrinter) sprint(n node) {
 	switch node := n.(type) {
 	case listNode:
-		printer.startList()
-		defer printer.endList()
+		p.startList()
+		defer p.endList()
 		for _, child := range node.children {
-			sprint(printer, child)
+			p.sprint(child)
 		}
 	case leafNode:
-		printer.printLeafNode(node)
+		p.printLeafNode(node)
 	case wrappedNode:
 		if node.optionalLabel != "" {
-			printer.startScope(node.optionalLabel)
-			defer printer.endScope()
+			p.startScope(node.optionalLabel)
+			defer p.endScope()
 		}
-		sprint(printer, node.child)
+		p.sprint(node.child)
 	case scopeNode:
-		printer.startScope(node.label)
-		defer printer.endScope()
-		sprint(printer, node.nodeProvider())
+		p.startScope(node.label)
+		defer p.endScope()
+		p.sprint(node.nodeProvider())
 	case selectNode[ConditionResultType]:
-		startSelectNodeCondition(printer, node)
+		startSelectNodeCondition(p, node)
 		for selectName, child := range node.children {
-			printer.startSelectNodeBranch(selectName.String())
-			sprint(printer, child)
-			printer.endSelectNodeBranch()
+			p.startSelectNodeBranch(selectName.String())
+			p.sprint(child)
+			p.endSelectNodeBranch()
 		}
 	}
 }

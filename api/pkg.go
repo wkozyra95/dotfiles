@@ -27,7 +27,7 @@ func PackageInstallAction(packages []Package) action.Object {
 	}
 	label := fmt.Sprintf("Install system packages:\n%s", strings.Join(packageNames, "\n"))
 	return action.SimpleAction{
-		Run: func(action.Context) error {
+		Run: func() error {
 			for _, pkg := range packages {
 				if err := pkg.Install(); err != nil {
 					return err

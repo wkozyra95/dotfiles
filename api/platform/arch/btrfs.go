@@ -51,7 +51,7 @@ func getSubvolumeId(path string) (string, error) {
 	if cmdErr != nil {
 		return "", cmdErr
 	}
-	rg := regexp.MustCompile("Subvolume ID:\\s+([0-9]+)")
+	rg := regexp.MustCompile(`Subvolume ID:\s+([0-9]+)`)
 	match := rg.FindStringSubmatch(stdout.String())
 	if len(match) < 2 {
 		return "", fmt.Errorf("no match for subvolume id\n%s", stdout.String())
@@ -141,7 +141,7 @@ func RestoreRootSnapshot() error {
 			path.Join("/run/btrfs-root/", snapshot.Path),
 			rootPartition,
 		),
-		a.Func("copy subvolume children", func(ctx a.Context) error {
+		a.Func("copy subvolume children", func() error {
 			tmpRootId, tmpRootIdErr := getSubvolumeId(rootPartitionBackup)
 			if tmpRootIdErr != nil {
 				return tmpRootIdErr
@@ -154,11 +154,11 @@ func RestoreRootSnapshot() error {
 				pathSuffix := strings.TrimPrefix(child.Path, "__current/root-tmp/")
 				destinationPath := path.Join(rootPartition, pathSuffix)
 				srcPath := path.Join("/run/btrfs-root", child.Path)
-				_, _ = ctx.Stdout.Write([]byte(fmt.Sprintf("reattach volume %s -> %s\n", srcPath, destinationPath)))
-				if err := exec.Command().WithBufout(ctx.Stdout, ctx.Stderr).Run("sudo", "rmdir", destinationPath); err != nil {
+				fmt.Printf("reattach volume %s -> %s\n", srcPath, destinationPath)
+				if err := exec.Command().WithStdio().Run("sudo", "rmdir", destinationPath); err != nil {
 					return err
 				}
-				err := exec.Command().WithBufout(ctx.Stdout, ctx.Stderr).Run(
+				err := exec.Command().WithStdio().Run(
 					"sudo", "mv",
 					srcPath,
 					destinationPath,
@@ -171,7 +171,7 @@ func RestoreRootSnapshot() error {
 		}),
 		a.ShellCommand("sudo", "btrfs", "subvolume", "delete", rootPartitionBackup),
 	}
-	return a.Run(actions)
+	return a.RunActions(actions)
 }
 
 func CleanupSnapshots() error {

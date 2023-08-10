@@ -18,7 +18,7 @@ func RegisterCompletionCmds(rootCmd *cobra.Command) {
 		DisableFlagsInUseLine: true,
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := context.CreateContext()
-			err := action.Run(action.List{
+			err := action.RunActions(action.List{
 				action.ShellCommand("mkdir", "-p", ctx.FromHome(".cache/mycli/completion/zsh")),
 				action.EnsureText(
 					ctx.FromHome(".cache/mycli/completion/zsh_setup"),
@@ -33,7 +33,7 @@ func RegisterCompletionCmds(rootCmd *cobra.Command) {
 					),
 					regexp.MustCompile("(?s).*"),
 				),
-				action.Func("Generate completion file", func(action.Context) error {
+				action.Func("Generate completion file", func() error {
 					return cmd.Root().GenZshCompletionFile(ctx.FromHome(".cache/mycli/completion/zsh/_mycli"))
 				}),
 			})

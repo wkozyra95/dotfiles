@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	"runtime"
+	"time"
 
 	"github.com/fatih/color"
 	"github.com/sirupsen/logrus"
@@ -50,4 +51,10 @@ func (f *CustomTextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		entry.Message = fmt.Sprintf("[%-8s][%-15s:%03d]%s", f.Name, path.Base(file), no, entry.Message)
 		return f.TextFormatter.Format(entry)
 	}
+}
+
+type TransparentFormatter struct{}
+
+func (f *TransparentFormatter) Format(entry *logrus.Entry) ([]byte, error) {
+	return []byte(fmt.Sprintf("%v\n", time.Now()) + entry.Message), nil
 }

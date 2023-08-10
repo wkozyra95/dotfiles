@@ -65,7 +65,7 @@ func RepoInstallAction(ctx context.Context, options RepoInstallOptions, installA
 					"-xfd",
 				),
 				installAction,
-				action.Func(fmt.Sprintf("Update %s", shortPath), func(action.Context) error {
+				action.Func(fmt.Sprintf("Update %s", shortPath), func() error {
 					var stderr, stdout bytes.Buffer
 					err := exec.Command().
 						WithCwd(options.Path).

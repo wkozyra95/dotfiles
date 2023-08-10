@@ -28,5 +28,5 @@ func (y Yay) UpgradePackages() error {
 		a.ShellCommand("sudo", "grub-mkconfig", "-o", "/boot/grub/grub.cfg"),
 		a.ShellCommand("yay", "-Syu"),
 	}
-	return a.Run(actions)
+	return a.RunActions(actions)
 }

@@ -78,7 +78,7 @@ func ProvisionUsbArchInstaller(ctx context.Context) error {
 			"-o", path.Join(workingdir, "out"),
 			workingdir,
 		),
-		a.Func("Write iso to drive", func(a.Context) error {
+		a.Func("Write iso to drive", func() error {
 			files, fileErr := os.ReadDir(path.Join(workingdir, "out"))
 			if fileErr != nil {
 				return fileErr
@@ -99,5 +99,5 @@ func ProvisionUsbArchInstaller(ctx context.Context) error {
 		a.ShellCommand("sudo", "rm", "-rf", workingdir),
 	}
 
-	return a.Run(actions)
+	return a.RunActions(actions)
 }

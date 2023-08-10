@@ -1,23 +1,18 @@
 package action
 
 import (
-	"io"
+	"fmt"
 
-	"github.com/wkozyra95/dotfiles/action/printer"
 	"github.com/wkozyra95/dotfiles/logger"
 	"github.com/wkozyra95/dotfiles/utils/prompt"
+	"github.com/wkozyra95/dotfiles/utils/term"
 )
 
 var log = logger.NamedLogger("action")
 
-type Context struct {
-	Stdout io.Writer
-	Stderr io.Writer
-}
-
 type internalCtx struct {
-	printer   *actionPrinter
-	publicCtx Context
+	textView *term.DynamicTextView
+	printer *actionPrinter
 }
 
 type Condition interface {
@@ -110,20 +105,20 @@ func (a WithCondition) build() node {
 }
 
 type SimpleAction struct {
-	Run   func(Context) error
+	Run   func() error
 	Label string
 }
 
 func (s SimpleAction) build() node {
 	return leafNode{
 		action: func(c internalCtx) error {
-			return s.Run(c.publicCtx)
+			return s.Run()
 		},
 		description: s.Label,
 	}
 }
 
-func Func(label string, fn func(Context) error) Object {
+func Func(label string, fn func() error) Object {
 	return SimpleAction{
 		Run:   fn,
 		Label: label,
@@ -148,42 +143,59 @@ func Scope(name string, fn func() Object) Object {
 
 func Nop() Object {
 	return SimpleAction{
-		Run:   func(Context) error { return nil },
+		Run:   func() error { return nil },
 		Label: "nop",
 	}
 }
 
 func Err(err error) Object {
 	return SimpleAction{
-		Run:   func(Context) error { return err },
+		Run:   func() error { return err },
 		Label: err.Error(),
 	}
 }
 
-func newCtx() internalCtx {
-	p := printer.New()
-	return internalCtx{
-		printer: &actionPrinter{
-			printFn: p.PersistentPrintln,
-			resetFn: p.ResetActionBuffer,
-		},
-		publicCtx: Context{
-			Stdout: p.ActionStdout(),
-			Stderr: p.ActionStderr(),
-		},
+func newCtx() (internalCtx, error) {
+	textView, err := term.NewDynamicTextView(term.DynamicTextViewOptions{
+		MaxLines:        15,
+		StderrPrefix:    "\033[1;31m[stderr]\033[0m ",
+		StderrPrefixLen: len("[stderr] "),
+		StdoutPrefix:    "\033[1;34m[stdout]\033[0m ",
+		StdoutPrefixLen: len("[stdout] "),
+	})
+	if err != nil {
+		return internalCtx{}, nil
 	}
+	return internalCtx{
+		textView: textView,
+		printer: &actionPrinter{
+			printFn: func(s string) {
+				fmt.Fprintln(textView.PersistentStdout(), s)
+				textView.Clear()
+			},
+		},
+	}, nil
 }
 
-func Run(o Object) error {
-	ctx := newCtx()
+func RunActions(o Object) error {
+	ctx, err := newCtx()
+	if err != nil {
+		return err
+	}
+	defer ctx.textView.CloseView()
 	if err := o.build().run(ctx); err != nil {
+		ctx.textView.PersistDynamicContent()
 		return err
 	}
 	return nil
 }
 
 func RunSilent(o Object) error {
-	ctx := newCtx()
+	ctx, err := newCtx()
+	if err != nil {
+		return err
+	}
+	defer ctx.textView.CloseView()
 	ctx.printer.printFn = func(s string) {}
 
 	return o.build().run(ctx)

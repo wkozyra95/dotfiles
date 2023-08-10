@@ -59,9 +59,7 @@ type leafNode struct {
 
 func (n leafNode) run(ctx internalCtx) error {
 	ctx.printer.printLeafNode(n)
-	err := n.action(ctx)
-	ctx.printer.resetFn()
-	return err
+	return n.action(ctx)
 }
 
 func (n leafNode) String() string {

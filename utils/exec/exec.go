@@ -128,6 +128,7 @@ func (c *Cmd) prepare(cmdName string, args ...string) {
 	} else if c.bufout != nil && c.buferr != nil {
 		c.Stdout = c.bufout
 		c.Stderr = c.buferr
+		c.Stdin = os.Stdin
 	}
 }
 

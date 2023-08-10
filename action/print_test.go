@@ -58,7 +58,7 @@ var expectedOutput = ` - example one line output
 
 func fakeAction(text string) Object {
 	return SimpleAction{
-		Run:   func(Context) error { return nil },
+		Run:   func() error { return nil },
 		Label: text,
 	}
 }
@@ -115,13 +115,14 @@ func TestNodePrint(t *testing.T) {
 	}
 
 	result := []string{}
-	ctx := newCtx()
+	ctx, err := newCtx()
+	assert.Nil(t, err)
 	ctx.printer.printFn = func(s string) {
 		result = append(result, s)
 	}
 	ctx.printer.stack = []string{" "}
 
-	err := actions.build().run(ctx)
-	assert.Nil(t, err)
+	runErr := actions.build().run(ctx)
+	assert.Nil(t, runErr)
 	assert.Equal(t, expectedOutput, strings.Join(result, "\n"))
 }

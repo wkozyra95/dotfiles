@@ -102,7 +102,7 @@ func withEncryptedDrive(
 		action.ShellCommand("sudo", "cryptsetup", "luksClose", mountName),
 	}
 
-	if err := action.Run(actions); err != nil {
+	if err := action.RunActions(actions); err != nil {
 		return err
 	}
 	return nil

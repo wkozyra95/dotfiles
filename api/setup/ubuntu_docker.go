@@ -28,7 +28,7 @@ func SetupUbuntuInDocker(ctx context.Context, opts SetupEnvironmentOptions) erro
 					Then: a.ShellCommand("tar", "-C", "/usr/local", "-xzf", "/tmp/go1.20.2.linux-amd64.tar.gz"),
 					Else: a.ShellCommand("sudo", "tar", "-C", "/usr/local", "-xzf", "/tmp/go1.20.2.linux-amd64.tar.gz"),
 				},
-				a.Func("Add /usr/local/go/bin to PATH", func(a.Context) error {
+				a.Func("Add /usr/local/go/bin to PATH", func() error {
 					os.Setenv("PATH", "/usr/local/go/bin:"+os.Getenv("PATH"))
 					return nil
 				}),
@@ -62,5 +62,5 @@ func SetupUbuntuInDocker(ctx context.Context, opts SetupEnvironmentOptions) erro
 		nvim.NvimEnsureLazyNvimInstalled(ctx),
 		nvim.NvimInstallAction(ctx, "fdc8e966a9183c08f2afec0817d03b7417a883b3"),
 	}
-	return a.Run(cmds)
+	return a.RunActions(cmds)
 }

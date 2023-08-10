@@ -1,6 +1,6 @@
 module github.com/wkozyra95/dotfiles
 
-go 1.18
+go 1.21
 
 require (
 	github.com/blang/semver v3.5.1+incompatible
@@ -8,14 +8,13 @@ require (
 	github.com/docker/docker v23.0.0-rc.1+incompatible
 	github.com/fatih/color v1.13.0
 	github.com/google/go-github/v50 v50.2.0
-	github.com/gosuri/uilive v0.0.4
 	github.com/juju/mutex v0.0.0-20180619145857-d21b13acf4bf
 	github.com/manifoldco/promptui v0.9.0
 	github.com/opencontainers/image-spec v1.0.3-0.20220303224323-02efb9a75ee1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.6.0
 	github.com/stretchr/testify v1.8.0
-	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
+	golang.org/x/exp v0.0.0-20230810033253-352e893a4cad
 	golang.org/x/oauth2 v0.6.0
 )
 

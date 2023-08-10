@@ -41,8 +41,9 @@ func NodePackageInstallAction(pkg string, reinstallCond action.Condition) action
 		If: action.CommandExists("volta"),
 		Then: action.WithCondition{
 			If: action.Or(
-				action.FuncCond(fmt.Sprintf("is %s installed", pkg), func() (bool, error) {
-					return isVoltaPackageInstalled(pkg)
+				action.FuncCond(fmt.Sprintf("is not %s installed", pkg), func() (bool, error) {
+					ok, err := isVoltaPackageInstalled(pkg)
+					return !ok, err
 				}),
 				reinstallCond,
 			),
@@ -50,8 +51,9 @@ func NodePackageInstallAction(pkg string, reinstallCond action.Condition) action
 		},
 		Else: action.WithCondition{
 			If: action.Or(
-				action.FuncCond(fmt.Sprintf("is %s installed", pkg), func() (bool, error) {
-					return isGlobalNpmPackageInstalled(pkg)
+				action.FuncCond(fmt.Sprintf("is not %s installed", pkg), func() (bool, error) {
+					ok, err := isGlobalNpmPackageInstalled(pkg)
+					return !ok, err
 				}),
 				reinstallCond,
 			),
