@@ -13,6 +13,8 @@ import (
 	"github.com/wkozyra95/dotfiles/api"
 	"github.com/wkozyra95/dotfiles/utils/exec"
 	"github.com/wkozyra95/dotfiles/utils/file"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 var tsconfig = map[string]any{
@@ -77,7 +79,12 @@ func isVoltaPackageInstalled(pkg string) (bool, error) {
 func isGlobalNpmPackageInstalled(pkg string) (bool, error) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
-	exec.Command().WithBufout(&stdout, &stderr).Run("npm", "list", "-g", "--json")
+	if err := exec.
+		Command().
+		WithBufout(&stdout, &stderr).
+		Run("npm", "list", "-g", "--json"); err != nil {
+		return false, err
+	}
 	var parsedJson struct {
 		Dependencies map[string]interface{} `json:"dependencies"`
 	}
@@ -157,7 +164,7 @@ func NodePlaygroundInstall(playgroundPath string, pkg string) error {
 	if len(splitNameSanitizedName) > 1 {
 		for i, element := range splitNameSanitizedName {
 			if i >= 1 {
-				splitNameSanitizedName[i] = strings.Title(element)
+				splitNameSanitizedName[i] = cases.Title(language.English).String(element)
 			}
 		}
 	}

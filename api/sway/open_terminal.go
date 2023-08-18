@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"strconv"
@@ -21,7 +20,7 @@ import (
 
 var (
 	log         = logger.NamedLogger("sway")
-	workspaceRg = regexp.MustCompile("workspace\\d+")
+	workspaceRg = regexp.MustCompile(`workspace\d+`)
 )
 
 // OpenTerminal opens terminal in the same directory as a
@@ -98,7 +97,7 @@ func getPidOfLastDescendantRunningZsh(pid int) int {
 	slices.Sort(pids)
 	for i := 0; i < len(pids); i++ {
 		pid := pids[len(pids)-i-1]
-		cmdline, readErr := ioutil.ReadFile(fmt.Sprintf("/proc/%d/cmdline", pid))
+		cmdline, readErr := os.ReadFile(fmt.Sprintf("/proc/%d/cmdline", pid))
 		if readErr != nil {
 			log.Error(readErr.Error())
 			continue

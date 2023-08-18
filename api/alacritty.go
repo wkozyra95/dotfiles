@@ -47,7 +47,7 @@ func AlacrittyRun(params map[string]interface{}) error {
 	}
 	for {
 		if err := exec.Command().WithStdio().WithCwd(params["cwd"].(string)).Run(params["command"].(string), args...); err != nil {
-			fmt.Printf(err.Error())
+			fmt.Println(err.Error())
 		}
 		if shouldRetry, isBool := (params["should_retry"]).(bool); isBool && !shouldRetry {
 			return nil

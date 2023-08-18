@@ -1,11 +1,21 @@
+.PHONY: build lint test check e2e-tests watch format dev-e2e-test-env dev-e2e-test-env-rebuild
+
 lua_format=~/.cache/nvim/myconfig/lua_lsp/3rd/EmmyLuaCodeStyle/build/CodeFormat/CodeFormat
 lua_config=./configs/nvim/lua.editorconfig
 
 build:
 	CGO_ENABLED=0 go build -o bin/mycli ./mycli
 
-unit-tests:
+lint:
+	golangci-lint run ./...
+
+test:
 	go test ./... -timeout 60m
+
+check:
+	make build
+	make lint
+	make test
 
 e2e-tests:
 	go test -tags="integration" ./... -timeout 60m

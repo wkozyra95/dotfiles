@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"strings"
 
 	"github.com/docker/docker/api/types"
@@ -84,32 +84,6 @@ func (d *dockerInstance) start() error {
 	return nil
 }
 
-func (d *dockerInstance) stop() error {
-	log.Info("Stopping docker container")
-
-	cont, findErr := d.findContainer()
-	if findErr != nil {
-		return findErr
-	}
-
-	if err := d.client.ContainerStop(context.Background(), cont.ID, container.StopOptions{}); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (d *dockerInstance) remove() error {
-	container, findErr := d.findContainer()
-	if findErr != nil {
-		return findErr
-	}
-	log.Info("Removing container")
-	if err := d.client.ContainerRemove(context.Background(), container.ID, types.ContainerRemoveOptions{}); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (d *dockerInstance) buildContainer() (*types.Container, error) {
 	log.Info("Creating new docker container")
 	_, createErr := d.client.ContainerCreate(
@@ -143,7 +117,9 @@ func (d *dockerInstance) createDockerContext() (*bytes.Buffer, error) {
 	if tarErr != nil {
 		return nil, tarErr
 	}
-	buf.ReadFrom(reader)
+	if _, err := buf.ReadFrom(reader); err != nil {
+		return nil, err
+	}
 	return buf, nil
 }
 
@@ -169,7 +145,7 @@ func (d *dockerInstance) buildImage() error {
 	}
 	defer buildResponse.Body.Close()
 
-	output, readErr := ioutil.ReadAll(buildResponse.Body)
+	output, readErr := io.ReadAll(buildResponse.Body)
 	if readErr != nil {
 		return readErr
 	}
@@ -224,13 +200,4 @@ func (d *dockerInstance) findContainer() (*types.Container, error) {
 		}
 	}
 	return nil, fmt.Errorf("not found")
-}
-
-func (d *dockerInstance) exec(cmd string) error {
-	//	container, findErr := d.findContainer()
-	//	if findErr != nil {
-	//		return findErr
-	//	}
-
-	return nil
 }

@@ -2,7 +2,6 @@ package persistentstate
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"path"
 	"time"
@@ -28,9 +27,7 @@ type StateManager[State any] interface {
 	GetState() (*State, error)
 }
 
-type clock struct {
-	delay time.Duration
-}
+type clock struct{}
 
 func (f *clock) After(t time.Duration) <-chan time.Time {
 	return time.After(t)
@@ -84,7 +81,7 @@ func (s *stateManager[State]) GetState() (*State, error) {
 
 func (s *stateManager[State]) read() (*State, error) {
 	if file.Exists(s.statePath) {
-		rawFile, readErr := ioutil.ReadFile(s.statePath)
+		rawFile, readErr := os.ReadFile(s.statePath)
 		if readErr != nil {
 			return nil, readErr
 		}

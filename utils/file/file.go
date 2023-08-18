@@ -3,7 +3,6 @@ package file
 import (
 	"fmt"
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"strings"
@@ -25,11 +24,11 @@ func Exists(name string) bool {
 }
 
 func Copy(source string, destination string) error {
-	data, readErr := ioutil.ReadFile(source)
+	data, readErr := os.ReadFile(source)
 	if readErr != nil {
 		return readErr
 	}
-	if err := ioutil.WriteFile(destination, data, 0o644); err != nil {
+	if err := os.WriteFile(destination, data, 0o644); err != nil {
 		return err
 	}
 	return nil
@@ -102,7 +101,7 @@ func EnsureText(path string, text string) error {
 func EnsureTextWithRegexp(path string, text string, rg *regexp.Regexp) error {
 	content := ""
 	if Exists(path) {
-		byteContent, readErr := ioutil.ReadFile(path)
+		byteContent, readErr := os.ReadFile(path)
 		if readErr != nil {
 			return readErr
 		}

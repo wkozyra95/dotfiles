@@ -2,7 +2,6 @@ package tool
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"strings"
@@ -39,7 +38,6 @@ type Partition struct {
 	name       string
 	device     string
 	mountPoint string
-	wasMounted bool
 }
 
 func (d Partition) MountPoint() string {
@@ -211,7 +209,7 @@ func DetectSdxPartitions(fileList []os.FileInfo) ([]Partition, error) {
 		}
 	}
 	// check for mount points
-	mtabBytes, mtabErr := ioutil.ReadFile("/etc/mtab")
+	mtabBytes, mtabErr := os.ReadFile("/etc/mtab")
 	if mtabErr != nil {
 		log.Errorf("Unable to read /etc/mtab, [%v]", mtabErr)
 		return nil, mtabErr

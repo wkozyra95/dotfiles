@@ -12,7 +12,7 @@ var log = logger.NamedLogger("action")
 
 type internalCtx struct {
 	textView *term.DynamicTextView
-	printer *actionPrinter
+	printer  *actionPrinter
 }
 
 type Condition interface {

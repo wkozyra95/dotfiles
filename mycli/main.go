@@ -28,5 +28,7 @@ func main() {
 	command.RegisterCompletionCmds(rootCmd)
 	command.RegisterDockerCmds(rootCmd)
 
-	rootCmd.Execute()
+	if err := rootCmd.Execute(); err != nil {
+		log.Error(err)
+	}
 }

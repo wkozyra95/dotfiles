@@ -2,7 +2,7 @@ package common
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path"
 	"regexp"
 
@@ -52,7 +52,7 @@ type ExpoWorkspacesConfig struct {
 
 func tryReadingDatabaseSecrets(file string) map[string]string {
 	dbMap := map[string]string{}
-	content, contentErr := ioutil.ReadFile(file)
+	content, contentErr := os.ReadFile(file)
 	if contentErr != nil {
 		log.Error(contentErr.Error())
 	} else {

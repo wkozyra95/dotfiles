@@ -7,8 +7,8 @@ import (
 )
 
 type actionPrinter struct {
-	printFn  func(string)
-	stack    []string
+	printFn func(string)
+	stack   []string
 }
 
 func (p *actionPrinter) startList() {

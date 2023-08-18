@@ -31,7 +31,9 @@ func Term(pid int) {
 	if processErr != nil {
 		panic(fmt.Sprintf("should happen only on windows %s", processErr.Error()))
 	}
-	process.Signal(syscall.SIGTERM)
+	if err := process.Signal(syscall.SIGTERM); err != nil {
+		log.Error(err)
+	}
 }
 
 type DoubleInteruptExitGuard interface {

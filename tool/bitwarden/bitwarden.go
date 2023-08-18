@@ -4,11 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 
-	"github.com/wkozyra95/dotfiles/logger"
 	"github.com/wkozyra95/dotfiles/utils/exec"
 )
-
-var log = logger.NamedLogger("bitwarden")
 
 func IsLoggedIn() (bool, error) {
 	var stdout, stderr bytes.Buffer

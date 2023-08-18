@@ -2,9 +2,7 @@ package launcher
 
 import (
 	"fmt"
-	"os"
 	goexec "os/exec"
-	"path"
 	"strings"
 	"time"
 
@@ -177,17 +175,12 @@ func (l *launcher) doLaunchInternalTask(task env.LauncherTask, restart bool) err
 	log.Info("Waiting for job to finish")
 	if err := cmd.Wait(); err != nil {
 		log.Errorf("Task %s failed with error %s", task.Id, err.Error())
-		l.manager.RunGuarded(func(s *state.State) error {
+		err := l.manager.RunGuarded(func(s *state.State) error {
 			return s.RegisterError(task.Id, err.Error())
 		})
+		if err != nil {
+			log.Error(err)
+		}
 	}
 	return nil
-}
-
-func getDefaultConfigPath() string {
-	homedir, homedirErr := os.UserHomeDir()
-	if homedirErr != nil {
-		panic("can't find homedir, HOME env is not defined")
-	}
-	return path.Join(homedir, ".dotfiles", "env", os.Getenv("CURRENT_ENV"), "jobs.json")
 }

@@ -12,10 +12,7 @@ func TextPrompt(msg string) string {
 
 func ConfirmPrompt(msg string) bool {
 	_, responseErr := (&promptui.Prompt{IsConfirm: true, Label: msg}).Run()
-	if responseErr != nil {
-		return false
-	}
-	return true
+	return responseErr == nil
 }
 
 func SelectPrompt[T any](msg string, choices []T, printFn func(T) string) (T, bool) {

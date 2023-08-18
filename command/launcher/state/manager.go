@@ -94,7 +94,7 @@ func (s *State) PrintErrors() error {
 	return nil
 }
 
-func (s *State) PrintState() error {
+func (s *State) PrintState() {
 	s.validateManagedProcesses()
 	for _, process := range s.Processes {
 		log.Infof(
@@ -105,7 +105,6 @@ func (s *State) PrintState() error {
 			process.Time,
 		)
 	}
-	return nil
 }
 
 func (s *State) KillTask(taskID string) error {
@@ -156,9 +155,7 @@ func (s *State) RegisterTask(taskID string, pid int) error {
 	if !proc.Exists(pid) {
 		return s.RegisterError(taskID, fmt.Sprintf("Process with pid %d does not exist", pid))
 	}
-	if _, hasError := s.Errors[taskID]; hasError {
-		delete(s.Errors, taskID)
-	}
+	delete(s.Errors, taskID)
 	s.Processes[taskID] = processState{
 		TaskID:               taskID,
 		ProcessPid:           pid,

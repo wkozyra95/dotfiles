@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path"
 	"strings"
@@ -107,7 +107,7 @@ func BuildImageWithoutContext(
 	}
 	defer buildResponse.Body.Close()
 
-	output, readErr := ioutil.ReadAll(buildResponse.Body)
+	output, readErr := io.ReadAll(buildResponse.Body)
 	if readErr != nil {
 		return nil, readErr
 	}
@@ -191,7 +191,9 @@ func createContext(directory string) (*bytes.Buffer, error) {
 	if tarErr != nil {
 		return nil, tarErr
 	}
-	buf.ReadFrom(reader)
+	if _, err := buf.ReadFrom(reader); err != nil {
+		return nil, err
+	}
 	return buf, nil
 }
 

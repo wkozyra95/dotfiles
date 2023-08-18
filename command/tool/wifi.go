@@ -38,9 +38,12 @@ func wifiManager() {
 		panic(selectErr)
 	}
 	if exec.CommandExists("nmcli") {
-		exec.Command().
+		err := exec.Command().
 			WithStdio().
 			Run("nmcli", "dev", "wifi", "con", networks[index].ssid, "password", networks[index].password)
+		if err != nil {
+			log.Error(err)
+		}
 	} else {
 		log.Infof("Unsupported auto-connect (ssid: %s, password: %s)", networks[index].ssid, networks[index].password)
 	}

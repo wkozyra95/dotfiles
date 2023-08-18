@@ -16,10 +16,7 @@ import (
 	"github.com/wkozyra95/dotfiles/api/setup/nvim"
 	"github.com/wkozyra95/dotfiles/api/sway"
 	"github.com/wkozyra95/dotfiles/api/tool"
-	"github.com/wkozyra95/dotfiles/logger"
 )
-
-var log = logger.NamedLogger("api")
 
 type (
 	object   = map[string]interface{}

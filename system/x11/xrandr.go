@@ -1,11 +1,8 @@
 package x11
 
 import (
-	"bytes"
 	"regexp"
 	"strconv"
-
-	"github.com/wkozyra95/dotfiles/utils/exec"
 )
 
 type Display struct {
@@ -35,20 +32,11 @@ var xrandrDisplayInfoRegexp = regexp.MustCompile(
 )
 
 var xrandrDisplayResolutionOffsetRegexp = regexp.MustCompile(
-	"([0-9]+)x([0-9]+)\\+([0-9]+)\\+([0-9]+)",
+	`([0-9]+)x([0-9]+)\+([0-9]+)\+([0-9]+)`,
 )
 
 type xrandrDetectResult struct {
 	displays []Display
-}
-
-func xrandrDetect() (xrandrDetectResult, error) {
-	var stderr bytes.Buffer
-	var stdout bytes.Buffer
-	if err := exec.Command().WithBufout(&stdout, &stderr).Run("xrandr"); err != nil {
-		return xrandrDetectResult{}, err
-	}
-	return xrandrParseOutput(stdout.Bytes())
 }
 
 func xrandrParseOutput(output []byte) (xrandrDetectResult, error) {

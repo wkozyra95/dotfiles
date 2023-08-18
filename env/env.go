@@ -4,22 +4,19 @@ import (
 	"encoding/json"
 
 	"github.com/wkozyra95/dotfiles/action"
-	"github.com/wkozyra95/dotfiles/logger"
 )
-
-var log = logger.NamedLogger("common")
 
 const (
 	Workspace1  int = 1
-	Workspace2      = 2
-	Workspace3      = 3
-	Workspace4      = 4
-	Workspace5      = 5
-	Workspace6      = 6
-	Workspace7      = 7
-	Workspace8      = 8
-	Workspace9      = 9
-	Workspace10     = 10
+	Workspace2  int = 2
+	Workspace3  int = 3
+	Workspace4  int = 4
+	Workspace5  int = 5
+	Workspace6  int = 6
+	Workspace7  int = 7
+	Workspace8  int = 8
+	Workspace9  int = 9
+	Workspace10 int = 10
 )
 
 type VimConfig struct {

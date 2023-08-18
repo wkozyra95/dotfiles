@@ -15,8 +15,6 @@ import (
 
 var homeDir = os.Getenv("HOME")
 
-var expoLauncherConfig = common.ExpoLauncherConfig(path.Join(homeDir, "playground"))
-
 var Config = env.EnvironmentConfig{
 	Workspaces: []env.Workspace{
 		common.DotfilesWorkspace,

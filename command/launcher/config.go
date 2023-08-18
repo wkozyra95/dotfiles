@@ -6,20 +6,6 @@ import (
 	"github.com/wkozyra95/dotfiles/env"
 )
 
-type task struct {
-	Cmd          string `json:"cmd"`
-	Cwd          string `json:"cwd"`
-	RunAsService bool   `json:"runAsService"`
-	IsCritical   bool   `json:"isCritical"`
-	Stdio        string `json:"stdio"`
-	X11Tag       string `json:"x11Tag"`
-}
-
-type config struct {
-	Jobs  map[string][]string `json:"jobs"`
-	Tasks map[string]task     `json:"tasks"`
-}
-
 func getTask(action env.LauncherAction, taskID string) (env.LauncherTask, error) {
 	for _, task := range action.Tasks {
 		if task.Id == taskID {

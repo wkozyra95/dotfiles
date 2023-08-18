@@ -81,7 +81,7 @@ func (p *printer) handleEvent(event logEvent) {
 			// make sure buffer is printed
 			p.textBuffer.clearDynamicLines(p.opts.stdout)
 			p.textBuffer.print(p.opts.stdout)
-			
+
 			p.textBuffer.writtenLinesCount = 0
 			// after setting writtenLinesCount to zero
 			// this will just clear current line

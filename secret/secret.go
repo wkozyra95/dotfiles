@@ -2,7 +2,7 @@ package secret
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 	"path"
 	"strings"
 
@@ -35,7 +35,7 @@ func (f fileEncryptedError) Error() string {
 
 func ReadSecret(homedir string) (Secrets, error) {
 	secretsFile := path.Join(homedir, "./.dotfiles/secret/secrets.json")
-	file, readErr := ioutil.ReadFile(secretsFile)
+	file, readErr := os.ReadFile(secretsFile)
 	if readErr != nil {
 		return Secrets{}, readErr
 	}
