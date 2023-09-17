@@ -1,9 +1,11 @@
 package term
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"syscall"
+	"time"
 	"unsafe"
 
 	"github.com/davecgh/go-spew/spew"
@@ -62,8 +64,8 @@ func NewDynamicTextView(options DynamicTextViewOptions) (*DynamicTextView, error
 
 	go runPrinter(channel, printerOptions{
 		maxLines: options.MaxLines,
-		stderr:   stderrPipe.realStream(),
-		stdout:   stdoutPipe.realStream(),
+		stderr:   stderrPipe.RealStream(),
+		stdout:   stdoutPipe.RealStream(),
 	})
 
 	return &DynamicTextView{
@@ -107,6 +109,45 @@ func (d *DynamicTextView) CloseView() {
 	d.stderrPipe.cleanup()
 	d.stdoutPipe.cleanup()
 	close(d.channel)
+}
+
+type Redirects struct {
+	Stdout      stdioPipe
+	Stderr      stdioPipe
+	FileWritter *os.File
+}
+
+func (r *Redirects) Cleanup() {
+	time.Sleep(time.Millisecond * 100)
+	r.Stderr.cleanup()
+	r.Stdout.cleanup()
+	if err := r.FileWritter.Sync(); err != nil {
+		fmt.Fprintln(r.Stderr.RealStream(), err)
+	}
+	if err := r.FileWritter.Close(); err != nil {
+		fmt.Fprintln(r.Stderr.RealStream(), err)
+	}
+}
+
+func RedirectStdioToFile(filename string) (*Redirects, error) {
+	file, openErr := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if openErr != nil {
+		return nil, openErr
+	}
+	stdoutPipe, stdoutErr := newStdioPipe(file, os.Stdout)
+	if stdoutErr != nil {
+		return nil, stdoutErr
+	}
+	stderrPipe, stderrErr := newStdioPipe(file, os.Stderr)
+	if stderrErr != nil {
+		stdoutPipe.cleanup()
+		return nil, stderrErr
+	}
+	return &Redirects{
+		Stdout:      stdoutPipe,
+		Stderr:      stderrPipe,
+		FileWritter: file,
+	}, nil
 }
 
 func getTermWidth() int {
@@ -164,7 +205,7 @@ func newStdioPipe(newWriter io.Writer, original *os.File) (stdioPipe, error) {
 	return pipe, nil
 }
 
-func (s *stdioPipe) realStream() *os.File {
+func (s *stdioPipe) RealStream() *os.File {
 	if s.swaped {
 		return s.pipeWriter
 	} else {

@@ -179,6 +179,7 @@ function module.apply()
         }
     )
     module.lsp_setup("elixirls", require("myconfig.lang.elixir").elixirls_config())
+    module.lsp_setup("ocamllsp", {})
 
     local cmake = require("myconfig.lang.cmake")
     module.lsp_setup("cmake", cmake.cmake_config())

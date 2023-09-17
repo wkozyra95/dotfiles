@@ -13,7 +13,6 @@ type AlacrittyConfig struct {
 	Args        []string
 	Cwd         string
 	ShouldRetry bool
-	Async       bool
 }
 
 func AlacrittyCall(params AlacrittyConfig) error {
@@ -29,14 +28,11 @@ func AlacrittyCall(params AlacrittyConfig) error {
 		return jsonMarshalErr
 	}
 	baseEncodedString := base64.StdEncoding.EncodeToString(rawJson)
-	if params.Async {
-		_, err := exec.Command().Start("alacritty", "-e", "mycli", "api", baseEncodedString)
-		return err
-	} else {
-		return exec.Command().Run("alacritty", "-e", "mycli", "api", baseEncodedString)
-	}
+	_, err := exec.Command().Start("alacritty", "-e", "mycli", "api", baseEncodedString)
+	return err
 }
 
+// Entrypoint of a process that was started in a new alacritty window created using AlacrittyCall
 func AlacrittyRun(params map[string]interface{}) error {
 	args := []string{}
 	if params["args"] != nil {

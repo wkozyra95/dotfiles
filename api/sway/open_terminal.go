@@ -31,7 +31,7 @@ func OpenTerminal(ctx context.Context) error {
 	if err != nil {
 		log.Error(err.Error())
 		return api.AlacrittyCall(
-			api.AlacrittyConfig{Command: "zsh", Args: []string{}, Cwd: ctx.Homedir, ShouldRetry: false, Async: true},
+			api.AlacrittyConfig{Command: "zsh", Args: []string{}, Cwd: ctx.Homedir, ShouldRetry: false},
 		)
 	}
 	return nil
@@ -60,7 +60,7 @@ func maybeOpenTerminalInTheSameDirectory() error {
 	}
 
 	return api.AlacrittyCall(
-		api.AlacrittyConfig{Command: "zsh", Cwd: destination, ShouldRetry: false, Async: true},
+		api.AlacrittyConfig{Command: "zsh", Cwd: destination, ShouldRetry: false},
 	)
 }
 

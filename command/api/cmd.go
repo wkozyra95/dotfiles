@@ -5,6 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/rand"
+	"os"
+	"path"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/wkozyra95/dotfiles/action"
@@ -16,35 +20,33 @@ import (
 	"github.com/wkozyra95/dotfiles/api/setup/nvim"
 	"github.com/wkozyra95/dotfiles/api/sway"
 	"github.com/wkozyra95/dotfiles/api/tool"
+	"github.com/wkozyra95/dotfiles/logger"
+	"github.com/wkozyra95/dotfiles/utils/notify"
+	"github.com/wkozyra95/dotfiles/utils/term"
 )
+
+var log = logger.NamedLogger("api")
 
 type (
-	object   = map[string]interface{}
+	object   = map[string]any
 	endpoint struct {
-		name    string
-		handler func(context.Context, object) interface{}
+		name             string
+		interactiveShell bool
+		handler          handleFunc
 	}
+	handleFunc = func(context.Context, object) (any, error)
 )
-
-func SimpleHandler(fn func(context.Context, object) error) func(context.Context, object) interface{} {
-	return func(ctx context.Context, input object) interface{} {
-		if err := fn(ctx, input); err != nil {
-			panic(err)
-		}
-		return map[string]string{}
-	}
-}
 
 var endpoints = map[string]endpoint{
 	"workspaces:list": {
 		name: "workspaces:list",
-		handler: func(ctx context.Context, input object) interface{} {
-			return ctx.EnvironmentConfig.Workspaces
+		handler: func(ctx context.Context, input object) (any, error) {
+			return ctx.EnvironmentConfig.Workspaces, nil
 		},
 	},
 	"directory:preview": {
 		name: "directory:preview",
-		handler: func(ctx context.Context, input object) interface{} {
+		handler: func(ctx context.Context, input object) (any, error) {
 			directoryPreview, err := helper.GetDirectoryPreview(
 				getStringField(input, "path"),
 				helper.DirectoryPreviewOptions{MaxElements: 20},
@@ -52,74 +54,78 @@ var endpoints = map[string]endpoint{
 			if err != nil {
 				panic(err)
 			}
-			return directoryPreview
+			return directoryPreview, nil
 		},
 	},
 	"launch": {
-		name: "launch",
-		handler: SimpleHandler(func(ctx context.Context, input object) error {
-			return api.AlacrittyRun(input)
-		}),
+		name:             "launch",
+		interactiveShell: true,
+		handler: func(ctx context.Context, input object) (any, error) {
+			return nil, api.AlacrittyRun(input)
+		},
 	},
 	"node:playground:delete": {
 		name: "node:playground:delete",
-		handler: SimpleHandler(func(ctx context.Context, input object) error {
-			return language.NodePlaygroundDelete(getStringField(input, "path"))
-		}),
+		handler: func(ctx context.Context, input object) (any, error) {
+			return nil, language.NodePlaygroundDelete(getStringField(input, "path"))
+		},
 	},
 	"node:playground:create": {
 		name: "node:playground:create",
-		handler: SimpleHandler(func(ctx context.Context, input object) error {
-			return language.NodePlaygroundCreate(getStringField(input, "path"))
-		}),
+		handler: func(ctx context.Context, input object) (any, error) {
+			return nil, language.NodePlaygroundCreate(getStringField(input, "path"))
+		},
 	},
 	"node:playground:node-shell": {
-		name: "node:playground:node-shell",
-		handler: SimpleHandler(func(ctx context.Context, input object) error {
-			return language.NodePlaygroundNodeShell(getStringField(input, "path"))
-		}),
+		name:             "node:playground:node-shell",
+		interactiveShell: true,
+		handler: func(ctx context.Context, input object) (any, error) {
+			return nil, language.NodePlaygroundNodeShell(getStringField(input, "path"))
+		},
 	},
 	"node:playground:zsh-shell": {
-		name: "node:playground:zsh-shell",
-		handler: SimpleHandler(func(ctx context.Context, input object) error {
-			return language.NodePlaygroundZshShell(getStringField(input, "path"))
-		}),
+		name:             "node:playground:zsh-shell",
+		interactiveShell: true,
+		handler: func(ctx context.Context, input object) (any, error) {
+			return nil, language.NodePlaygroundZshShell(getStringField(input, "path"))
+		},
 	},
 	"node:playground:install": {
 		name: "node:playground:install",
-		handler: SimpleHandler(func(ctx context.Context, input object) error {
-			return language.NodePlaygroundInstall(getStringField(input, "path"), getStringField(input, "package"))
-		}),
+		handler: func(ctx context.Context, input object) (any, error) {
+			return nil, language.NodePlaygroundInstall(getStringField(input, "path"), getStringField(input, "package"))
+		},
 	},
 	"docker:playground:create": {
 		name: "docker:playground:create",
-		handler: SimpleHandler(func(ctx context.Context, input object) error {
-			return tool.DockerPlaygroundCreate(getStringField(input, "path"), getStringField(input, "image"))
-		}),
+		handler: func(ctx context.Context, input object) (any, error) {
+			return nil, tool.DockerPlaygroundCreate(getStringField(input, "path"), getStringField(input, "image"))
+		},
 	},
 	"docker:playground:shell": {
-		name: "docker:playground:shell",
-		handler: SimpleHandler(func(ctx context.Context, input object) error {
-			return tool.DockerPlaygroundShell(getStringField(input, "path"))
-		}),
+		name:             "docker:playground:shell",
+		interactiveShell: true,
+		handler: func(ctx context.Context, input object) (any, error) {
+			return nil, tool.DockerPlaygroundShell(getStringField(input, "path"))
+		},
 	},
 	"elixir:lsp:install": {
 		name: "elixir:lsp:install",
-		handler: SimpleHandler(func(ctx context.Context, input object) error {
-			return action.RunSilent(nvim.ElixirLspInstallAction(ctx, true))
-		}),
+		handler: func(ctx context.Context, input object) (any, error) {
+			return nil, action.RunSilent(nvim.ElixirLspInstallAction(ctx, true))
+		},
 	},
 	"terminal:new": {
 		name: "terminal:new",
-		handler: SimpleHandler(func(ctx context.Context, input object) error {
-			return sway.OpenTerminal(ctx)
-		}),
+		handler: func(ctx context.Context, input object) (any, error) {
+			return nil, sway.OpenTerminal(ctx)
+		},
 	},
 	"backup:zsh_history": {
 		name: "backup:zsh_history",
-		handler: SimpleHandler(func(ctx context.Context, input object) error {
-			return backup.BackupZSHHistory(ctx)
-		}),
+		handler: func(ctx context.Context, input object) (any, error) {
+			return nil, backup.BackupZSHHistory(ctx)
+		},
 	},
 }
 
@@ -153,7 +159,7 @@ func RegisterCmds(rootCmd *cobra.Command) {
 				if decodeErr != nil {
 					panic(decodeErr)
 				}
-				input = map[string]interface{}{}
+				input = map[string]any{}
 				if err := json.Unmarshal(decodedInput, &input); err != nil {
 					panic(err)
 				}
@@ -172,12 +178,11 @@ func RegisterCmds(rootCmd *cobra.Command) {
 				panic(fmt.Errorf("endpoint %s does not exists", inputName))
 			}
 			ctx := context.CreateContext()
-			result := endpoint.handler(ctx, input)
-			serialized, serializeErr := json.Marshal(result)
-			if serializeErr != nil {
-				panic(serializeErr)
+			if !endpoint.interactiveShell {
+				handleWithStdioRedirect(endpoint, ctx, input)
+			} else {
+				handleWithRealStdio(endpoint, ctx, input)
 			}
-			fmt.Printf("%s\n", string(serialized))
 		},
 	}
 	apiCmd.PersistentFlags().BoolVar(
@@ -185,4 +190,47 @@ func RegisterCmds(rootCmd *cobra.Command) {
 		"simple api call (api argument is just a name and it's not base64 encoded)",
 	)
 	rootCmd.AddCommand(apiCmd)
+}
+
+func handleWithRealStdio(e endpoint, ctx context.Context, input map[string]any) {
+	result, commandErr := e.handler(ctx, input)
+	if commandErr != nil {
+		notify.Notify("Command failed", commandErr.Error())
+		result = map[string]any{}
+	}
+	serialized, serializeErr := json.Marshal(result)
+	if serializeErr != nil {
+		notify.Notify("Failed to serialize api response", serializeErr.Error())
+		panic(serializeErr)
+	}
+	fmt.Println(string(serialized))
+}
+
+func commandCallID(e endpoint) string {
+	return fmt.Sprintf("api:%s-%d:%d", e.name, time.Now().Nanosecond(), rand.Intn(100))
+}
+
+func handleWithStdioRedirect(e endpoint, ctx context.Context, input map[string]any) {
+	logfile := fmt.Sprintf("/tmp/mycli/log:%s", commandCallID(e))
+	mkdirErr := os.MkdirAll(path.Dir(logfile), os.ModePerm)
+	if mkdirErr != nil {
+		panic(mkdirErr)
+	}
+	redirects, redirectErr := term.RedirectStdioToFile(logfile)
+	if redirectErr != nil {
+		notify.Notify("Failed to redirect", redirectErr.Error())
+		panic(redirectErr)
+	}
+	result, commandErr := e.handler(ctx, input)
+	if commandErr != nil {
+		notify.Notify("Command failed", commandErr.Error())
+		result = map[string]any{}
+	}
+	serialized, serializeErr := json.Marshal(result)
+	if serializeErr != nil {
+		notify.Notify("Failed to serialize api response", serializeErr.Error())
+		panic(serializeErr)
+	}
+	fmt.Fprintln(redirects.Stdout.RealStream(), string(serialized))
+	defer redirects.Cleanup()
 }
