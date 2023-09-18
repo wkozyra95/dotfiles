@@ -77,6 +77,9 @@ input * {
     bindsym $mod+Ctrl+$up move up
     bindsym $mod+Ctrl+$right move right
 
+    assign [instance="ffplay"] 6
+    assign [app_id="ffplay"] workspace 6
+
     assign [instance="myclitag1"] 1
     assign [instance="myclitag2"] 2
     assign [instance="myclitag3"] 3
