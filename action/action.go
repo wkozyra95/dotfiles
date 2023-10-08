@@ -157,7 +157,7 @@ func Err(err error) Object {
 
 func newCtx() (internalCtx, error) {
 	textView, err := term.NewDynamicTextView(term.DynamicTextViewOptions{
-		MaxLines:        15,
+		MaxLines:        25,
 		StderrPrefix:    "\033[1;31m[stderr]\033[0m ",
 		StderrPrefixLen: len("[stderr] "),
 		StdoutPrefix:    "\033[1;34m[stdout]\033[0m ",

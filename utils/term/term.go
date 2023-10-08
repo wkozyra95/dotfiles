@@ -51,11 +51,14 @@ func NewDynamicTextView(options DynamicTextViewOptions) (*DynamicTextView, error
 		return nil, stdoutErr
 	}
 
-	stderrPipe, stderrErr := newStdioPipe(&dynamicInput{
-		channel: channel,
-		definition: &dynamicInputDefinition{
-			prefix:       options.StderrPrefix,
-			prefixLength: options.StderrPrefixLen,
+	stderrPipe, stderrErr := newStdioPipe(&delayedWriter{
+		delay: time.Millisecond,
+		innerWriter: &dynamicInput{
+			channel: channel,
+			definition: &dynamicInputDefinition{
+				prefix:       options.StderrPrefix,
+				prefixLength: options.StderrPrefixLen,
+			},
 		},
 	}, os.Stderr)
 	if stderrErr != nil {
@@ -170,6 +173,19 @@ type stdioPipe struct {
 	pipeReader *os.File
 	stdioPtr   *os.File
 	swaped     bool
+}
+
+// Wrappers introduce race conditions between stderr and stdout which sometimes manifests
+// where e.g. confirm prompt does not show up in the last line because buffered stdout is
+// printed latter.
+type delayedWriter struct {
+	delay       time.Duration
+	innerWriter io.Writer
+}
+
+func (d *delayedWriter) Write(data []byte) (int, error) {
+	time.Sleep(d.delay)
+	return d.innerWriter.Write(data)
 }
 
 func newStdioPipe(newWriter io.Writer, original *os.File) (stdioPipe, error) {
