@@ -35,7 +35,7 @@ func SetupEnvironment(ctx context.Context, opts SetupEnvironmentOptions) error {
 		},
 		SetupEnvironmentCoreAction(ctx),
 		nvim.NvimEnsureLazyNvimInstalled(ctx),
-		nvim.NvimInstallAction(ctx, "ef44e597294e4d0d9128ef69b6aa7481a54e17cb"),
+		nvim.NvimInstallAction(ctx, "30d311ebcf9433f84bd4d98f9e049b36c9d352ac"),
 	}
 	if opts.DryRun {
 		PrintActionTree(cmds)
