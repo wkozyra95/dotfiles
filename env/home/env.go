@@ -91,6 +91,7 @@ var Config = env.EnvironmentConfig{
 				Eslint: common.EslintConfig.Eslint,
 			},
 		},
+		common.MembraneConfig.VideoCompositor(path.Join(homeDir, "playground/video_compositor")),
 	},
 	Actions: []env.LauncherAction{
 		{

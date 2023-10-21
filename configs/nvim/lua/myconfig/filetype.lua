@@ -3,6 +3,7 @@ local module = {}
 local format = require("myconfig.format")
 local spell = require("myconfig.spell")
 local snippets = require("myconfig.snippets")
+local workspace = require("myconfig.workspaces")
 
 local javascript = function()
     format.preset(2)
@@ -48,12 +49,25 @@ local handlers = {
     ["typescriptreact"] = javascript,
 }
 
+local apply_workspace_settings = function(filetype)
+    if (not workspace.current.name) then
+        return
+    end
+    local config = (workspace.current.vim.filetype_config or {})[filetype];
+    if (config) then
+        if (config.indent_size and config.indent_size > 0) then
+            format.preset(config.indent_size)
+        end
+    end
+end
+
 local on_buf_enter_cb = function()
     vim.opt_local.spell = false
     local filetype = vim.bo.filetype or "default"
     if (handlers[filetype]) then
-        handlers[vim.bo.filetype]()
+        handlers[filetype]()
     end
+    apply_workspace_settings(filetype)
 end
 
 function module.apply()

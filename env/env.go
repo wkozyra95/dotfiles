@@ -19,12 +19,17 @@ const (
 	Workspace10 int = 10
 )
 
+type VimFiletypeConfig struct {
+	IndentSize int `json:"indent_size"`
+}
+
 type VimConfig struct {
-	GoEfm     map[string]interface{}       `json:"go_efm,omitempty"`
-	CmakeEfm  map[string]interface{}       `json:"cmake_efm,omitempty"`
-	Eslint    *bool                        `json:"eslint,omitempty"`
-	Databases LazyValue[map[string]string] `json:"databases,omitempty"`
-	Actions   []VimAction                  `json:"actions,omitempty"`
+	GoEfm          map[string]any               `json:"go_efm,omitempty"`
+	CmakeEfm       map[string]any               `json:"cmake_efm,omitempty"`
+	FiletypeConfig map[string]any               `json:"filetype_config,omitempty"`
+	Eslint         *bool                        `json:"eslint,omitempty"`
+	Databases      LazyValue[map[string]string] `json:"databases,omitempty"`
+	Actions        []VimAction                  `json:"actions,omitempty"`
 }
 
 type VimAction struct {
