@@ -172,6 +172,14 @@ function module.apply()
                             url =
                             "https://raw.githubusercontent.com/expo/vscode-expo/schemas/schema/eas-metadata.json",
                         },
+                        {
+                            fileMatch = {"**.scene.json"},
+                            url = "file:///home/wojtek/membrane/video_compositor/schemas/scene.schema.json"
+                        },
+                        {
+                            fileMatch = {"**.renderer.json"},
+                            url = "file:///home/wojtek/membrane/video_compositor/schemas/renderer.schema.json"
+                        }
                     },
                     validate = {enable = true},
                 },

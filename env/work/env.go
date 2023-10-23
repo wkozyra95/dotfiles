@@ -29,6 +29,7 @@ var Config = env.EnvironmentConfig{
 		expoConfig.EASBuildCache(path.Join(homeDir, "expo/eas-build-cache")),
 		common.DotfilesWorkspace,
 		common.HomeWorkspace,
+		common.MembraneConfig.VideoCompositor(path.Join(homeDir, "membrane/video_compositor")),
 	},
 	Actions: []env.LauncherAction{
 		expoLauncherConfig.EasCli,
