@@ -177,8 +177,8 @@ function module.apply()
                             url = "file:///home/wojtek/membrane/video_compositor/schemas/scene.schema.json"
                         },
                         {
-                            fileMatch = {"**.renderer.json"},
-                            url = "file:///home/wojtek/membrane/video_compositor/schemas/renderer.schema.json"
+                            fileMatch = {"**.register.json"},
+                            url = "file:///home/wojtek/membrane/video_compositor/schemas/register.schema.json"
                         }
                     },
                     validate = {enable = true},
