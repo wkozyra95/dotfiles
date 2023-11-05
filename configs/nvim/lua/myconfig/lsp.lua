@@ -174,11 +174,13 @@ function module.apply()
                         },
                         {
                             fileMatch = {"**.scene.json"},
-                            url = "file:///home/wojtek/membrane/video_compositor/schemas/scene.schema.json"
+                            url =
+                            "file:///home/wojtek/membrane/video_compositor/schemas/scene.schema.json"
                         },
                         {
                             fileMatch = {"**.register.json"},
-                            url = "file:///home/wojtek/membrane/video_compositor/schemas/register.schema.json"
+                            url =
+                            "file:///home/wojtek/membrane/video_compositor/schemas/register.schema.json"
                         }
                     },
                     validate = {enable = true},

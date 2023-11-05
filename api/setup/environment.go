@@ -33,6 +33,17 @@ func SetupEnvironment(ctx context.Context, opts SetupEnvironmentOptions) error {
 			}),
 			Then: ShellCommand("sudo", "chsh", "-s", "/usr/bin/zsh"),
 		},
+		WithCondition{
+			If: Not(PathExists(ctx.FromHome(".dotfiles-private"))),
+			Then: ShellCommand(
+				"git",
+				"clone",
+				"git@github.com:wkozyra95/dotfiles-private.git",
+				ctx.FromHome(".dotfiles-private"),
+			),
+		},
+		EnsureSymlink(ctx.FromHome(".dotfiles-private/nvim/spell"), ctx.FromHome(".dotfiles/configs/nvim/spell")),
+		EnsureSymlink(ctx.FromHome(".dotfiles-private/notes"), ctx.FromHome("notes")),
 		SetupEnvironmentCoreAction(ctx),
 		nvim.NvimEnsureLazyNvimInstalled(ctx),
 		nvim.NvimInstallAction(ctx, "30d311ebcf9433f84bd4d98f9e049b36c9d352ac"),
