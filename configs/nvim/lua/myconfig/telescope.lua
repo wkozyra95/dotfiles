@@ -31,6 +31,7 @@ function module.file_browser_current_dir()
             hidden = true,
             respect_gitignore = not module.state.show_ignored,
             git_status = false,
+            select_buffer = true,
         }
     )
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<esc>", true, false, true), "n", false)
