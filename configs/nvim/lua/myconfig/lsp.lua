@@ -133,61 +133,9 @@ function module.apply()
     module.lsp_setup("clojure_lsp", {})
     module.lsp_setup("rust_analyzer", {})
 
-    module.lsp_setup(
-        "yamlls", {
-            settings = {
-                yaml = {
-                    schemas = {
-                        ["https://json.schemastore.org/github-action.json"] = {
-                            ".github/actions/*.yml",
-                        },
-                        ["https://json.schemastore.org/github-workflow.json"] = {
-                            ".github/workflows/*.yml",
-                        },
-                        ["https://json.schemastore.org/circleciconfig.json"] = {
-                            ".circleci/config.yml",
-                        },
-                    },
-                },
-            },
-        }
-    )
-    module.lsp_setup(
-        "jsonls", {
-            settings = {
-                json = {
-                    schemas = {
-                        {
-                            fileMatch = {"app.json", "app.config.json"},
-                            url =
-                            "https://raw.githubusercontent.com/expo/vscode-expo/schemas/schema/expo-xdl.json",
-                        },
-                        {
-                            fileMatch = {"eas.json"},
-                            url =
-                            "https://raw.githubusercontent.com/expo/vscode-expo/schemas/schema/eas.json",
-                        },
-                        {
-                            fileMatch = {"store.config.json"},
-                            url =
-                            "https://raw.githubusercontent.com/expo/vscode-expo/schemas/schema/eas-metadata.json",
-                        },
-                        {
-                            fileMatch = {"**.scene.json"},
-                            url =
-                            "file:///home/wojtek/membrane/video_compositor/schemas/scene.schema.json"
-                        },
-                        {
-                            fileMatch = {"**.register.json"},
-                            url =
-                            "file:///home/wojtek/membrane/video_compositor/schemas/register.schema.json"
-                        }
-                    },
-                    validate = {enable = true},
-                },
-            },
-        }
-    )
+    module.lsp_setup("yamlls", require("myconfig.lang.yaml").yamlls_config())
+    module.lsp_setup("jsonls", require("myconfig.lang.json").jsonls_config())
+
     module.lsp_setup("elixirls", require("myconfig.lang.elixir").elixirls_config())
     module.lsp_setup("ocamllsp", {})
 

@@ -68,6 +68,10 @@ end
 function module.format(original_format)
     local tree = parsers.get_parser(0):parse()[1]
     local query = vim.treesitter.query.get("go", "trailing_commas")
+    if not query then
+        vim.notify("Treesitter query \"trailing_commas\" not found for \"go\" filetype.")
+        return
+    end
     for _, node in query:iter_captures(tree:root(), 0, 0, -1) do
         local non_comment = get_last_non_comment(node)
         if non_comment then

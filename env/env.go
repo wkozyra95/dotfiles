@@ -26,7 +26,9 @@ type VimFiletypeConfig struct {
 type VimConfig struct {
 	GoEfm          map[string]any               `json:"go_efm,omitempty"`
 	CmakeEfm       map[string]any               `json:"cmake_efm,omitempty"`
-	FiletypeConfig map[string]any               `json:"filetype_config,omitempty"`
+	FiletypeConfig map[string]VimFiletypeConfig `json:"filetype_config,omitempty"`
+	JsonlsSchemas  []JsonSchema                 `json:"json_schemas,omitempty"`
+	YamllsSchemas  []JsonSchema                 `json:"yml_schemas,omitempty"`
 	Eslint         *bool                        `json:"eslint,omitempty"`
 	Databases      LazyValue[map[string]string] `json:"databases,omitempty"`
 	Actions        []VimAction                  `json:"actions,omitempty"`
@@ -37,6 +39,11 @@ type VimAction struct {
 	Name string   `json:"name"`
 	Args []string `json:"args"`
 	Cwd  string   `json:"cwd"`
+}
+
+type JsonSchema struct {
+	FileMatch []string `json:"fileMatch"`
+	Url       string   `json:"url"`
 }
 
 type LauncherAction struct {

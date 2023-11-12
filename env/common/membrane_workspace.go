@@ -1,6 +1,8 @@
 package common
 
 import (
+	"path"
+
 	"github.com/wkozyra95/dotfiles/env"
 )
 
@@ -14,9 +16,19 @@ var MembraneConfig = MembraneWorkspacesConfig{
 			Name: "video_compositor",
 			Path: p,
 			VimConfig: env.VimConfig{
-				FiletypeConfig: map[string]any{
-					"json": env.VimFiletypeConfig{
+				FiletypeConfig: map[string]env.VimFiletypeConfig{
+					"json": {
 						IndentSize: 4,
+					},
+				},
+				JsonlsSchemas: []env.JsonSchema{
+					{
+						FileMatch: []string{"*.scene.json"},
+						Url:       "file://" + path.Join(p, "schemas/scene.schema.json"),
+					},
+					{
+						FileMatch: []string{"*.register.json"},
+						Url:       "file://" + path.Join(p, "schemas/register.schema.json"),
 					},
 				},
 			},

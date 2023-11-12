@@ -27,6 +27,32 @@ function module.set_workspace(path)
 end
 
 module.list = {}
+
+--- @class FiletypeConfig
+--- @field indent_size integer
+---
+--- @class WorkspaceAction
+--- @field id string
+--- @field name string
+--- @field cwd string
+--- @field args table<string>
+---
+--- @class WorkspaceVim
+--- @field go_efm table<string, any> | nil
+--- @field cmake_efm table<string, any> | nil
+--- @field filetype_config table<string, FiletypeConfig> | nil
+--- @field json_schemas table<any> | nil
+--- @field yml_schemas table<any> | nil
+--- @field eslint boolean | nil
+--- @field databases table<string, string> | nil
+--- @field actions table<WorkspaceAction> | nil
+---
+--- @class Workspace
+--- @field name string
+--- @field path string
+--- @field vim WorkspaceVim
+---
+--- @type Workspace | nil
 module.current = {}
 
 local function create_workspaces_list()
