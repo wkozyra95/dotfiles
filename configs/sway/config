@@ -1,34 +1,4 @@
-# Default config for sway
-#
-# Copy this to ~/.config/sway/config and edit it to your liking.
-#
-# Read `man 5 sway` for a complete reference.
-
-### Variables
-#
-# Logo key. Use Mod1 for Alt.
-set $mod Mod4
-set $left h
-set $down j
-set $up k
-set $right l
-
-set $term alacritty
-set $menu j4-dmenu-desktop --term='alacritty' --dmenu='bemenu --fn $uifont -b -p "▶" --tf "$prompt" --hf "$highlight" --sf "$highlight" --scf "$highlight"' | xargs swaymsg exec --
-
-set $primary_output DP-2
-set $secondary_output DP-3
-
 output * bg ~/.dotfiles/configs/sway/wallpaper.png fill 
-output eDP-1 scale 0.85
-
-# side monitor on the right
-#output DP-2 pos 1440 512
-#output DP-3 pos 0 0 transform 270
-# side monitor on the right
-output DP-2 pos 0 512
-output DP-3 pos 2560 0 transform 270
-
 
 # You can get the names of your outputs by running: swaymsg -t get_outputs
 default_border pixel 4
@@ -38,147 +8,12 @@ input * {
     xkb_options caps:escape
 }
 
-### Key bindings
 #
-# Basics:
+# Key bindings
 #
-    bindsym $mod+Return exec mycli api --simple terminal:new
-    bindsym $mod+Shift+c kill
-    bindsym $mod+Shift+b exec swaylock --config ~/.dotfiles/configs/sway/swaylock
-    bindsym $mod+Ctrl+q exec swaymsg exit
-    bindsym $mod+p exec $menu
-    bindsym $mod+Ctrl+r reload
-
-    floating_modifier $mod normal
-
-    bindsym Print exec grim -g "$(slurp)"
-    bindsym Shift+Print exec wf-recorder -g "$(slurp)" -f $(date +"recording_%m%d_%H%M.mp4")
-    bindsym Ctrl+Shift+Print exec killall -s SIGINT wf-recorder
-
-    bindsym XF86AudioLowerVolume exec pamixer -d 5
-    bindsym XF86AudioRaiseVolume exec pamixer -i 5
-    bindsym XF86AudioMute exec pamixer -t
-
-    bindsym XF86AudioPlay exec playerctl play-pause
-    bindsym XF86AudioNext exec playerctl next
-    bindsym XF86AudioPrev exec playerctl previous
-#
-# Moving around:
-#
-    # Move your focus around
-    bindsym $mod+$left focus left
-    bindsym $mod+$down focus down
-    bindsym $mod+$up focus up
-    bindsym $mod+$right focus right
-
-    # Move the focused window with the same, but add Shift
-    bindsym $mod+Ctrl+$left move left
-    bindsym $mod+Ctrl+$down move down
-    bindsym $mod+Ctrl+$up move up
-    bindsym $mod+Ctrl+$right move right
-
-    assign [instance="ffplay"] 6
-    assign [app_id="ffplay"] workspace 6
-
-    assign [instance="myclitag1"] 1
-    assign [instance="myclitag2"] 2
-    assign [instance="myclitag3"] 3
-    assign [instance="myclitag4"] 4
-    assign [instance="myclitag5"] 5
-    assign [instance="myclitag6"] 6
-    assign [instance="myclitag7"] 7
-    assign [instance="myclitag8"] 8
-    assign [instance="myclitag9"] 9
-    assign [instance="myclitag10"] 10
-
-    workspace 1 output DP-2
-    workspace 2 output DP-2
-    workspace 3 output DP-2
-    workspace 4 output DP-2
-    workspace 5 output DP-2
-    workspace 6 output DP-3
-    workspace 7 output DP-3
-    workspace 8 output DP-2
-    workspace 9 output DP-2
-    workspace 10 output DP-2
-
-    assign [app_id="workspace1"] workspace 1
-    assign [app_id="workspace2"] workspace 2
-    assign [app_id="workspace3"] workspace 3
-    assign [app_id="workspace4"] workspace 4
-    assign [app_id="workspace5"] workspace 5
-    assign [app_id="workspace6"] workspace 6
-    assign [app_id="workspace7"] workspace 7
-    assign [app_id="workspace8"] workspace 8
-    assign [app_id="workspace9"] workspace 9
-    assign [app_id="workspace10"] workspace 10
-
-    assign [app_id="firefox"] workspace 1
-    assign [class="Google-chrome"] workspace 1
-    assign [class="Slack"] workspace 10
-
-    bindsym $mod+Shift+L workspace next
-    bindsym $mod+Shift+H workspace prev
-
-    bindsym $mod+1 workspace number 1
-    bindsym $mod+2 workspace number 2
-    bindsym $mod+3 workspace number 3
-    bindsym $mod+4 workspace number 4
-    bindsym $mod+5 workspace number 5
-    bindsym $mod+6 workspace number 6
-    bindsym $mod+7 workspace number 7
-    bindsym $mod+8 workspace number 8
-    bindsym $mod+9 workspace number 9
-    bindsym $mod+0 workspace number 10
-
-    bindsym $mod+Shift+1 move container to workspace number 1
-    bindsym $mod+Shift+2 move container to workspace number 2
-    bindsym $mod+Shift+3 move container to workspace number 3
-    bindsym $mod+Shift+4 move container to workspace number 4
-    bindsym $mod+Shift+5 move container to workspace number 5
-    bindsym $mod+Shift+6 move container to workspace number 6
-    bindsym $mod+Shift+7 move container to workspace number 7
-    bindsym $mod+Shift+8 move container to workspace number 8
-    bindsym $mod+Shift+9 move container to workspace number 9
-    bindsym $mod+Shift+0 move container to workspace number 10
-
-    bindsym $mod+b splith
-    bindsym $mod+v splitv
-    bindsym $mod+space layout toggle split tabbed
-
-    # Make the current focus fullscreen
-    bindsym $mod+f fullscreen
-
-    # Toggle the current focus between tiling and floating mode
-    bindsym $mod+Ctrl+space floating toggle
-
-    # Move focus to the parent container
-    bindsym $mod+a focus parent
-#
-# Scratchpad:
-#
-    # Sway has a "scratchpad", which is a bag of holding for windows.
-    # You can send windows there and get them back later.
-
-    # Move the currently focused window to the scratchpad
-    bindsym $mod+Shift+minus move scratchpad
-
-    # Show the next scratchpad window or hide the focused scratchpad window.
-    # If there are multiple scratchpad windows, this command cycles through them.
-    bindsym $mod+minus scratchpad show
-#
-# Resizing containers:
-#
-mode "resize" {
-    bindsym $left resize shrink width 10px
-    bindsym $down resize grow height 10px
-    bindsym $up resize shrink height 10px
-    bindsym $right resize grow width 10px
-
-    bindsym Return mode "default"
-    bindsym Escape mode "default"
-}
-bindsym $mod+r mode "resize"
+include ./workspaces
+include ./keybind
+include $CURRENT_ENV.config
 
 #
 # Status Bar:
@@ -207,6 +42,7 @@ bar {
         focused_workspace #52e2ff #52e2ff #5c5c5c
     }
 }
+
 # class                 border   backgr.  text     indicator  child_border
 client.focused          #4c7899  #ffaa77  #ffffff  #ff0000    #ff9000
 client.focused_inactive #333333  #5f676a  #ffffff  #ff0000    #5f676a

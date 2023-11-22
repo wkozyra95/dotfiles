@@ -1,0 +1,21 @@
+assign [instance="myclitag1"] 1
+assign [instance="myclitag2"] 2
+assign [instance="myclitag3"] 3
+assign [instance="myclitag4"] 4
+assign [instance="myclitag5"] 5
+assign [instance="myclitag6"] 6
+assign [instance="myclitag7"] 7
+assign [instance="myclitag8"] 8
+assign [instance="myclitag9"] 9
+assign [instance="myclitag10"] 10
+
+assign [app_id="workspace1"] workspace 1
+assign [app_id="workspace2"] workspace 2
+assign [app_id="workspace3"] workspace 3
+assign [app_id="workspace4"] workspace 4
+assign [app_id="workspace5"] workspace 5
+assign [app_id="workspace6"] workspace 6
+assign [app_id="workspace7"] workspace 7
+assign [app_id="workspace8"] workspace 8
+assign [app_id="workspace9"] workspace 9
+assign [app_id="workspace10"] workspace 10
