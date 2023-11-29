@@ -20,12 +20,9 @@ import (
 	"github.com/wkozyra95/dotfiles/api/setup/nvim"
 	"github.com/wkozyra95/dotfiles/api/sway"
 	"github.com/wkozyra95/dotfiles/api/tool"
-	"github.com/wkozyra95/dotfiles/logger"
 	"github.com/wkozyra95/dotfiles/utils/notify"
 	"github.com/wkozyra95/dotfiles/utils/term"
 )
-
-var log = logger.NamedLogger("api")
 
 type (
 	object   = map[string]any

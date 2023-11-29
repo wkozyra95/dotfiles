@@ -50,6 +50,14 @@ var Config = env.EnvironmentConfig{
 		{Args: []string{"alacritty", "--class", "workspace6"}},
 		{Args: []string{"mycli", "api", "--simple", "backup:zsh_history"}},
 	},
+	DockerEnvsSpec: []env.DockerEnvSpec{
+		{
+			Name:           "compositor",
+			ImageName:      "mycli-compositor",
+			DockerfilePath: path.Join(homeDir, ".dotfiles/configs/dockerfiles/compositor.Dockerfile"),
+			ContainerName:  "live-compositor",
+		},
+	},
 	Backup: env.BackupConfig{
 		GpgKeyring: true,
 		Secrets: map[string]string{

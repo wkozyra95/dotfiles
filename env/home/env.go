@@ -175,6 +175,12 @@ var Config = env.EnvironmentConfig{
 			DockerfilePath: path.Join(homeDir, ".dotfiles/configs/dockerfiles/expo-sdk.Dockerfile"),
 			ContainerName:  "expo-sdk",
 		},
+		{
+			Name:           "compositor",
+			ImageName:      "mycli-compositor",
+			DockerfilePath: path.Join(homeDir, ".dotfiles/configs/dockerfiles/compositor.Dockerfile"),
+			ContainerName:  "live-compositor",
+		},
 	},
 	CustomSetupAction: func(ctx env.Context) action.Object {
 		pkgInstaller := arch.Yay{}
