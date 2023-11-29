@@ -88,9 +88,16 @@ func BuildImageWithoutContext(
 	dockerfilePath string,
 ) (*types.ImageSummary, error) {
 	log.Info("Building image")
+	userUID := fmt.Sprintf("%d", os.Getuid())
+	userGID := fmt.Sprintf("%d", os.Getgid())
+
 	buildOptions := types.ImageBuildOptions{
-		Dockerfile:  path.Base(dockerfilePath),
-		Tags:        []string{imageName},
+		Dockerfile: path.Base(dockerfilePath),
+		Tags:       []string{imageName},
+		BuildArgs: map[string]*string{
+			"HOST_UID": &userUID,
+			"HOST_GID": &userGID,
+		},
 		Remove:      true,
 		ForceRemove: true,
 	}
@@ -145,10 +152,15 @@ func BuildImageWithoutContext(
 	return image, nil
 }
 
-func BuildContainer(ctx *DockerContext, imageName string, containerName string) (*types.Container, error) {
+func BuildContainer(
+	ctx *DockerContext,
+	imageName string,
+	containerName string,
+) (*types.Container, error) {
 	if err := ctx.ensureContainerRemoved(containerName); err != nil {
 		return nil, err
 	}
+
 	log.Info("Creating container")
 	cwd := fn.Must(os.Getwd())
 	_, createErr := ctx.cl.ContainerCreate(
