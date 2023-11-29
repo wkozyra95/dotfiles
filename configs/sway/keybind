@@ -22,7 +22,7 @@ bindsym $mod+Ctrl+r reload
 floating_modifier $mod normal
 
 bindsym Print exec grim -g "$(slurp)"
-bindsym Shift+Print exec wf-recorder -g "$(slurp)" -f $(date +"recording_%m%d_%H%M.mp4")
+bindsym Shift+Print exec wf-recorder --pixel-format yuv420p --geometry "$(slurp)" -f $(date +"recording_%m%d_%H%M.mp4")
 bindsym Ctrl+Shift+Print exec killall -s SIGINT wf-recorder
 
 bindsym XF86AudioLowerVolume exec pamixer -d 5
