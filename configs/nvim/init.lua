@@ -22,5 +22,6 @@ require("myconfig.workspaces").apply(
         require("myconfig.playground.docker").apply()
         require("myconfig.noice").apply()
         require("myconfig.db").apply()
+        require("myconfig.rest").apply()
     end
 )

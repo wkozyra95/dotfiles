@@ -33,6 +33,7 @@ require("lazy").setup(
 
         "tpope/vim-dadbod",
         "kristijanhusak/vim-dadbod-ui",
+        "rest-nvim/rest.nvim",
 
         "neovim/nvim-lspconfig",
         "hrsh7th/nvim-cmp",

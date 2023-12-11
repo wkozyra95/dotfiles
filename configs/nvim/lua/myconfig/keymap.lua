@@ -41,6 +41,7 @@ local mapping = {
             r = {lsp.rename},
             q = {lsp.autoFix},
             f = {{lsp.format, "n"}, {lsp.formatSelected, "v"}},
+            s = {actions.actions.http_request.fn}
         },
         f = {
             f = {actions.actions.grep_files.fn},

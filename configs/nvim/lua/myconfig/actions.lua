@@ -6,6 +6,7 @@ local tel_themes = require("telescope.themes")
 local conf = require("telescope.config").values
 local tel_builtin = require("telescope.builtin")
 local _ = require("myconfig.utils")
+local rest_client = require("rest-nvim")
 
 local tel = require("myconfig.telescope")
 local workspaces = require("myconfig.workspaces")
@@ -70,6 +71,10 @@ local actions = {
             vim.cmd.G("add -A")
             vim.cmd.G("commit --amend")
         end,
+    },
+    http_request = {
+        name = "HTTP request under the cursor",
+        fn = function() rest_client.run() end,
     },
     toggle_ignored = {
         name = "toggle ignored files",
