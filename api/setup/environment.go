@@ -52,6 +52,6 @@ func SetupEnvironment(ctx context.Context, opts SetupEnvironmentOptions) error {
 		PrintActionTree(cmds)
 		return nil
 	} else {
-		return RunActions(cmds)
+		return RunActions(cmds, true)
 	}
 }

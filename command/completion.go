@@ -36,7 +36,7 @@ func RegisterCompletionCmds(rootCmd *cobra.Command) {
 				action.Func("Generate completion file", func() error {
 					return cmd.Root().GenZshCompletionFile(ctx.FromHome(".cache/mycli/completion/zsh/_mycli"))
 				}),
-			})
+			}, false)
 			if err != nil {
 				panic(err)
 			}

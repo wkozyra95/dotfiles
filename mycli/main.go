@@ -19,11 +19,10 @@ var log = logger.NamedLogger("main")
 func main() {
 	log.Debug("main()")
 
-	command.RegisterBackupCmds(rootCmd)
+	command.RegisterDriveCmds(rootCmd)
 	launcher.RegisterCmds(rootCmd)
 	tool.RegisterCmds(rootCmd)
 	api.RegisterCmds(rootCmd)
-	command.RegisterBtrfsCmds(rootCmd)
 	command.RegisterGitCmds(rootCmd)
 	command.RegisterCompletionCmds(rootCmd)
 	command.RegisterDockerCmds(rootCmd)

@@ -155,7 +155,16 @@ func Err(err error) Object {
 	}
 }
 
-func newCtx() (internalCtx, error) {
+func newCtx(overideStdio bool) (internalCtx, error) {
+	if !overideStdio {
+		return internalCtx{
+			textView: nil, printer: &actionPrinter{
+				printFn: func(s string) {
+					fmt.Println(s)
+				},
+			},
+		}, nil
+	}
 	textView, err := term.NewDynamicTextView(term.DynamicTextViewOptions{
 		MaxLines:        25,
 		StderrPrefix:    "\033[1;31m[stderr]\033[0m ",
@@ -177,12 +186,14 @@ func newCtx() (internalCtx, error) {
 	}, nil
 }
 
-func RunActions(o Object) error {
-	ctx, err := newCtx()
+func RunActions(o Object, overideStdio bool) error {
+	ctx, err := newCtx(overideStdio)
 	if err != nil {
 		return err
 	}
-	defer ctx.textView.CloseView()
+	if ctx.textView != nil {
+		defer ctx.textView.CloseView()
+	}
 	if err := o.build().run(ctx); err != nil {
 		ctx.textView.PersistDynamicContent()
 		return err
@@ -191,7 +202,7 @@ func RunActions(o Object) error {
 }
 
 func RunSilent(o Object) error {
-	ctx, err := newCtx()
+	ctx, err := newCtx(false)
 	if err != nil {
 		return err
 	}

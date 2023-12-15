@@ -7,7 +7,6 @@ import (
 
 	a "github.com/wkozyra95/dotfiles/action"
 	"github.com/wkozyra95/dotfiles/api/context"
-	"github.com/wkozyra95/dotfiles/system/tool"
 	"github.com/wkozyra95/dotfiles/tool/drive"
 	"github.com/wkozyra95/dotfiles/utils/exec"
 	"github.com/wkozyra95/dotfiles/utils/file"
@@ -89,15 +88,17 @@ func ProvisionUsbArchInstaller(ctx context.Context) error {
 			if !prompt.ConfirmPrompt(fmt.Sprintf("Do you want to copy files to %s device", target)) {
 				return fmt.Errorf("Aborting ...")
 			}
-			return tool.DD{ // TODO: use stdio from ctx
-				Input:       outputIso,
-				Output:      target,
-				ChunkSizeKB: 4 * 1024,
-				Status:      "progress",
-			}.Run()
+			return exec.Command().WithStdio().Run("dd",
+				fmt.Sprintf("if=%s", outputIso),
+				fmt.Sprintf("of=%s", target),
+				fmt.Sprintf("bs=%dK", 4*1024),
+				"status=progress",
+				"conv=fsync",
+				"oflag=direct",
+			)
 		}),
 		a.ShellCommand("sudo", "rm", "-rf", workingdir),
 	}
 
-	return a.RunActions(actions)
+	return a.RunActions(actions, false)
 }

@@ -214,7 +214,7 @@ func ProvisionArchChroot() error {
 		a.ShellCommand("cp", "-R", "/root/.secrets", fromHome(".secrets")),
 		a.ShellCommand("arch-chroot", "/mnt/btrfs-current"),
 	}
-	return a.RunActions(actions)
+	return a.RunActions(actions, false)
 }
 
 func ProvisionArchChrootForCompanionSystem() error {
@@ -273,7 +273,7 @@ func ProvisionArchChrootForCompanionSystem() error {
 		a.ShellCommand("cp", "-R", "/home/wojtek/.secrets", fromHome(".secrets")),
 		a.ShellCommand("arch-chroot", "/mnt/btrfs-current"),
 	}
-	return a.RunActions(actions)
+	return a.RunActions(actions, false)
 }
 
 func ConnectToExistingChrootedEnvironment() error {
@@ -328,5 +328,5 @@ func ConnectToExistingChrootedEnvironment() error {
 		a.ShellCommand("arch-chroot", "/mnt/btrfs-current"),
 	}
 
-	return a.RunActions(actions)
+	return a.RunActions(actions, false)
 }

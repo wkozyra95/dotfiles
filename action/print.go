@@ -84,6 +84,9 @@ func (p *actionPrinter) printLeafNode(node leafNode) {
 }
 
 func (p *actionPrinter) prefixFirstLine() string {
+	if len(p.stack) == 0 {
+		return ""
+	}
 	l := 0
 	for _, i := range p.stack[:len(p.stack)-1] {
 		l += len(i)

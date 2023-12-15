@@ -14,7 +14,6 @@ func RegisterCmds(rootCmd *cobra.Command) {
 	registerSetupCommands(toolCmd)
 	registerUpgradeCommands(toolCmd)
 	registerReleaseCommands(toolCmd)
-	toolCmd.AddCommand(registerDriveCommands())
 	toolCmd.AddCommand(registerWifiCommands())
 	toolCmd.AddCommand(registerPlaygroundCommands())
 	toolCmd.AddCommand(registerDebugCommand())

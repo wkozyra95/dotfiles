@@ -171,7 +171,7 @@ func RestoreRootSnapshot() error {
 		}),
 		a.ShellCommand("sudo", "btrfs", "subvolume", "delete", rootPartitionBackup),
 	}
-	return a.RunActions(actions)
+	return a.RunActions(actions, false)
 }
 
 func CleanupSnapshots() error {

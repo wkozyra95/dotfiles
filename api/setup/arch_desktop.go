@@ -157,12 +157,12 @@ func ProvisionArchDesktop(stage string) error {
 			archDesktopStages["main"](ctx),
 			archDesktopStages["grub-install"](ctx),
 			archDesktopStages["grub-theme"](ctx),
-		})
+		}, false)
 	} else {
 		stageAction, hasStage := archDesktopStages[stage]
 		if !hasStage {
 			return fmt.Errorf("Stage %s does not exists", stage)
 		}
-		return a.RunActions(stageAction(ctx))
+		return a.RunActions(stageAction(ctx), false)
 	}
 }

@@ -36,7 +36,7 @@ type Partition struct {
 }
 
 type StorageDevice struct {
-	Label      string
+	Label      string // e.g. "gpt"
 	DevicePath string
 	Size       int
 	Partitions []Partition
@@ -52,8 +52,8 @@ type SfdiskPartition struct {
 
 type SfdiskDeviceInfo struct {
 	Paritiontable struct {
-		Label      string            `json:"label"`
-		Unit       string            `json:"unit"`
+		Label      string            `json:"label"` // e.g. "gpt"
+		Unit       string            `json:"unit"`  // e.g. "sectors"
 		SectorSize int               `json:"sectorsize"`
 		DevicePath string            `json:"device"`
 		LbaStart   int               `json:"firstlba"`
@@ -111,4 +111,61 @@ func GetDeviceInfo(devicePath string) (SfdiskDeviceInfo, error) {
 		return deviceInfo, err
 	}
 	return deviceInfo, nil
+}
+
+type FindMntMountInfo struct {
+	Target   string // device
+	Source   string // mountpoint
+	FsType   string // e.g. "btrfs", "vfat", "ext4"
+	Options  string
+	Children []FindMntMountInfo
+}
+
+type FindMntMountInfoWithChildren struct {
+	Target   string                         `json:"target"` // device
+	Source   string                         `json:"source"` // mountpoint
+	FsType   string                         `json:"fstype"` // e.g. "btrfs", "vfat", "ext4"
+	Options  string                         `json:"options"`
+	Children []FindMntMountInfoWithChildren `json:"children"`
+}
+
+type FindMntResult struct {
+	Filesystems []FindMntMountInfoWithChildren `json:"filesystems"`
+}
+
+func (f *FindMntResult) getMountInfo() []FindMntMountInfo {
+	mounts := []FindMntMountInfo{}
+	for _, child := range f.Filesystems {
+		mounts = append(mounts, child.getMountInfo()...)
+	}
+	return mounts
+}
+
+func (f *FindMntMountInfoWithChildren) getMountInfo() []FindMntMountInfo {
+	mounts := []FindMntMountInfo{}
+	mounts = append(mounts, FindMntMountInfo{
+		Target:  f.Target,
+		Source:  f.Source,
+		FsType:  f.FsType,
+		Options: f.Options,
+	})
+
+	for _, child := range f.Children {
+		mounts = append(mounts, child.getMountInfo()...)
+	}
+	return mounts
+}
+
+func GetMountPointsInfo() ([]FindMntMountInfo, error) {
+	var stdout bytes.Buffer
+	findmntCmdErr := exec.Command().WithBufout(&stdout, &bytes.Buffer{}).Run("findmnt", "--json")
+	if findmntCmdErr != nil {
+		return nil, nil
+	}
+	var mountsInfo FindMntResult
+	if err := json.Unmarshal(stdout.Bytes(), &mountsInfo); err != nil {
+		return mountsInfo.getMountInfo(), err
+	}
+
+	return mountsInfo.getMountInfo(), nil
 }

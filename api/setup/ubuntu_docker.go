@@ -62,5 +62,5 @@ func SetupUbuntuInDocker(ctx context.Context, opts SetupEnvironmentOptions) erro
 		nvim.NvimEnsureLazyNvimInstalled(ctx),
 		nvim.NvimInstallAction(ctx, "fdc8e966a9183c08f2afec0817d03b7417a883b3"),
 	}
-	return a.RunActions(cmds)
+	return a.RunActions(cmds, false)
 }

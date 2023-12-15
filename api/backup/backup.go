@@ -10,9 +10,7 @@ import (
 	"github.com/wkozyra95/dotfiles/api/context"
 	"github.com/wkozyra95/dotfiles/logger"
 	"github.com/wkozyra95/dotfiles/tool/drive"
-	"github.com/wkozyra95/dotfiles/utils/exec"
 	"github.com/wkozyra95/dotfiles/utils/file"
-	"github.com/wkozyra95/dotfiles/utils/prompt"
 )
 
 var log = logger.NamedLogger("backup")
@@ -22,255 +20,194 @@ type KnownEncryptedVolume struct {
 	VolumeName string
 }
 
-var secretsBackupVolume = KnownEncryptedVolume{
-	Label:      "SECRETS_BACKUP",
-	VolumeName: "secrets_backup",
-}
-
-var dataBackupVolume = KnownEncryptedVolume{
-	Label:      "DATA_BACKUP",
-	VolumeName: "data_backup",
-}
-
-var localDataBackupVolume = KnownEncryptedVolume{
-	Label:      "DATA_LOCAL_BACKUP",
-	VolumeName: "local_data_backup",
-}
-
-var diskConfigs = []KnownEncryptedVolume{
-	secretsBackupVolume,
-	dataBackupVolume,
-	localDataBackupVolume,
-}
-
-func filterDrivesByName(name string, devices []drive.StorageDevice) (drive.Partition, error) {
-	for _, device := range devices {
-		for _, partition := range device.Partitions {
-			if partition.Label == name {
-				return partition, nil
-			}
-		}
-	}
-	return drive.Partition{}, fmt.Errorf("No partition %s", name)
-}
+var (
+	secretsBackupMountPath      = "/mnt/secrets_usb_drive_backup"
+	externalDataBackupMountPath = "/mnt/external_old_hdd_drive_env_data_backup"
+	localDataBackupMountPath    = "/mnt/local_hdd_drive_env_data_backup"
+)
 
 func withDataBackup(
 	ctx context.Context,
-	devices []drive.StorageDevice,
-	volume KnownEncryptedVolume,
+	volume drive.Volume,
 	pathPrefix string,
 	fn func(ctx context.Context, backupDestination string) action.Object,
 ) error {
-	partition, partitionsErr := filterDrivesByName(volume.Label, devices)
-	if partitionsErr != nil {
-		return partitionsErr
-	}
-
-	return withEncryptedDrive(
-		ctx,
-		partition,
-		volume.VolumeName,
-		pathPrefix,
-		fn,
-	)
-}
-
-func withEncryptedDrive(
-	ctx context.Context,
-	partition drive.Partition,
-	mountName string,
-	pathPrefix string,
-	fn func(ctx context.Context, backupDestination string) action.Object,
-) error {
-	mountPoint := fmt.Sprintf("/mnt/%s", mountName)
-	backupDir := fmt.Sprintf("/mnt/%s/%s", mountName, pathPrefix)
-	mapperPath := fmt.Sprintf("/dev/mapper/%s", mountName)
-
+	backupDir := path.Join(volume.MountPath, pathPrefix)
+	isLUKSClosed := volume.IsEncrypted() && !volume.IsLUKSOpened()
 	actions := action.List{
-		action.WithCondition{
-			If:   action.Not(action.PathExists(mapperPath)),
-			Then: action.ShellCommand("sudo", "cryptsetup", "luksOpen", partition.PartitionPath, mountName),
-		},
-		action.ShellCommand("sudo", "mkdir", "-p", mountPoint),
-		action.ShellCommand("sudo", "mount", mapperPath, mountPoint),
+		volume.MountAction(),
 		action.ShellCommand("sudo", "mkdir", "-p", backupDir),
 		action.ShellCommand(
 			"sudo", "chown", fmt.Sprintf("%s:%s", ctx.Username, ctx.Username), backupDir,
 		),
 		fn(ctx, backupDir),
-		action.ShellCommand("sudo", "umount", mountPoint),
-		action.ShellCommand("sudo", "cryptsetup", "luksClose", mountName),
+		volume.UmountAction(),
+		action.WithCondition{
+			If:   action.Const(isLUKSClosed),
+			Then: volume.CloseLUKSAction(),
+		},
 	}
 
-	if err := action.RunActions(actions); err != nil {
+	if err := action.RunActions(actions, false); err != nil {
 		return err
 	}
 	return nil
 }
 
 func RestoreBackup(ctx context.Context) error {
-	devices, devicesErr := drive.GetStorageDevicesList()
-	if devicesErr != nil {
-		return devicesErr
+	volumes, volumesErr := drive.GetAvailableVolumes()
+	if volumesErr != nil {
+		return volumesErr
 	}
 
-	secretBackupErr := withDataBackup(
-		ctx,
-		devices,
-		secretsBackupVolume,
-		ctx.Environment,
-		func(ctx context.Context, backupDestination string) action.Object {
-			return action.List{
-				action.WithCondition{
-					If:   action.Const(ctx.EnvironmentConfig.Backup.GpgKeyring),
-					Then: restoreGpgKeyringAction(backupDestination),
-				},
-				restoreFilesAction(backupDestination, ctx.EnvironmentConfig.Backup.Secrets),
-			}
-		},
-	)
-	if secretBackupErr != nil {
-		log.Infof(secretBackupErr.Error())
-	}
-	dataBackupErr := withDataBackup(
-		ctx,
-		devices,
-		dataBackupVolume,
-		ctx.Environment,
-		func(ctx context.Context, backupDestination string) action.Object {
-			return action.List{
-				action.WithCondition{
-					If:   action.Const(ctx.EnvironmentConfig.Backup.GpgKeyring),
-					Then: restoreGpgKeyringAction(backupDestination),
-				},
-				restoreFilesAction(backupDestination, ctx.EnvironmentConfig.Backup.Data),
-			}
-		},
-	)
-	if dataBackupErr != nil {
-		log.Infof(dataBackupErr.Error())
+	var secretsBackupVolume *drive.Volume
+	var externalDataBackupVolume *drive.Volume
+
+	for _, volume := range volumes {
+		volume := volume
+		if volume.KnownVolume.MountPath == externalDataBackupMountPath {
+			externalDataBackupVolume = &volume
+		} else if volume.KnownVolume.MountPath == secretsBackupMountPath {
+			secretsBackupVolume = &volume
+		}
 	}
 
+	if secretsBackupVolume != nil {
+		secretBackupErr := withDataBackup(
+			ctx,
+			*secretsBackupVolume,
+			ctx.Environment,
+			func(ctx context.Context, backupDestination string) action.Object {
+				return action.List{
+					action.WithCondition{
+						If:   action.Const(ctx.EnvironmentConfig.Backup.GpgKeyring),
+						Then: restoreGpgKeyringAction(backupDestination),
+					},
+					restoreFilesAction(backupDestination, ctx.EnvironmentConfig.Backup.Secrets),
+				}
+			},
+		)
+		if secretBackupErr != nil {
+			log.Infof(secretBackupErr.Error())
+		}
+	}
+
+	if externalDataBackupVolume != nil {
+		dataBackupErr := withDataBackup(
+			ctx,
+			*externalDataBackupVolume,
+			ctx.Environment,
+			func(ctx context.Context, backupDestination string) action.Object {
+				return action.List{
+					action.WithCondition{
+						If:   action.Const(ctx.EnvironmentConfig.Backup.GpgKeyring),
+						Then: restoreGpgKeyringAction(backupDestination),
+					},
+					restoreFilesAction(backupDestination, ctx.EnvironmentConfig.Backup.Data),
+				}
+			},
+		)
+		if dataBackupErr != nil {
+			log.Infof(dataBackupErr.Error())
+		}
+	}
 	return nil
 }
 
 func UpdateBackup(ctx context.Context) error {
-	devices, devicesErr := drive.GetStorageDevicesList()
-	if devicesErr != nil {
-		return devicesErr
+	volumes, volumesErr := drive.GetAvailableVolumes()
+	if volumesErr != nil {
+		return volumesErr
 	}
 
-	secretBackupErr := withDataBackup(
-		ctx,
-		devices,
-		secretsBackupVolume,
-		ctx.Environment,
-		func(ctx context.Context, backupDestination string) action.Object {
-			return action.List{
-				action.WithCondition{
-					If:   isBitwardenAuthenticated(),
-					Then: backupBitwardenAction(backupDestination),
-				},
-				action.WithCondition{
-					If:   action.Const(ctx.EnvironmentConfig.Backup.GpgKeyring),
-					Then: backupGpgKeyringAction(backupDestination),
-				},
-				backupFilesAction(backupDestination, ctx.EnvironmentConfig.Backup.Secrets),
-			}
-		},
-	)
-	if secretBackupErr != nil {
-		log.Infof(secretBackupErr.Error())
-	}
+	var secretsBackupVolume *drive.Volume
+	var localDataBackupVolume *drive.Volume
+	var externalDataBackupVolume *drive.Volume
 
-	dataBackupErr := withDataBackup(
-		ctx,
-		devices,
-		dataBackupVolume,
-		ctx.Environment,
-		func(ctx context.Context, backupDestination string) action.Object {
-			return action.List{
-				action.WithCondition{
-					If:   isBitwardenAuthenticated(),
-					Then: backupBitwardenAction(backupDestination),
-				},
-				action.WithCondition{
-					If:   action.Const(ctx.EnvironmentConfig.Backup.GpgKeyring),
-					Then: backupGpgKeyringAction(backupDestination),
-				},
-				backupFilesAction(backupDestination, ctx.EnvironmentConfig.Backup.Data),
-			}
-		},
-	)
-	if dataBackupErr != nil {
-		log.Infof(dataBackupErr.Error())
-	}
-
-	localDataBackupErr := withDataBackup(
-		ctx,
-		devices,
-		localDataBackupVolume,
-		ctx.Environment,
-		func(ctx context.Context, backupDestination string) action.Object {
-			return action.List{
-				action.ShellCommand("mkdir", "-p", backupDestination),
-				action.WithCondition{
-					If:   isBitwardenAuthenticated(),
-					Then: backupBitwardenAction(backupDestination),
-				},
-				action.WithCondition{
-					If:   action.Const(ctx.EnvironmentConfig.Backup.GpgKeyring),
-					Then: backupGpgKeyringAction(backupDestination),
-				},
-				backupFilesAction(backupDestination, ctx.EnvironmentConfig.Backup.Data),
-			}
-		},
-	)
-	if localDataBackupErr != nil {
-		log.Infof(localDataBackupErr.Error())
-	}
-
-	return nil
-}
-
-func Connect(ctx context.Context) error {
-	devices, devicesErr := drive.GetStorageDevicesList()
-	if devicesErr != nil {
-		return devicesErr
-	}
-
-	knownAndConnectedVolumes := []KnownEncryptedVolume{}
-	for _, volume := range diskConfigs {
-		_, partitionsErr := filterDrivesByName(volume.Label, devices)
-		if partitionsErr != nil {
-			continue
+	for _, volume := range volumes {
+		volume := volume
+		if volume.KnownVolume.MountPath == externalDataBackupMountPath {
+			externalDataBackupVolume = &volume
+		} else if volume.KnownVolume.MountPath == localDataBackupMountPath {
+			localDataBackupVolume = &volume
+		} else if volume.KnownVolume.MountPath == secretsBackupMountPath {
+			secretsBackupVolume = &volume
 		}
-		knownAndConnectedVolumes = append(knownAndConnectedVolumes, volume)
 	}
 
-	selected, didSelect := prompt.SelectPrompt(
-		"Select volume to mount",
-		knownAndConnectedVolumes,
-		func(volume KnownEncryptedVolume) string {
-			return volume.VolumeName
-		},
-	)
-	if !didSelect {
-		return errors.New("No drive selected")
+	if secretsBackupVolume != nil {
+		secretBackupErr := withDataBackup(
+			ctx,
+			*secretsBackupVolume,
+			ctx.Environment,
+			func(ctx context.Context, backupDestination string) action.Object {
+				return action.List{
+					action.WithCondition{
+						If:   isBitwardenAuthenticated(),
+						Then: backupBitwardenAction(backupDestination),
+					},
+					action.WithCondition{
+						If:   action.Const(ctx.EnvironmentConfig.Backup.GpgKeyring),
+						Then: backupGpgKeyringAction(backupDestination),
+					},
+					backupFilesAction(backupDestination, ctx.EnvironmentConfig.Backup.Secrets),
+				}
+			},
+		)
+		if secretBackupErr != nil {
+			log.Infof(secretBackupErr.Error())
+		}
 	}
 
-	connectionErr := withDataBackup(
-		ctx,
-		devices,
-		selected,
-		"",
-		func(ctx context.Context, backupDestination string) action.Object {
-			return action.Execute(exec.Command().WithCwd(backupDestination).WithStdio(), "bash", "-c", "zsh || true")
-		},
-	)
-	if connectionErr != nil {
-		log.Infof(connectionErr.Error())
+	if externalDataBackupVolume != nil {
+		dataBackupErr := withDataBackup(
+			ctx,
+			*externalDataBackupVolume,
+			ctx.Environment,
+			func(ctx context.Context, backupDestination string) action.Object {
+				return action.List{
+					action.WithCondition{
+						If:   isBitwardenAuthenticated(),
+						Then: backupBitwardenAction(backupDestination),
+					},
+					action.WithCondition{
+						If:   action.Const(ctx.EnvironmentConfig.Backup.GpgKeyring),
+						Then: backupGpgKeyringAction(backupDestination),
+					},
+					backupFilesAction(backupDestination, ctx.EnvironmentConfig.Backup.Data),
+				}
+			},
+		)
+		if dataBackupErr != nil {
+			log.Infof(dataBackupErr.Error())
+		}
 	}
+
+	if localDataBackupVolume != nil {
+		localDataBackupErr := withDataBackup(
+			ctx,
+			*localDataBackupVolume,
+			ctx.Environment,
+			func(ctx context.Context, backupDestination string) action.Object {
+				return action.List{
+					action.ShellCommand("mkdir", "-p", backupDestination),
+					action.WithCondition{
+						If:   isBitwardenAuthenticated(),
+						Then: backupBitwardenAction(backupDestination),
+					},
+					action.WithCondition{
+						If:   action.Const(ctx.EnvironmentConfig.Backup.GpgKeyring),
+						Then: backupGpgKeyringAction(backupDestination),
+					},
+					backupFilesAction(backupDestination, ctx.EnvironmentConfig.Backup.Data),
+				}
+			},
+		)
+		if localDataBackupErr != nil {
+			log.Infof(localDataBackupErr.Error())
+		}
+	}
+
 	return nil
 }
 
