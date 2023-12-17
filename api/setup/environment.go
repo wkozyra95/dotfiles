@@ -46,7 +46,7 @@ func SetupEnvironment(ctx context.Context, opts SetupEnvironmentOptions) error {
 		EnsureSymlink(ctx.FromHome(".dotfiles-private/notes"), ctx.FromHome("notes")),
 		SetupEnvironmentCoreAction(ctx),
 		nvim.NvimEnsureLazyNvimInstalled(ctx),
-		nvim.NvimInstallAction(ctx, "30d311ebcf9433f84bd4d98f9e049b36c9d352ac"),
+		nvim.NvimInstallAction(ctx, "c0cb1e8e9437b738c8d3232ec4594113d2221bb2"),
 	}
 	if opts.DryRun {
 		PrintActionTree(cmds)
