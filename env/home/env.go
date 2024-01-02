@@ -1,21 +1,18 @@
 package home
 
 import (
-	"bytes"
 	"os"
 	"path"
 
 	"github.com/wkozyra95/dotfiles/action"
-	"github.com/wkozyra95/dotfiles/api"
-	"github.com/wkozyra95/dotfiles/api/platform/arch"
 	"github.com/wkozyra95/dotfiles/env"
 	"github.com/wkozyra95/dotfiles/env/common"
-	"github.com/wkozyra95/dotfiles/utils/exec"
 )
 
 var homeDir = os.Getenv("HOME")
 
 var Config = env.EnvironmentConfig{
+	UseNix: true,
 	Workspaces: []env.Workspace{
 		common.DotfilesWorkspace,
 		{Name: "vim plugins", Path: path.Join(homeDir, ".local/share/nvim/lazy")},
@@ -183,50 +180,6 @@ var Config = env.EnvironmentConfig{
 		},
 	},
 	CustomSetupAction: func(ctx env.Context) action.Object {
-		pkgInstaller := arch.Yay{}
-		return action.List{
-			pkgInstaller.EnsurePackagerAction(homeDir),
-			api.PackageInstallAction([]api.Package{
-				pkgInstaller.CustomPackageList([]string{
-					"firefox",
-					"google-chrome",
-				}),
-			}),
-			action.WithCondition{
-				If: action.FuncCond("NVM_DIR not set", func() (bool, error) { return os.Getenv("NVM_DIR") == "", nil }),
-				Then: action.List{
-					action.ShellCommand(
-						"bash",
-						"-c",
-						"curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash",
-					),
-					action.ShellCommand("bash", "-c", "source ~/.nvm/nvm.sh && nvm install node"),
-				},
-			},
-			action.WithCondition{
-				If: action.FuncCond("40_no-sudo-timeout does not exist", func() (bool, error) {
-					err := exec.Command().
-						WithBufout(&bytes.Buffer{}, &bytes.Buffer{}).
-						Run("sudo", "ls", "/etc/sudoers.d/40_no-sudo-timeout")
-					return err != nil, nil
-				}),
-				Then: action.List{
-					action.ShellCommand("sudo", "mkdir", "-p", "/etc/sudoers.d"),
-					action.ShellCommand(
-						"sudo",
-						"bash",
-						"-c",
-						"echo \"Defaults passwd_timeout=0\" > /etc/sudoers.d/40_no-sudo-timeout",
-					),
-				},
-			},
-			action.WithCondition{
-				If: action.Not(action.PathExists("/etc/systemd/system/bluetooth.target.wants/bluetooth.service")),
-				Then: action.List{
-					action.ShellCommand("sudo", "systemctl", "enable", "bluetooth.service"),
-					action.ShellCommand("sudo", "systemctl", "start", "bluetooth.service"),
-				},
-			},
-		}
+		return action.List{}
 	},
 }

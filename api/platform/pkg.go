@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/wkozyra95/dotfiles/api"
+	"github.com/wkozyra95/dotfiles/api/context"
 	"github.com/wkozyra95/dotfiles/api/platform/arch"
 	"github.com/wkozyra95/dotfiles/api/platform/macos"
 	"github.com/wkozyra95/dotfiles/api/platform/ubuntu"
@@ -15,7 +16,7 @@ import (
 
 var log = logger.NamedLogger("platform")
 
-func GetPackageManager() (api.PackageInstaller, error) {
+func GetPackageManager(ctx context.Context) (api.PackageInstaller, error) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	if err := exec.Command().WithBufout(&stdout, &stderr).Run("uname", "-s"); err != nil {
@@ -33,5 +34,5 @@ func GetPackageManager() (api.PackageInstaller, error) {
 	} else if osType == "Darwin" {
 		return macos.Brew{}, nil
 	}
-	return nil, fmt.Errorf("unknown platform (%s)", osType)
+	return nil, fmt.Errorf("no pkg manager for the platform (%s)", osType)
 }

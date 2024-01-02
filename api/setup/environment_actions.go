@@ -1,8 +1,6 @@
 package setup
 
 import (
-	"path"
-
 	a "github.com/wkozyra95/dotfiles/action"
 	"github.com/wkozyra95/dotfiles/api/context"
 	"github.com/wkozyra95/dotfiles/api/language"
@@ -92,15 +90,6 @@ func SetupLspAction(ctx context.Context, opts SetupLspActionOpts) a.Object {
 
 func SetupEnvironmentCoreAction(ctx context.Context) a.Object {
 	return a.List{
-		a.WithCondition{
-			If: a.Not(
-				a.PathExists(path.Join(ctx.Homedir, ".oh-my-zsh")),
-			),
-			Then: a.ShellCommand("bash",
-				"-c",
-				"curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | bash",
-			),
-		},
 		a.ShellCommand("mkdir", "-p", ctx.FromHome(".config")),
 		a.EnsureSymlink(ctx.FromHome(".dotfiles/configs/sway"), ctx.FromHome(".config/sway")),
 		a.EnsureSymlink(ctx.FromHome(".dotfiles/configs/i3"), ctx.FromHome(".config/i3")),

@@ -4,28 +4,15 @@ local module = {}
 
 local path = {
     data = function() return vim.fn.stdpath("data") end, -- "~/.local/share/nvim"
-    language_server_base = function()
-        return vim.fn.expand("~") .. "/.cache/nvim/myconfig/lua_lsp"
-    end,
-    language_server_bin = function(base) return string.format("%s/bin/lua-language-server", base) end,
 }
 
 local sumneko_command = function()
-    local base_directory = path.language_server_base()
-    local bin = path.language_server_bin(base_directory)
+    local bin = "lua-language-server"
     return {bin}
 end
 
 local function get_runtime()
     local result = {};
-    -- for _, runtime_paths in pairs(vim.api.nvim_list_runtime_paths()) do
-    --    local lua_path = runtime_paths .. "/lua";
-    --    if vim.fn.isdirectory(lua_path) == 1 then
-    --        result[lua_path] = true
-    --    end
-    -- end
-    -- dependencies are added to the runtime path after lsp server
-    -- is initialised so we need to add them explicitly
     local plugin_path = path.data() .. "/lazy"
     for _, plugin in pairs(vim.fn.readdir(plugin_path)) do
         local lua_path = plugin_path .. "/" .. plugin .. "/lua";

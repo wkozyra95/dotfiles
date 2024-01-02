@@ -2,11 +2,13 @@ package setup
 
 import (
 	"os"
+	"path"
 	"strings"
 
 	. "github.com/wkozyra95/dotfiles/action"
 	"github.com/wkozyra95/dotfiles/api"
 	"github.com/wkozyra95/dotfiles/api/context"
+	"github.com/wkozyra95/dotfiles/api/platform"
 	"github.com/wkozyra95/dotfiles/api/setup/nvim"
 )
 
@@ -16,13 +18,49 @@ type SetupEnvironmentOptions struct {
 }
 
 func SetupEnvironment(ctx context.Context, opts SetupEnvironmentOptions) error {
+	if ctx.EnvironmentConfig.UseNix {
+		return setupEnvironmentWithNix(ctx, opts)
+	} else {
+		return setupEnvironmentManually(ctx, opts)
+	}
+}
+
+func setupEnvironmentWithNix(ctx context.Context, opts SetupEnvironmentOptions) error {
+	cmds := List{
+		WithCondition{
+			If: Not(PathExists(ctx.FromHome(".dotfiles-private"))),
+			Then: ShellCommand(
+				"git",
+				"clone",
+				"git@github.com:wkozyra95/dotfiles-private.git",
+				ctx.FromHome(".dotfiles-private"),
+			),
+		},
+		EnsureSymlink(ctx.FromHome(".dotfiles-private/nvim/spell"), ctx.FromHome(".dotfiles/configs/nvim/spell")),
+		EnsureSymlink(ctx.FromHome(".dotfiles-private/notes"), ctx.FromHome("notes")),
+		SetupEnvironmentCoreAction(ctx),
+		nvim.NvimEnsureLazyNvimInstalled(ctx),
+	}
+	if opts.DryRun {
+		PrintActionTree(cmds)
+		return nil
+	} else {
+		return RunActions(cmds, true)
+	}
+}
+
+func setupEnvironmentManually(ctx context.Context, opts SetupEnvironmentOptions) error {
+	pkgInstaller, pkgInstallerErr := platform.GetPackageManager(ctx)
+	if pkgInstallerErr != nil {
+		return pkgInstallerErr
+	}
 	cmds := List{
 		List{
-			ctx.PkgInstaller.EnsurePackagerAction(ctx.Homedir),
+			pkgInstaller.EnsurePackagerAction(ctx.Homedir),
 			api.PackageInstallAction([]api.Package{
-				ctx.PkgInstaller.ShellTools(),
-				ctx.PkgInstaller.DevelopmentTools(),
-				ctx.PkgInstaller.Desktop(),
+				pkgInstaller.ShellTools(),
+				pkgInstaller.DevelopmentTools(),
+				pkgInstaller.Desktop(),
 			}),
 		},
 		SetupLanguageToolchainAction(ctx, SetupLanguageToolchainActionOpts{Reinstall: opts.Reinstall}),
@@ -32,6 +70,15 @@ func SetupEnvironment(ctx context.Context, opts SetupEnvironmentOptions) error {
 				return !strings.Contains(os.Getenv("SHELL"), "zsh"), nil
 			}),
 			Then: ShellCommand("sudo", "chsh", "-s", "/usr/bin/zsh"),
+		},
+		WithCondition{
+			If: Not(
+				PathExists(path.Join(ctx.Homedir, ".oh-my-zsh")),
+			),
+			Then: ShellCommand("bash",
+				"-c",
+				"curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | bash",
+			),
 		},
 		WithCondition{
 			If: Not(PathExists(ctx.FromHome(".dotfiles-private"))),

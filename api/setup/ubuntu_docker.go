@@ -2,21 +2,27 @@ package setup
 
 import (
 	"os"
+	"path"
 
 	a "github.com/wkozyra95/dotfiles/action"
 	"github.com/wkozyra95/dotfiles/api"
 	"github.com/wkozyra95/dotfiles/api/context"
+	"github.com/wkozyra95/dotfiles/api/platform"
 	"github.com/wkozyra95/dotfiles/api/setup/nvim"
 	"github.com/wkozyra95/dotfiles/utils/exec"
 )
 
 func SetupUbuntuInDocker(ctx context.Context, opts SetupEnvironmentOptions) error {
+	pkgInstaller, pkgInstallerErr := platform.GetPackageManager(ctx)
+	if pkgInstallerErr != nil {
+		return pkgInstallerErr
+	}
 	cmds := a.List{
 		a.List{
-			ctx.PkgInstaller.EnsurePackagerAction(ctx.Homedir),
+			pkgInstaller.EnsurePackagerAction(ctx.Homedir),
 			api.PackageInstallAction([]api.Package{
-				ctx.PkgInstaller.ShellTools(),
-				ctx.PkgInstaller.DevelopmentTools(),
+				pkgInstaller.ShellTools(),
+				pkgInstaller.DevelopmentTools(),
 			}),
 		},
 		a.WithCondition{
@@ -56,6 +62,15 @@ func SetupUbuntuInDocker(ctx context.Context, opts SetupEnvironmentOptions) erro
 				"--depth", "1",
 				"https://github.com/junegunn/fzf.git",
 				ctx.FromHome(".fzf"),
+			),
+		},
+		a.WithCondition{
+			If: a.Not(
+				a.PathExists(path.Join(ctx.Homedir, ".oh-my-zsh")),
+			),
+			Then: a.ShellCommand("bash",
+				"-c",
+				"curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | bash",
 			),
 		},
 		SetupEnvironmentCoreAction(ctx),
