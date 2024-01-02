@@ -31,7 +31,7 @@ local function lsp(opts)
         end
 
         -- if custom implementation exists
-        local filetype = vim.api.nvim_buf_get_option(0, "filetype")
+        local filetype = vim.bo.filetype
         if filetype and filetype_mapping[filetype] then
             local mod = filetype_mapping[filetype]()
             if mod and mod[opts.action_name] then
@@ -138,6 +138,7 @@ function module.apply()
 
     module.lsp_setup("elixirls", require("myconfig.lang.elixir").elixirls_config())
     module.lsp_setup("ocamllsp", {})
+    module.lsp_setup("nil_ls", {})
 
     local cmake = require("myconfig.lang.cmake")
     module.lsp_setup("cmake", cmake.cmake_config())
@@ -149,10 +150,8 @@ function module.apply()
 
     lspkind.init()
 
-    ---@diagnostic disable-next-line: missing-fields
     cmp.setup {
         snippet = {expand = function(args) require("luasnip").lsp_expand(args.body) end},
-        ---@diagnostic disable-next-line: missing-fields
         completion = {completeopt = "menu,noselect"},
         preselect = cmp.PreselectMode.None,
         mapping = {

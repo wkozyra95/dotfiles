@@ -1,6 +1,5 @@
 .PHONY: build lint test check e2e-tests watch format dev-e2e-test-env dev-e2e-test-env-rebuild
 
-lua_format=~/.cache/nvim/myconfig/lua_lsp/3rd/EmmyLuaCodeStyle/build/CodeFormat/CodeFormat
 lua_config=./configs/nvim/lua.editorconfig
 
 build:
@@ -26,7 +25,7 @@ watch:
 format:
 	golines --max-len=120 --base-formatter="gofumpt" -w .
 	find ./configs/nvim -iname '*.lua' | \
-		xargs -I {} $(lua_format) format -c $(lua_config) -f {} -ow
+		xargs -I {} CodeFormat format -c $(lua_config) -f {} -ow
 
 dev-e2e-test-env:
 	go run ./test/cmd

@@ -95,6 +95,7 @@ type EnvironmentConfig struct {
 	Init              []InitAction
 	CustomSetupAction func(Context) action.Object
 	DockerEnvsSpec    []DockerEnvSpec
+	UseNix            bool
 }
 
 type LazyValue[T any] (func() T)

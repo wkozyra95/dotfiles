@@ -8,15 +8,12 @@ import (
 	"regexp"
 
 	"github.com/manifoldco/promptui"
-	"github.com/wkozyra95/dotfiles/api"
-	"github.com/wkozyra95/dotfiles/api/platform"
 	"github.com/wkozyra95/dotfiles/env"
 	"github.com/wkozyra95/dotfiles/env/config"
 	"github.com/wkozyra95/dotfiles/utils/file"
 )
 
 type Context struct {
-	PkgInstaller      api.PackageInstaller
 	Username          string
 	Homedir           string
 	Environment       string
@@ -32,10 +29,6 @@ func CreateContext() Context {
 	if homedirErr != nil {
 		panic(homedirErr)
 	}
-	pkgInstaller, pkgInstallerErr := platform.GetPackageManager()
-	if pkgInstallerErr != nil {
-		panic(pkgInstallerErr)
-	}
 	environment, environmentErr := ensureEnvironmentConfigured(homedir)
 	if environmentErr != nil {
 		panic(environmentErr)
@@ -46,7 +39,6 @@ func CreateContext() Context {
 		Homedir:           homedir,
 		Environment:       environment,
 		EnvironmentConfig: config.GetConfig(),
-		PkgInstaller:      pkgInstaller,
 	}
 }
 
@@ -59,10 +51,6 @@ func CreateContextForEnvironment(environment string) Context {
 	if homedirErr != nil {
 		panic(homedirErr)
 	}
-	pkgInstaller, pkgInstallerErr := platform.GetPackageManager()
-	if pkgInstallerErr != nil {
-		panic(pkgInstallerErr)
-	}
 	environmentErr := ensureSpecificEnvironment(homedir, environment)
 	if environmentErr != nil {
 		panic(environmentErr)
@@ -73,7 +61,6 @@ func CreateContextForEnvironment(environment string) Context {
 		Homedir:           homedir,
 		Environment:       environment,
 		EnvironmentConfig: config.GetConfig(),
-		PkgInstaller:      pkgInstaller,
 	}
 }
 

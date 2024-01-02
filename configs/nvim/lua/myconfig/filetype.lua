@@ -41,6 +41,7 @@ local handlers = {
     gitcommit = spell.strict_preset,
     plist = format.preset_4,
     yaml = format.preset_2,
+    nix = format.preset_2,
     ["javascript"] = javascript,
     ["javascriptreact"] = javascript,
     ["javascript.jsx"] = javascript,

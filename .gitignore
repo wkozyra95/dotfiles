@@ -8,3 +8,5 @@ bin/mycli-darwin
 ./secrets
 
 configs/nvim/spell
+
+.direnv
