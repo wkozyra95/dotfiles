@@ -9,10 +9,6 @@
     extraModulePackages = [ ];
     supportedFilesystems = [ "btrfs" ];
     loader = {
-      # systemd-boot = {
-      #   enable = true;
-      #   configurationLimit = 10;
-      # };
       efi.efiSysMountPoint = "/boot/efi";
       efi.canTouchEfiVariables = true;
       grub = {
@@ -46,6 +42,8 @@
     font = "Lat2-Terminus16";
     keyMap = "us";
   };
+
+  services.xserver.videoDrivers = [ "amdgpu" ];
 
   security.rtkit.enable = true;
   hardware.bluetooth.enable = true;

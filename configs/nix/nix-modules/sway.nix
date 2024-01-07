@@ -19,13 +19,11 @@ in
     corefonts
   ];
   environment.systemPackages = with pkgs; [
-    firefox
     dbus
     dbus-sway-environment
     j4-dmenu-desktop
     alacritty
     bemenu
-    diff-so-fancy
     pavucontrol
     grim
     slurp

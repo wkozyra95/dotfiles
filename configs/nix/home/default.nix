@@ -1,39 +1,24 @@
-{ inputs, customPackages }:
+{ nixpkgs, home-manager, myConfigModule, overlays }:
 
-inputs.nixpkgs.lib.nixosSystem {
+nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
 
   modules = [
+    home-manager.nixosModules.home-manager
+    myConfigModule
     (import ./filesystems.nix)
-    (import ./users.nix)
+    (import ./system.nix)
     (import ./boot.nix)
-    (import ../common.nix inputs)
-    (import ../modules/sway.nix)
-    (import ../modules/languages.nix)
-    (import ../modules/docker.nix)
-    (import ../modules/steam.nix "wojtek")
-    (import ../modules/neovim.nix inputs.neovim-nightly-overlay.overlay)
+    (import ../nix-modules/sway.nix)
+    (import ../nix-modules/docker.nix)
+    (import ../nix-modules/steam.nix)
     ({ config, lib, pkgs, ... }: {
-      environment.systemPackages = with pkgs; [ amdvlk ] ++ customPackages;
-
-      networking.hostName = "wojtek-nix";
-      networking.networkmanager.enable = true;
-
-      networking.useDHCP = lib.mkDefault true;
-      networking.interfaces.enp39s0.useDHCP = lib.mkDefault true;
-      networking.interfaces.wlp41s0.useDHCP = lib.mkDefault true;
-
-      nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-      powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
-      hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
-
-      hardware.opengl = {
-        enable = true;
-        driSupport = true;
-        driSupport32Bit = true;
+      nixpkgs.overlays = overlays ;
+      home-manager = {
+        useGlobalPkgs = true;
+        useUserPackages = true;
+        users.${config.myconfig.username} = (import ./home.nix);
       };
-
-      system.stateVersion = "23.11";
     })
   ];
 }
