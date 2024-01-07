@@ -17,9 +17,7 @@
     };
   };
 
-  # enabling in home manager overrides .zshrc
   programs.zsh.enable = true;
-  programs.zsh.ohMyZsh.enable = true;
 
   environment.systemPackages = with pkgs; [
     vulkan-tools

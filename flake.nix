@@ -37,9 +37,6 @@
         # sudo nixos-rebuild switch --flake ".#home"
         home = (import ./configs/nix/home {
           inherit nixpkgs home-manager overlays;
-          myConfigModule = (import ./configs/nix/nix-modules/myconfig.nix {
-            username = "wojtek";
-          });
         });
       };
       darwinConfigurations = {
@@ -49,9 +46,6 @@
         # darwin-rebuild switch --flake ".#work-mac"
         work-mac = (import ./configs/nix/work-darwin {
           inherit nix-darwin home-manager overlays;
-          myConfigModule = (import ./configs/nix/nix-modules/myconfig.nix {
-            username = "wojciechkozyra";
-          });
         });
       };
       homeConfigurations = {
@@ -62,9 +56,6 @@
         # home-maanger switch --flake ".#work"
         work = (import ./configs/nix/work-arch {
           inherit home-manager;
-          myConfigModule = (import ./configs/nix/nix-modules/myconfig.nix {
-            username = "wojtek";
-          });
         });
       };
       devShells = perSystemConfig.devShells;

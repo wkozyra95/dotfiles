@@ -7,6 +7,7 @@
   ];
   config = {
     home.packages = with pkgs; [
+      nodejs_18
 
       # Language servers
 

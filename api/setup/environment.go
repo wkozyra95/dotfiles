@@ -36,8 +36,6 @@ func setupEnvironmentWithNix(ctx context.Context, opts SetupEnvironmentOptions) 
 				ctx.FromHome(".dotfiles-private"),
 			),
 		},
-		EnsureSymlink(ctx.FromHome(".dotfiles-private/nvim/spell"), ctx.FromHome(".dotfiles/configs/nvim/spell")),
-		EnsureSymlink(ctx.FromHome(".dotfiles-private/notes"), ctx.FromHome("notes")),
 		SetupEnvironmentCoreAction(ctx),
 		nvim.NvimEnsureLazyNvimInstalled(ctx),
 	}

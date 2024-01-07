@@ -1,11 +1,14 @@
-{ nixpkgs, home-manager, myConfigModule, overlays }:
+{ nixpkgs, home-manager, overlays }:
 
 nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
 
   modules = [
     home-manager.nixosModules.home-manager
-    myConfigModule
+    (import ../nix-modules/myconfig.nix {
+      username = "wojtek";
+      email = "wkozyra95@gmail.com";
+    })
     (import ./filesystems.nix)
     (import ./system.nix)
     (import ./boot.nix)

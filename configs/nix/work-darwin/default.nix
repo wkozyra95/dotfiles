@@ -1,11 +1,14 @@
-{ nix-darwin, home-manager, myConfigModule, overlays }:
+{ nix-darwin, home-manager, overlays }:
 
 nix-darwin.lib.darwinSystem {
   system = "x86_64-darwin";
 
   modules = [
     home-manager.darwinModules.home-manager
-    myConfigModule
+    (import ../nix-modules/myconfig.nix {
+      username = "wojciechkozyra";
+      email = "wojciechkozyra@swmansion.com";
+    })
     ({ config, lib, pkgs, ... }: {
       home-manager = {
         useGlobalPkgs = true;
