@@ -29,7 +29,8 @@
     python3Packages.pygments # needed by oh-my-zsh plugin
     vim
     zsh
-    (pkgs.callPackage ../packages/lua-code-format.nix {})
+    nixpkgs-fmt
+    (pkgs.callPackage ../packages/lua-code-format.nix { })
   ];
 
   nixpkgs.config.allowUnfree = true;

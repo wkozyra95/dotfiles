@@ -27,6 +27,7 @@
         perSystem = { config, self', inputs', pkgs, system, lib, ... }@args:
           {
             devShells = import ./develop.nix args;
+            formatter = pkgs.nixpkgs-fmt;
           };
       };
       overlays = [ inputs.neovim-nightly-overlay.overlay ];
@@ -67,5 +68,6 @@
         });
       };
       devShells = perSystemConfig.devShells;
+      formatter = perSystemConfig.formatter;
     };
 }

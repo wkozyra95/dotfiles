@@ -1,4 +1,4 @@
-{ pkgs, config, lib, ...}:
+{ pkgs, config, lib, ... }:
 
 {
   users = {
@@ -7,7 +7,7 @@
       ${config.myconfig.username} = {
         isNormalUser = true;
         home = "/home/${config.myconfig.username}";
-        extraGroups = [ "wheel" "networkmanager" "libvirtd" "docker" "kvm" "qemu-libvirtd"];
+        extraGroups = [ "wheel" "networkmanager" "libvirtd" "docker" "kvm" "qemu-libvirtd" ];
         shell = pkgs.zsh;
       };
 
@@ -21,12 +21,12 @@
   programs.zsh.enable = true;
   programs.zsh.ohMyZsh.enable = true;
 
-  environment.systemPackages = with pkgs; [ 
+  environment.systemPackages = with pkgs; [
     vulkan-tools
     amdvlk
     home-manager
   ];
-  
+
   networking.hostName = "wojtek-nix";
   networking.networkmanager.enable = true;
 
@@ -42,7 +42,7 @@
     enable = lib.mkForce true;
     driSupport = true;
     driSupport32Bit = true;
-    extraPackages =  [ pkgs.amdvlk ];
+    extraPackages = [ pkgs.amdvlk ];
   };
 
   # required to make wgpu project work without amdvlk installed

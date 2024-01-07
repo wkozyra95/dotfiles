@@ -13,7 +13,7 @@ nixpkgs.lib.nixosSystem {
     (import ../nix-modules/docker.nix)
     (import ../nix-modules/steam.nix)
     ({ config, lib, pkgs, ... }: {
-      nixpkgs.overlays = overlays ;
+      nixpkgs.overlays = overlays;
       home-manager = {
         useGlobalPkgs = true;
         useUserPackages = true;

@@ -26,6 +26,7 @@ format:
 	golines --max-len=120 --base-formatter="gofumpt" -w .
 	find ./configs/nvim -iname '*.lua' | \
 		xargs -I {} CodeFormat format -c $(lua_config) -f {} -ow
+	nix fmt
 
 dev-e2e-test-env:
 	go run ./test/cmd

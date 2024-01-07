@@ -138,7 +138,15 @@ function module.apply()
 
     module.lsp_setup("elixirls", require("myconfig.lang.elixir").elixirls_config())
     module.lsp_setup("ocamllsp", {})
-    module.lsp_setup("nil_ls", {})
+    module.lsp_setup("nil_ls", {
+        settings = {
+            ["nil"] = {
+                formatting = {
+                    command = {"nixpkgs-fmt"}
+                }
+            }
+        }
+    })
 
     local cmake = require("myconfig.lang.cmake")
     module.lsp_setup("cmake", cmake.cmake_config())
