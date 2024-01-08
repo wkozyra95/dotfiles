@@ -56,12 +56,4 @@ in
     tree-sitter
     (pkgs.callPackage ../packages/lua-code-format.nix { })
   ];
-
-  nixpkgs.config.allowUnfree = true;
-  nix = {
-    settings = {
-      experimental-features = [ "nix-command" "flakes" ];
-      allowed-users = [ "@wheel" "@sudo" ];
-    };
-  };
 }

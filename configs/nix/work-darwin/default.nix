@@ -9,6 +9,7 @@ nix-darwin.lib.darwinSystem {
       username = "wojciechkozyra";
       email = "wojciechkozyra@swmansion.com";
     })
+    (import ../common.nix)
     ({ config, lib, pkgs, ... }: {
       home-manager = {
         useGlobalPkgs = true;
@@ -27,7 +28,7 @@ nix-darwin.lib.darwinSystem {
 
       services.nix-daemon.enable = true;
       users.users.${config.myconfig.username} = {
-        home = "/Users/${config.mycconfig.username}";
+        home = "/Users/${config.myconfig.username}";
       };
 
       system.stateVersion = 4;

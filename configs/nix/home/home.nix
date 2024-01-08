@@ -5,6 +5,7 @@ let
 in
 {
   imports = [
+    ../common.nix
     ../hm-modules/common.nix
     ../hm-modules/common-desktop.nix
     ../hm-modules/languages
