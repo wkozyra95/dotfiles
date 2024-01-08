@@ -1,14 +1,14 @@
-{ home-manager, overlays }:
+{ home-manager, overlays, pkgs }:
 
 home-manager.lib.homeManagerConfiguration {
+  pkgs = pkgs;
   modules = [
     (import ../nix-modules/myconfig.nix {
       username = "wojtek";
       email = "wojciechkozyra@swmansion.com";
     })
+    ../common.nix
     ../hm-modules/common.nix
-    ../hm-modules/common-desktop.nix
-    ../hm-modules/languages
     ({ config, lib, pkgs, ... }: {
       home.username = config.myconfig.username;
       home.homeDirectory = "/home/${config.myconfig.username}";
@@ -20,11 +20,21 @@ home-manager.lib.homeManagerConfiguration {
               "${config.home.homeDirectory}/.dotfiles/${path}";
         in
         {
-          ".gitconfig".source = dotfilesSymlink "env/home/gitconfig";
-          ".gitignore".source = dotfilesSymlink "env/home/gitignore";
+          ".gitconfig".source = dotfilesSymlink "env/work/gitconfig";
+          ".gitignore".source = dotfilesSymlink "env/work/gitignore";
         };
 
+      home.packages = with pkgs; [
+        nodejs_18
+        nil
+        sumneko-lua-language-server
+        nodePackages.typescript-language-server
+        vscode-langservers-extracted
+        efm-langserver
+      ];
+
       nixpkgs.overlays = overlays;
+      nix.package = pkgs.nix;
 
       programs.home-manager.enable = true;
       home.stateVersion = "23.11";

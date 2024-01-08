@@ -55,7 +55,8 @@
         # Rebuild:
         # home-maanger switch --flake ".#work"
         work = (import ./configs/nix/work-arch {
-          inherit home-manager;
+          inherit home-manager overlays;
+          pkgs = nixpkgs.legacyPackages.x86_64-linux;
         });
       };
       devShells = perSystemConfig.devShells;

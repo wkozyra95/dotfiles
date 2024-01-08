@@ -9,12 +9,13 @@ nixpkgs.lib.nixosSystem {
       username = "wojtek";
       email = "wkozyra95@gmail.com";
     })
-    (import ./filesystems.nix)
-    (import ./system.nix)
-    (import ./boot.nix)
-    (import ../nix-modules/sway.nix)
-    (import ../nix-modules/docker.nix)
-    (import ../nix-modules/steam.nix)
+    ./filesystems.nix
+    ./system.nix
+    ./boot.nix
+    ../common.nix
+    ../nix-modules/sway.nix
+    ../nix-modules/docker.nix
+    ../nix-modules/steam.nix
     ({ config, lib, pkgs, ... }: {
       nixpkgs.overlays = overlays;
       home-manager = {
