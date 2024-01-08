@@ -32,5 +32,5 @@
   "vim-dadbod-ui": { "branch": "master", "commit": "9ddb0623e69d696b7a8355b93e3950a8dc6e00a0" },
   "vim-endwise": { "branch": "master", "commit": "e714ac3bcfd5a90038de49c3254eded7c70ae3c3" },
   "vim-fugitive": { "branch": "master", "commit": "59659093581aad2afacedc81f009ed6a4bfad275" },
-  "vim-gitgutter": { "branch": "main", "commit": "3531f4eddd359f640ac7478ddc090bdafbc32451" }
+  "vim-gitgutter": { "branch": "master", "commit": "3531f4eddd359f640ac7478ddc090bdafbc32451" }
 }
