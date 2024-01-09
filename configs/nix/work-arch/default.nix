@@ -15,19 +15,19 @@ home-manager.lib.homeManagerConfiguration {
       home.username = config.myconfig.username;
       home.homeDirectory = "/home/${config.myconfig.username}";
 
-      home.file =
-        let
-          dotfilesSymlink = path:
-            config.lib.file.mkOutOfStoreSymlink
-              "${config.home.homeDirectory}/.dotfiles/${path}";
-        in
-        {
-          ".gitconfig".source = dotfilesSymlink "env/home/gitconfig";
-          ".gitignore".source = dotfilesSymlink "env/home/gitignore";
-        };
+      #home.file =
+      #  let
+      #    dotfilesSymlink = path:
+      #      config.lib.file.mkOutOfStoreSymlink
+      #        "${config.home.homeDirectory}/.dotfiles/${path}";
+      #  in
+      #  {
+      #    ".gitconfig".source = dotfilesSymlink "env/home/gitconfig";
+      #    ".gitignore".source = dotfilesSymlink "env/home/gitignore";
+      #  };
 
       nixpkgs.overlays = overlays;
-      nix.package = pkgs.nix;
+      nix.package = pkgs.nixVersions.nix_2_17;
 
       programs.home-manager.enable = true;
       home.stateVersion = "23.11";
