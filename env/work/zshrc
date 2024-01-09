@@ -1,5 +1,4 @@
 export LOCAL_BIN="$HOME/.dotfiles/env/work/bin"
-export PATH="$HOME/.nix-profile/bin:$LOCAL_BIN:$PATH"
 
 # The next line updates PATH for the Google Cloud SDK.
 [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ] && source "$HOME/google-cloud-sdk/path.zsh.inc"
@@ -17,9 +16,6 @@ export TURTLE_V2_EXAMPLE_STAGING_PROJECT_ID=8098b803-f4b1-4f82-9960-390a4ab98fde
 export TURTLE_V2_EXAMPLE_LOCAL_PROJECT_ID=""
 export WWW_DISABLE_LOCAL_VOLTA=1
 export EAS_BUILD_INTERNAL_EXECUTABLE="/home/wojtek/expo/eas-cli/packages/eas-cli/bin/run"
-
-
-[ -e /home/wojtek/.nix-profile/etc/profile.d/nix.sh ] && source $HOME/.nix-profile/etc/profile.d/nix.sh
 
 export DISABLE_NVM=1
 export VOLTA_HOME="$HOME/.volta"

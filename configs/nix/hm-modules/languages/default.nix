@@ -1,10 +1,6 @@
 { pkgs, ... }:
 {
-  imports = [
-    ./build-tools.nix
-    ./go.nix
-    ./rust.nix
-  ];
+  imports = [ ];
   config = {
     home.packages = with pkgs; [
       nodejs_18

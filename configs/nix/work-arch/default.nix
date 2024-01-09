@@ -9,7 +9,7 @@ home-manager.lib.homeManagerConfiguration {
     })
     ../common.nix
     ../hm-modules/common.nix
-    ../hm-modules/common-desktop.nix
+    #../hm-modules/common-desktop.nix
     ../hm-modules/languages
     ({ config, lib, pkgs, ... }: {
       home.username = config.myconfig.username;
@@ -22,8 +22,9 @@ home-manager.lib.homeManagerConfiguration {
               "${config.home.homeDirectory}/.dotfiles/${path}";
         in
         {
-          ".gitconfig".source = dotfilesSymlink "env/home/gitconfig";
-          ".gitignore".source = dotfilesSymlink "env/home/gitignore";
+          ".gitconfig".source = dotfilesSymlink "env/work/gitconfig";
+          ".gitconfig-goody".source = dotfilesSymlink "env/work/gitconfig-goody";
+          ".gitignore".source = dotfilesSymlink "env/work/gitignore";
         };
 
       nixpkgs.overlays = overlays;
