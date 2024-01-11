@@ -1,3 +1,4 @@
+systemModules:
 { pkgs, config, ... }:
 let
   dotfilesSymlink = path: config.lib.file.mkOutOfStoreSymlink
@@ -8,7 +9,7 @@ in
     ../common.nix
     ../hm-modules/common.nix
     ../hm-modules/common-desktop.nix
-  ];
+  ] ++ systemModules;
 
   config = {
     home.file = {

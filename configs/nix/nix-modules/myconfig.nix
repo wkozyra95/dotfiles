@@ -9,5 +9,9 @@
       type = lib.types.str;
       default = email;
     };
+    hm-modules = lib.mkOption {
+      type = lib.types.listOf lib.types.anything;
+      default = [ ];
+    };
   };
 }
