@@ -60,6 +60,7 @@
         });
       };
       devShells = perSystemConfig.devShells;
+      packages = perSystemConfig.packages;
       formatter = perSystemConfig.formatter;
     };
 }

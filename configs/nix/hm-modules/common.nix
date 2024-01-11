@@ -54,6 +54,8 @@ in
     zsh
     nixpkgs-fmt
     tree-sitter
+    silver-searcher
     (pkgs.callPackage ../packages/lua-code-format.nix { })
+    (pkgs.callPackage ../packages/mycli.nix { })
   ];
 }

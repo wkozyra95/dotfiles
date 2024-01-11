@@ -115,7 +115,7 @@ func TestNodePrint(t *testing.T) {
 	}
 
 	result := []string{}
-	ctx, err := newCtx()
+	ctx, err := newCtx(false)
 	assert.Nil(t, err)
 	ctx.printer.printFn = func(s string) {
 		result = append(result, s)
