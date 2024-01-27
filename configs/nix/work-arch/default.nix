@@ -6,6 +6,7 @@ home-manager.lib.homeManagerConfiguration {
     (import ../hm-modules/myconfig.nix {
       username = "wojtek";
       email = "wojciechkozyra@swmansion.com";
+      env = "work";
     })
     ../common.nix
     ../hm-modules/common.nix

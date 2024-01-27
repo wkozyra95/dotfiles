@@ -18,7 +18,7 @@ type SetupEnvironmentOptions struct {
 }
 
 func SetupEnvironment(ctx context.Context, opts SetupEnvironmentOptions) error {
-	if ctx.EnvironmentConfig.UseNix {
+	if os.Getenv("FORCE_MANUAL_SETUP") == "" {
 		return setupEnvironmentWithNix(ctx, opts)
 	} else {
 		return setupEnvironmentManually(ctx, opts)
@@ -36,8 +36,13 @@ func setupEnvironmentWithNix(ctx context.Context, opts SetupEnvironmentOptions) 
 				ctx.FromHome(".dotfiles-private"),
 			),
 		},
-		SetupEnvironmentCoreAction(ctx),
 		nvim.NvimEnsureLazyNvimInstalled(ctx),
+		Scope("Run custom environment hooks", func() Object {
+			if ctx.EnvironmentConfig.CustomSetupAction != nil {
+				return ctx.EnvironmentConfig.CustomSetupAction(ctx)
+			}
+			return Nop()
+		}),
 	}
 	if opts.DryRun {
 		PrintActionTree(cmds)

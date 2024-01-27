@@ -8,6 +8,7 @@ nix-darwin.lib.darwinSystem {
     (import ../nix-modules/myconfig.nix {
       username = "wojciechkozyra";
       email = "wojciechkozyra@swmansion.com";
+      env = "macbook";
     })
     (import ../common.nix)
     ({ config, lib, pkgs, ... }: {

@@ -45,7 +45,7 @@ in
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    #jack.enable = true;
+    jack.enable = true;
   };
 
   services.dbus.enable = true;
@@ -55,4 +55,18 @@ in
     # gtk portal needed to make gtk apps happy
     extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
   };
+
+  myconfig.hm-modules = [
+    {
+      gtk = {
+        enable = true;
+        gtk3.extraConfig = {
+          gtk-application-prefer-dark-theme = true;
+        };
+        gtk4.extraConfig = {
+          gtk-application-prefer-dark-theme = true;
+        };
+      };
+    }
+  ];
 }

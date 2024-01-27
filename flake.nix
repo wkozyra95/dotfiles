@@ -58,7 +58,7 @@
         # First install:
         # nix run home-manager/release-23.11 -- switch --flake ".#work"
         # Rebuild:
-        # home-maanger switch --flake ".#work"
+        # home-manger switch --flake ".#work"
         work = (import ./configs/nix/work-arch {
           inherit home-manager overlays;
           pkgs = nixpkgs.legacyPackages.x86_64-linux;

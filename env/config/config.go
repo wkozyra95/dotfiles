@@ -6,7 +6,6 @@ import (
 	"github.com/wkozyra95/dotfiles/env"
 	"github.com/wkozyra95/dotfiles/env/docker"
 	"github.com/wkozyra95/dotfiles/env/home"
-	"github.com/wkozyra95/dotfiles/env/homeoffice"
 	"github.com/wkozyra95/dotfiles/env/macbook"
 	"github.com/wkozyra95/dotfiles/env/work"
 	"github.com/wkozyra95/dotfiles/logger"
@@ -20,8 +19,6 @@ func GetConfig() env.EnvironmentConfig {
 		return home.Config
 	case "work":
 		return work.Config
-	case "homeoffice":
-		return homeoffice.Config
 	case "macbook":
 		return macbook.Config
 	case "docker":

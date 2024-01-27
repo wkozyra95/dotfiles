@@ -1,7 +1,3 @@
-if [ -s $HOME/.oh-my-zsh ]; then
-    export ZSH=$HOME/.oh-my-zsh
-fi
-
 ZSH_CUSTOM="$HOME/.dotfiles/configs/zsh"
 ZSH_THEME="bira"
 export HISTSIZE=500000
@@ -14,6 +10,9 @@ plugins=(
     git common-aliases cp docker golang vi-mode vim-interaction
 )
 
+if [ -s $HOME/.oh-my-zsh ]; then
+    ZSH=$HOME/.oh-my-zsh
+fi
 source $ZSH/oh-my-zsh.sh
 
 export EDITOR='nvim'
@@ -24,13 +23,9 @@ export MOZ_ENABLE_WAYLAND=1
 export PATH="$HOME/go/bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
-export PATH="$HOME/.fzf/bin:$PATH"
 export PATH="$HOME/Android/Sdk/platform-tools:$PATH"
 export PATH="$HOME/Android/Sdk/tools:$PATH"
 export PATH="$HOME/Android/Sdk/cmdline-tools/latest/bin:$PATH"
-
-export NVM_DIR="$HOME/.nvm"
-export VOLTA_HOME="$HOME/.volta"
 
 export PATH="$VOLTA_HOME/bin:$PATH"
 
@@ -50,30 +45,8 @@ function try_source() {
 }
 
 try_source $HOME/.zshrc.secrets
-try_source $HOME/.zshrc.local
-
-if [ ! -z "$CURRENT_ENV" ]; then
-    try_source $HOME/.dotfiles/env/$CURRENT_ENV/zshrc
-fi
 
 [ -x "$(command -v direnv)" ] && eval "$(direnv hook zsh)"
-
-if [ -s /usr/share/fzf/completion.zsh ]; then
-    source "/usr/share/fzf/completion.zsh"
-elif [ -s $HOME/.fzf/shell/completion.zsh ]; then
-    source "$HOME/.fzf/shell/completion.zsh"
-fi
-
-if [ -s /usr/share/fzf/key-bindings.zsh ]; then
-    source "/usr/share/fzf/key-bindings.zsh"
-elif [ -s $HOME/.fzf/shell/key-bindings.zsh ]; then
-    source "$HOME/.fzf/shell/key-bindings.zsh"
-fi
-
-if [ -z "$DISABLE_NVM" ]; then
-    try_source $NVM_DIR/nvm.sh
-    try_source $NVM_DIR/bash_completion
-fi
 
 if [[ -s "$HOME/.rvm/scripts/rvm" ]]; then
     export PATH="$HOME/.rvm/bin:$PATH"
@@ -81,4 +54,3 @@ if [[ -s "$HOME/.rvm/scripts/rvm" ]]; then
 fi
 
 try_source $HOME/.cache/mycli/completion/zsh_setup
-try_source $HOME/.cache/eas-cli/autocomplete/zsh_setup

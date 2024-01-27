@@ -10,6 +10,7 @@
       gofumpt
       golangci-lint-langserver
       golangci-lint
+      nixpkgs-fmt
     ];
   };
 }

@@ -5,16 +5,49 @@ let
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/${path}";
 in
 {
-  programs.direnv.enable = true;
+  programs.direnv = {
+    enable = true;
+    enableZshIntegration = true;
+    config = {
+      whitelist.prefix = [
+        "${config.home.homeDirectory}/membrane"
+      ];
+    };
+  };
   programs.zsh = {
     enable = true;
+    history = {
+      save = 1000000;
+      size = 1000000;
+      share = true;
+    };
+    shellAliases = {
+      g = "git";
+      git = "git";
+      ggpush = "git push --set-upstream origin $(git_current_branch)";
+    };
+    initExtra = ''
+      function try_source() {
+          test -s $1 && source $1
+      }
+      try_source $HOME/.zshrc.secrets
+      try_source $HOME/.cache/mycli/completion/zsh_setup
+    '';
     oh-my-zsh = {
       enable = true;
+      plugins = [
+        "git"
+        "common-aliases"
+        "docker"
+        "golang"
+        "vi-mode"
+      ];
+      custom = "$HOME/.dotfiles/configs/zsh";
+      theme = "bira";
     };
   };
 
   home.file = {
-    ".zshrc".source = dotfilesSymlink "configs/zshrc";
     ".vimrc".source = dotfilesSymlink "configs/vimrc";
     ".ideavimrc".source = dotfilesSymlink "configs/ideavimrc";
     ".docker".source = dotfilesSymlink "configs/docker";
@@ -23,7 +56,6 @@ in
     ".config/i3".source = dotfilesSymlink "configs/i3";
     ".config/alacritty.yml".source = dotfilesSymlink "configs/alacritty.yml";
     ".config/nvim".source = dotfilesSymlink "configs/nvim";
-    ".config/direnv".source = dotfilesSymlink "configs/direnv";
 
     "notes".source = mkOutOfStoreSymlink
       "${config.home.homeDirectory}/.dotfiles-private/notes";
@@ -35,6 +67,7 @@ in
 
   home.sessionVariables = {
     EDITOR = "nvim";
+    CURRENT_ENV = config.myconfig.env;
   };
 
   home.packages = with pkgs; [
@@ -49,9 +82,9 @@ in
     python3Packages.pygments # needed by oh-my-zsh plugin
     vim
     zsh
-    nixpkgs-fmt
     tree-sitter
     silver-searcher
+    fzf
 
     # LSP
     nodejs_18

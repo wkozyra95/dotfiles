@@ -1,4 +1,4 @@
-{ username, email }:
+{ username, email, env }:
 { lib, ... }: {
   # This modules is used both as NixOS, nix-darwin, and Home Manager module, so
   # it should only rely on API available for both.
@@ -10,6 +10,10 @@
     email = lib.mkOption {
       type = lib.types.str;
       default = email;
+    };
+    env = lib.mkOption {
+      type = lib.types.str;
+      default = env;
     };
   };
 }
