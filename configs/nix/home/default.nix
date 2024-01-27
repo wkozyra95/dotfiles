@@ -22,7 +22,9 @@ nixpkgs.lib.nixosSystem {
       home-manager = {
         useGlobalPkgs = true;
         useUserPackages = true;
-        users.${config.myconfig.username} = (import ./home.nix config.myconfig.hm-modules);
+        users.${config.myconfig.username} = (
+          import ./home.nix config.myconfig.hm-modules
+        );
       };
     })
   ];

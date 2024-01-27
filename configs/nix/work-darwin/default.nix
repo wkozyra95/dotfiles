@@ -14,7 +14,9 @@ nix-darwin.lib.darwinSystem {
       home-manager = {
         useGlobalPkgs = true;
         useUserPackages = true;
-        users.${config.myconfig.username} = (import ./home.nix);
+        users.${config.myconfig.username} = (
+          import ./home.nix config.myconfig.hm-modules
+        );
       };
 
       time.timeZone = "Europe/Warsaw";

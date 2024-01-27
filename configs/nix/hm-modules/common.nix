@@ -39,10 +39,7 @@ in
 
   home.packages = with pkgs; [
     wget
-    git
     git-crypt
-    git-lfs
-    diff-so-fancy
     wget
     curl
     unzip
@@ -55,7 +52,25 @@ in
     nixpkgs-fmt
     tree-sitter
     silver-searcher
+
+    # LSP
+    nodejs_18
+    nil
+    sumneko-lua-language-server
+    nodePackages.typescript-language-server
+    vscode-langservers-extracted
+    efm-langserver
+
+    # Custom
     (pkgs.callPackage ../packages/lua-code-format.nix { })
     (pkgs.callPackage ../packages/mycli.nix { })
   ];
+
+  programs.gpg.enable = true;
+  services.gpg-agent = {
+    enable = true;
+    pinentryFlavor = "curses";
+    enableSshSupport = true;
+    enableExtraSocket = true;
+  };
 }

@@ -1,29 +1,15 @@
 systemModules:
 { pkgs, config, ... }:
-let
-  dotfilesSymlink = path: config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.dotfiles/${path}";
-in
 {
   imports = [
     ../common.nix
     ../hm-modules/common.nix
     ../hm-modules/common-desktop.nix
+    ../hm-modules/git.nix
   ] ++ systemModules;
 
   config = {
-    home.file = {
-      ".gitconfig".source = dotfilesSymlink "env/home/gitconfig";
-      ".gitignore".source = dotfilesSymlink "env/home/gitignore";
-    };
     home.packages = with pkgs; [
-      nodejs_18
-      nil
-      sumneko-lua-language-server
-      nodePackages.typescript-language-server
-      vscode-langservers-extracted
-      efm-langserver
-
       gcc
       cmake
       gnumake
@@ -31,12 +17,8 @@ in
       bitwarden-cli
     ];
 
-    programs.gpg.enable = true;
-    services.gpg-agent = {
-      enable = true;
-      pinentryFlavor = "curses";
-      enableSshSupport = true;
-      enableExtraSocket = true;
+    myconfig = {
+      git.signingKey = "35DF 8DFA D0E7 1E39 F047 BD01 AE51 A568 2B78 648C";
     };
 
     programs.home-manager.enable = true;

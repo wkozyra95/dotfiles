@@ -70,8 +70,6 @@ var Config = env.EnvironmentConfig{
 		},
 	},
 	CustomSetupAction: func(ctx env.Context) action.Object {
-		return action.List{
-			action.EnsureSymlink(ctx.FromEnvDir("gitconfig-goody"), ctx.FromHome(".gitconfig-goody")),
-		}
+		return action.Nop()
 	},
 }

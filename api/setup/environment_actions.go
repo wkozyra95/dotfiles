@@ -100,8 +100,6 @@ func SetupEnvironmentCoreAction(ctx context.Context) a.Object {
 		a.EnsureSymlink(ctx.FromHome(".dotfiles/configs/nvim"), ctx.FromHome(".config/nvim")),
 		a.EnsureSymlink(ctx.FromHome(".dotfiles/configs/gtk-3.0"), ctx.FromHome(".config/gtk-3.0")),
 		a.EnsureSymlink(ctx.FromHome(".dotfiles/configs/docker"), ctx.FromHome(".docker")),
-		a.EnsureSymlink(ctx.FromEnvDir("gitconfig"), ctx.FromHome(".gitconfig")),
-		a.EnsureSymlink(ctx.FromEnvDir("gitignore"), ctx.FromHome(".gitignore")),
 		a.EnsureSymlink(ctx.FromHome(".dotfiles/configs/direnv"), ctx.FromHome(".config/direnv")),
 		a.Scope("Run custom environment hooks", func() a.Object {
 			if ctx.EnvironmentConfig.CustomSetupAction != nil {

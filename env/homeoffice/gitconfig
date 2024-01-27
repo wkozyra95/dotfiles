@@ -19,5 +19,3 @@
     excludesfile = /home/wojtek/.gitignore
     pager = diff-so-fancy | less --tabs=4
     editor = nvim
-[includeIf "gitdir:~/goody/"]
-    path = ./.gitconfig-goody

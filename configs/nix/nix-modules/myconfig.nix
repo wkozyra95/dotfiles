@@ -1,17 +1,21 @@
-{ username, email }:
-{ config, lib, pkgs, ... }: {
+myconfig:
+{ lib, config, ... }:
+let
+  sharedModule = (import ../hm-modules/myconfig.nix myconfig);
+in
+{
+  imports = [ sharedModule ];
+
   options.myconfig = {
-    username = lib.mkOption {
-      type = lib.types.str;
-      default = username;
-    };
-    email = lib.mkOption {
-      type = lib.types.str;
-      default = email;
-    };
     hm-modules = lib.mkOption {
       type = lib.types.listOf lib.types.anything;
       default = [ ];
     };
+  };
+
+  config = {
+    myconfig.hm-modules = [
+      sharedModule
+    ];
   };
 }
