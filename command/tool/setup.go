@@ -109,6 +109,25 @@ func registerSetupCommands(rootCmd *cobra.Command) {
 		},
 	}
 
+	installNixOSCmd := &cobra.Command{
+		Use:   "install:nixos",
+		Short: "install NixOS",
+		Run: func(cmd *cobra.Command, args []string) {
+			user, userErr := user.Current()
+			if userErr != nil {
+				log.Error(userErr)
+				return
+			}
+			if user.Username != "nixos" {
+				log.Error("This command should only be ran from installer medium. (Username=nixos expected)")
+				return
+			}
+			if err := setup.InstallNixOS(); err != nil {
+				log.Error(err)
+			}
+		},
+	}
+
 	setupInDockerCmd := &cobra.Command{
 		Use:   "setup:environment:docker",
 		Short: "command that should be run inside dockerfile that provisions the system",
@@ -139,6 +158,7 @@ func registerSetupCommands(rootCmd *cobra.Command) {
 	rootCmd.AddCommand(setupArchChrootCmd)
 	rootCmd.AddCommand(setupArchCompanionChrootCmd)
 	rootCmd.AddCommand(setupDesktopArchCmd)
+	rootCmd.AddCommand(installNixOSCmd)
 	rootCmd.AddCommand(connectExistingArchChrootCmd)
 	rootCmd.AddCommand(setupInDockerCmd)
 }

@@ -10,3 +10,4 @@ bin/mycli-darwin
 configs/nvim/spell
 
 .direnv
+/result

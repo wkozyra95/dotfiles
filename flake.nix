@@ -38,6 +38,11 @@
         home = (import ./configs/nix/home {
           inherit nixpkgs home-manager overlays;
         });
+        # Build installer ISO
+        # nix build .#nixosConfigurations.iso-installer.config.system.build.isoImage
+        iso-installer = (import ./configs/nix/iso.nix {
+          inherit nixpkgs;
+        });
       };
       darwinConfigurations = {
         # First install:

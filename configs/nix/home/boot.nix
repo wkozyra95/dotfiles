@@ -13,6 +13,8 @@
       efi.canTouchEfiVariables = true;
       grub = {
         enable = true;
+        # To install grub add
+        # device = /dev/disk/by-id/nvme-KINGSTON_SA2000M81000G_50026B768404F6F5/dev/disk/by-id/nvme-KINGSTON_SA2000M81000G_50026B768404F6F5
         device = "nodev";
         efiSupport = true;
         enableCryptodisk = true;
