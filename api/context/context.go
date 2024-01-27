@@ -15,6 +15,7 @@ import (
 
 type Context struct {
 	Username          string
+	Group             string
 	Homedir           string
 	Environment       string
 	EnvironmentConfig env.EnvironmentConfig
@@ -24,6 +25,10 @@ func CreateContext() Context {
 	userInfo, userErr := user.Current()
 	if userErr != nil {
 		panic(userErr)
+	}
+	groupInfo, groupErr := user.LookupGroupId(userInfo.Gid)
+	if groupErr != nil {
+		panic(groupErr)
 	}
 	homedir, homedirErr := os.UserHomeDir()
 	if homedirErr != nil {
@@ -36,6 +41,7 @@ func CreateContext() Context {
 
 	return Context{
 		Username:          userInfo.Username,
+		Group:             groupInfo.Name,
 		Homedir:           homedir,
 		Environment:       environment,
 		EnvironmentConfig: config.GetConfig(),

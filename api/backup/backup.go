@@ -38,7 +38,7 @@ func withDataBackup(
 		volume.MountAction(),
 		action.ShellCommand("sudo", "mkdir", "-p", backupDir),
 		action.ShellCommand(
-			"sudo", "chown", fmt.Sprintf("%s:%s", ctx.Username, ctx.Username), backupDir,
+			"sudo", "chown", fmt.Sprintf("%s:%s", ctx.Username, ctx.Group), backupDir,
 		),
 		fn(ctx, backupDir),
 		volume.UmountAction(),

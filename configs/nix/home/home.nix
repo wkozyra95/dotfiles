@@ -27,7 +27,18 @@ in
       gcc
       cmake
       gnumake
+
+      bitwarden-cli
     ];
+
+    programs.gpg.enable = true;
+    services.gpg-agent = {
+      enable = true;
+      pinentryFlavor = "curses";
+      enableSshSupport = true;
+      enableExtraSocket = true;
+    };
+
     programs.home-manager.enable = true;
     home.stateVersion = "23.11";
   };
