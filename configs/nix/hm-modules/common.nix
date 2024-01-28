@@ -46,6 +46,7 @@ in
       theme = "bira";
     };
   };
+  programs.fzf.enable = true;
 
   home.file = {
     ".vimrc".source = dotfilesSymlink "configs/vimrc";
@@ -81,10 +82,8 @@ in
     ripgrep
     python3Packages.pygments # needed by oh-my-zsh plugin
     vim
-    zsh
     tree-sitter
     silver-searcher
-    fzf
 
     # LSP
     nodejs_18
