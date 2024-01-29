@@ -78,6 +78,8 @@ in
     curl
     unzip
     jq
+    btop
+    rsync
     killall
     ripgrep
     python3Packages.pygments # needed by oh-my-zsh plugin
@@ -92,6 +94,7 @@ in
     nodePackages.typescript-language-server
     vscode-langservers-extracted
     efm-langserver
+    elixir_ls
 
     # Custom
     (pkgs.callPackage ../packages/lua-code-format.nix { })

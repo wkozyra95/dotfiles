@@ -29,7 +29,6 @@ in
     slurp
     wf-recorder
     swaylock
-    btop
     wl-clipboard
     playerctl
     pamixer
