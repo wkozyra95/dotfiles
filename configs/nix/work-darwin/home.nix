@@ -5,6 +5,7 @@ systemModules:
     ../common.nix
     ../hm-modules/common.nix
     ../hm-modules/git.nix
+    ../hm-modules/vim.nix
   ] ++ systemModules;
 
   config = {

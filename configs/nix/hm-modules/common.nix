@@ -10,7 +10,7 @@ in
     enableZshIntegration = true;
     config = {
       whitelist.prefix = [
-        "${config.home.homeDirectory}/membrane"
+        "${config.home.homeDirectory}/.dotfiles"
       ];
     };
   };
@@ -49,7 +49,6 @@ in
   programs.fzf.enable = true;
 
   home.file = {
-    ".vimrc".source = dotfilesSymlink "configs/vimrc";
     ".ideavimrc".source = dotfilesSymlink "configs/ideavimrc";
     ".docker".source = dotfilesSymlink "configs/docker";
 
@@ -72,7 +71,6 @@ in
   };
 
   home.packages = with pkgs; [
-    wget
     git-crypt
     wget
     curl
@@ -83,7 +81,6 @@ in
     killall
     ripgrep
     python3Packages.pygments # needed by oh-my-zsh plugin
-    vim
     tree-sitter
     silver-searcher
 

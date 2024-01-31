@@ -1,23 +1,3 @@
-
-call plug#begin()
-
-Plug 'scrooloose/nerdtree'
-Plug 'Xuyuanp/nerdtree-git-plugin'
-Plug 'jistr/vim-nerdtree-tabs'
-Plug 'tpope/vim-fugitive'
-Plug 'airblade/vim-gitgutter'
-
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'rking/ag.vim'
-
-Plug 'tpope/vim-surround'
-Plug 'gorodinskiy/vim-coloresque'
-
-Plug 'morhetz/gruvbox'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-
-call plug#end()
 set exrc
 set secure
 
