@@ -36,7 +36,6 @@ func setupEnvironmentWithNix(ctx context.Context, opts SetupEnvironmentOptions) 
 				ctx.FromHome(".dotfiles-private"),
 			),
 		},
-		nvim.NvimEnsureLazyNvimInstalled(ctx),
 		Scope("Run custom environment hooks", func() Object {
 			if ctx.EnvironmentConfig.CustomSetupAction != nil {
 				return ctx.EnvironmentConfig.CustomSetupAction(ctx)

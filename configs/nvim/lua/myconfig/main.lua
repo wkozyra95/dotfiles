@@ -1,6 +1,5 @@
 vim.g.mapleader = " "
 
-require("myconfig.plugins")
 require("myconfig.globals")
 require("myconfig.base").apply()
 require("myconfig.statusline")

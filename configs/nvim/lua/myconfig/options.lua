@@ -1,5 +1,7 @@
 local o = vim.opt
 
+vim.cmd.colorscheme("gruvbox")
+
 o.exrc = true         -- read rc files in parent directories
 o.secure = true       -- exrc applies only if user is an owner
 

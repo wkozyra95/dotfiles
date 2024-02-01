@@ -1,0 +1,52 @@
+{ pkgs, config, ... }:
+{
+  programs.neovim = {
+    enable = true;
+    defaultEditor = true;
+    extraLuaConfig = ''
+      vim.opt.rtp:prepend("${config.home.homeDirectory}/.dotfiles/configs/nvim")
+      require("myconfig.main")
+    '';
+    plugins = with pkgs.vimPlugins; [
+      popup-nvim
+      nvim-web-devicons
+      plenary-nvim
+
+      telescope-nvim
+      telescope-fzy-native-nvim
+      telescope-file-browser-nvim
+
+      noice-nvim
+      neogit
+      diffview-nvim
+      vim-gitgutter
+      vim-fugitive
+
+      vim-dadbod
+      vim-dadbod-ui
+
+      rest-nvim
+
+      nvim-lspconfig
+
+      nvim-cmp
+      cmp-nvim-lsp
+      cmp-buffer
+      cmp-path
+
+      luasnip
+      cmp_luasnip
+
+      lspkind-nvim
+
+      vim-endwise
+      comment-nvim
+
+      gruvbox-nvim
+
+      nvim-treesitter.withAllGrammars
+      playground
+      nvim-treesitter-context
+    ];
+  };
+}

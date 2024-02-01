@@ -6,6 +6,7 @@ systemModules:
     ../hm-modules/common.nix
     ../hm-modules/git.nix
     ../hm-modules/vim.nix
+    ../hm-modules/neovim.nix
   ] ++ systemModules;
 
   config = {

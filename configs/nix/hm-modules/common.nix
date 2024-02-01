@@ -55,7 +55,6 @@ in
     ".config/sway".source = dotfilesSymlink "configs/sway";
     ".config/i3".source = dotfilesSymlink "configs/i3";
     ".config/alacritty.yml".source = dotfilesSymlink "configs/alacritty.yml";
-    ".config/nvim".source = dotfilesSymlink "configs/nvim";
 
     "notes".source = mkOutOfStoreSymlink
       "${config.home.homeDirectory}/.dotfiles-private/notes";
