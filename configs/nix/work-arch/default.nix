@@ -5,7 +5,7 @@ home-manager.lib.homeManagerConfiguration {
   modules = [
     (import ../hm-modules/myconfig.nix {
       username = "wojtek";
-      email = "wojciechkozyra@swmansion.com";
+      email = "wojciech.kozyra@swmansion.com";
       env = "work";
     })
     ../common.nix
@@ -19,6 +19,10 @@ home-manager.lib.homeManagerConfiguration {
 
       nixpkgs.overlays = overlays;
       nix.package = pkgs.nix;
+
+      myconfig = {
+        git.signingKey = "C577 851A 36BB 9BBA CF11  8A44 CA11 EA63 4382 0983";
+      };
 
       programs.home-manager.enable = true;
       home.stateVersion = "23.11";

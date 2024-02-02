@@ -7,7 +7,7 @@ nix-darwin.lib.darwinSystem {
     home-manager.darwinModules.home-manager
     (import ../nix-modules/myconfig.nix {
       username = "wojciechkozyra";
-      email = "wojciechkozyra@swmansion.com";
+      email = "wojciech.kozyra@swmansion.com";
       env = "macbook";
     })
     (import ../common.nix)
