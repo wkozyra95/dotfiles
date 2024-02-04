@@ -13,6 +13,7 @@ home-manager.lib.homeManagerConfiguration {
     ../hm-modules/git.nix
     ../hm-modules/vim.nix
     ../hm-modules/neovim.nix
+    ../hm-modules/dotfiles.nix
     ({ config, lib, pkgs, ... }: {
       home.username = config.myconfig.username;
       home.homeDirectory = "/home/${config.myconfig.username}";

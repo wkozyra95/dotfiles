@@ -11,3 +11,4 @@ configs/nvim/spell
 
 .direnv
 /result
+*.qcow2

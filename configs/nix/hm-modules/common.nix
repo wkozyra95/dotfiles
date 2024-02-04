@@ -24,7 +24,6 @@ in
     };
     shellAliases = {
       g = "git";
-      git = "git";
       ggpush = "git push --set-upstream origin $(git_current_branch)";
     };
     initExtra = ''
@@ -59,8 +58,6 @@ in
 
     "notes".source = mkOutOfStoreSymlink
       "${config.home.homeDirectory}/.dotfiles-private/notes";
-    ".dotfiles/configs/nvim/spell".source = mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.dotfiles-private/nvim/spell";
   };
 
   programs.neovim.enable = true;
@@ -92,6 +89,7 @@ in
     vscode-langservers-extracted
     efm-langserver
     elixir_ls
+    nixpkgs-fmt
 
     # Custom
     (pkgs.callPackage ../packages/lua-code-format.nix { })

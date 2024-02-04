@@ -43,6 +43,13 @@
         iso-installer = (import ./configs/nix/iso.nix {
           inherit nixpkgs;
         });
+        # Build vm
+        # nix build .#nixosConfigurations.dev.config.system.build.vm
+        # Run vm
+        # ./result/bin/run-dev-vm
+        dev-vm = (import ./configs/nix/dev-vm {
+          inherit nixpkgs home-manager overlays;
+        });
       };
       darwinConfigurations = {
         # First install:

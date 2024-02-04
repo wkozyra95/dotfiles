@@ -8,6 +8,7 @@ systemModules:
     ../hm-modules/git.nix
     ../hm-modules/vim.nix
     ../hm-modules/neovim.nix
+    ../hm-modules/dotfiles.nix
   ] ++ systemModules;
 
   config = {
