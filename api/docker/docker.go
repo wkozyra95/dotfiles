@@ -79,7 +79,7 @@ func Run(ctx *DockerContext, dockerEnv env.DockerEnvSpec, options DockerRunOptio
 	} else {
 		log.Info("Container already started")
 	}
-	return exec.Command().WithStdio().Run("docker", "exec", "-it", container.ID, "zsh")
+	return exec.Command().WithStdio().Args("docker", "exec", "-it", container.ID, "zsh").Run()
 }
 
 func BuildImageWithoutContext(

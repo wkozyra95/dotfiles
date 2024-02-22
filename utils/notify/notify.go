@@ -8,7 +8,7 @@ import (
 var log = logger.NamedLogger("notify")
 
 func Notify(title string, body string) {
-	err := exec.Command().WithStdio().Run("notify-send", title, body)
+	err := exec.Command().WithStdio().Args("notify-send", title, body).Run()
 	if err != nil {
 		log.Errorf("Failed to send notify %v", err)
 	}

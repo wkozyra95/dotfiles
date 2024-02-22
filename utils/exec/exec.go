@@ -31,26 +31,27 @@ func CommandExists(cmd string) bool {
 
 // Cmd ...
 type Cmd struct {
-	*exec.Cmd
-	stdio  bool
-	bufout io.Writer
-	buferr io.Writer
-	sudo   bool
-	cwd    string
+	innerCmd *exec.Cmd
+	stdio    bool
+	bufout   io.Writer
+	buferr   io.Writer
+	sudo     bool
+	cwd      string
+	args     []string
 }
 
 // Command ...
 func Command() *Cmd {
 	cmd := &exec.Cmd{}
-	return &Cmd{cmd, false, nil, nil, false, ""}
+	return &Cmd{cmd, false, nil, nil, false, "", nil}
 }
 
 // WithEnv ...
 func (c *Cmd) WithEnv(envs ...string) *Cmd {
-	if c.Env == nil {
-		c.Env = os.Environ()
+	if c.innerCmd.Env == nil {
+		c.innerCmd.Env = os.Environ()
 	}
-	c.Env = append(c.Env, envs...)
+	c.innerCmd.Env = append(c.innerCmd.Env, envs...)
 	return c
 }
 
@@ -79,21 +80,26 @@ func (c *Cmd) WithSudo() *Cmd {
 	return c
 }
 
+func (c *Cmd) Args(args ...string) *Cmd {
+	c.args = append([]string{}, args...)
+	return c
+}
+
 // Start ...
-func (c *Cmd) Start(cmdName string, args ...string) (*exec.Cmd, error) {
-	c.prepare(cmdName, args...)
-	if err := c.Cmd.Start(); err != nil {
-		return c.Cmd, fmt.Errorf("Command %v failed with error [%s]", c.Cmd.Args, err.Error())
+func (c *Cmd) Start() (*exec.Cmd, error) {
+	c.prepare()
+	if err := c.innerCmd.Start(); err != nil {
+		return c.innerCmd, fmt.Errorf("Command %v failed with error [%s]", c.innerCmd.Args, err.Error())
 	}
-	return c.Cmd, nil
+	return c.innerCmd, nil
 }
 
 // Run ...
-func (c *Cmd) Run(cmdName string, args ...string) error {
-	c.prepare(cmdName, args...)
-	if c.Stdout != nil {
-		if err := c.Cmd.Run(); err != nil {
-			return fmt.Errorf("Command %v failed with error [%s]", c.Cmd.Args, err.Error())
+func (c *Cmd) Run() error {
+	c.prepare()
+	if c.innerCmd.Stdout != nil {
+		if err := c.innerCmd.Run(); err != nil {
+			return fmt.Errorf("Command %v failed with error [%s]", c.innerCmd.Args, err.Error())
 		}
 	} else {
 		return c.runWithoutStdio()
@@ -101,36 +107,45 @@ func (c *Cmd) Run(cmdName string, args ...string) error {
 	return nil
 }
 
-func (c *Cmd) prepare(cmdName string, args ...string) {
-	if c.sudo {
-		c.Path = "sudo"
-		c.Args = append([]string{"sudo", cmdName}, args...)
-	} else {
-		c.Path = cmdName
-		c.Args = append([]string{cmdName}, args...)
-	}
-	if filepath.Base(c.Path) == c.Path {
-		if lp, err := exec.LookPath(c.Path); err != nil {
-			// return err
-		} else {
-			c.Path = lp
+func RunAll(cmds ...*Cmd) error {
+	for _, cmd := range cmds {
+		if err := cmd.Run(); err != nil {
+			return err
 		}
 	}
-	c.Cmd.Dir = c.cwd
-	log.Debugf("Call [%s]", strings.Join(c.Args, " "))
+	return nil
+}
+
+func (c *Cmd) prepare() {
+	if c.sudo {
+		c.innerCmd.Path = "sudo"
+		c.innerCmd.Args = append([]string{"sudo"}, c.args...)
+	} else {
+		c.innerCmd.Path = c.args[0]
+		c.innerCmd.Args = c.args
+	}
+	if filepath.Base(c.innerCmd.Path) == c.innerCmd.Path {
+		if lp, err := exec.LookPath(c.innerCmd.Path); err != nil {
+			// return err
+		} else {
+			c.innerCmd.Path = lp
+		}
+	}
+	c.innerCmd.Dir = c.cwd
+	log.Debugf("Call [%s]", strings.Join(c.innerCmd.Args, " "))
 	if c.stdio {
-		c.Stdout = os.Stdout
-		c.Stderr = os.Stderr
-		c.Stdin = os.Stdin
+		c.innerCmd.Stdout = os.Stdout
+		c.innerCmd.Stderr = os.Stderr
+		c.innerCmd.Stdin = os.Stdin
 	} else if c.bufout != nil && c.buferr != nil {
-		c.Stdout = c.bufout
-		c.Stderr = c.buferr
-		c.Stdin = os.Stdin
+		c.innerCmd.Stdout = c.bufout
+		c.innerCmd.Stderr = c.buferr
+		c.innerCmd.Stdin = os.Stdin
 	}
 }
 
 func (c *Cmd) runWithoutStdio() error {
-	cmd := c.Cmd
+	cmd := c.innerCmd
 	output, cmdErr := cmd.CombinedOutput()
 	if cmdErr != nil {
 		log.Errorf("Command [%s %v] failed", cmd.Path, cmd.Args)

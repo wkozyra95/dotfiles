@@ -40,7 +40,7 @@ func wifiManager() {
 	if exec.CommandExists("nmcli") {
 		err := exec.Command().
 			WithStdio().
-			Run("nmcli", "dev", "wifi", "con", networks[index].ssid, "password", networks[index].password)
+			Args("nmcli", "dev", "wifi", "con", networks[index].ssid, "password", networks[index].password).Run()
 		if err != nil {
 			log.Error(err)
 		}

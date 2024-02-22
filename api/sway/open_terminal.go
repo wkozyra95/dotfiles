@@ -115,7 +115,7 @@ func pgrepP(ppids []int) []int {
 	var stdout, stderr bytes.Buffer
 	err := exec.Command().
 		WithBufout(&stdout, &stderr).
-		Run("pgrep", "-P", strings.Join(fn.Map(ppids, strconv.Itoa), ","))
+		Args("pgrep", "-P", strings.Join(fn.Map(ppids, strconv.Itoa), ",")).Run()
 	if err != nil {
 		return []int{}
 	}

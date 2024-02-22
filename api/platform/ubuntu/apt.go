@@ -25,7 +25,7 @@ func (p aptPackage) Install() error {
 		if user.Name != "root" {
 			cmd = cmd.WithSudo()
 		}
-		installErr := cmd.Run("apt-get", "install", "-y", pkg)
+		installErr := cmd.Args("apt-get", "install", "-y", pkg).Run()
 		if installErr != nil && !prompt.ConfirmPrompt("Install failed, do you want to continue?") {
 			return installErr
 		}

@@ -35,7 +35,7 @@ func Copy(source string, destination string) error {
 }
 
 func CopyAsRoot(source string, destination string) error {
-	return exec.Command().WithSudo().Run("cp", "-R", source, destination)
+	return exec.Command().WithSudo().Args("cp", "-R", source, destination).Run()
 }
 
 func EnsureSymlink(source string, destination string) error {

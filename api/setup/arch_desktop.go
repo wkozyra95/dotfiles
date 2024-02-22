@@ -76,9 +76,9 @@ func mainArchStage(ctx desktopSetupContext) a.Object {
 			}
 			cmd := exec.Command().WithStdio()
 			if selected == "amd" {
-				return cmd.Run("pacman", "-S", "amd-ucode")
+				return cmd.Args("pacman", "-S", "amd-ucode").Run()
 			} else if selected == "intel" {
-				return cmd.Run("pacman", "-S", "intel-ucode")
+				return cmd.Args("pacman", "-S", "intel-ucode").Run()
 			}
 			return nil
 		}),
@@ -93,7 +93,7 @@ func mainArchStage(ctx desktopSetupContext) a.Object {
 			}
 			if selected == "amd" {
 				cmd := exec.Command().WithStdio()
-				return cmd.Run("pacman", "-S", "vulkan-radeon")
+				return cmd.Args("pacman", "-S", "vulkan-radeon").Run()
 			}
 			return nil
 		}),

@@ -160,7 +160,7 @@ func ProvisionArchChroot() error {
 				var stdout bytes.Buffer
 				err := exec.Command().
 					WithBufout(&stdout, &bytes.Buffer{}).
-					Run("blkid", "-s", "UUID", "-o", "value", target.mainPartition)
+					Args("blkid", "-s", "UUID", "-o", "value", target.mainPartition).Run()
 				if err != nil {
 					return a.Err(err)
 				}

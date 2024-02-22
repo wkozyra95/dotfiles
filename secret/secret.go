@@ -67,7 +67,7 @@ func BestEffortReadSecrets(homedir string) *Secrets {
 		log.Error("Skipping secrets read, git-crypt is not installed")
 		return nil
 	}
-	if err := exec.Command().WithStdio().Run("git-crypt", "unlock", path.Join(homedir, ".secrets/dotfiles.key")); err != nil {
+	if err := exec.Command().WithStdio().Args("git-crypt", "unlock", path.Join(homedir, ".secrets/dotfiles.key")).Run(); err != nil {
 		log.Errorf("Skipping secrets read, unlock failed with %s", err.Error())
 		return nil
 	}

@@ -21,7 +21,7 @@ func RegisterCmds(rootCmd *cobra.Command) {
 			ctx := context.CreateContext()
 			time.Sleep(time.Second * 2)
 			for _, cmd := range ctx.EnvironmentConfig.Init {
-				_, initJobErr := exec.Command().WithCwd(cmd.Cwd).Start(cmd.Args[0], cmd.Args[1:]...)
+				_, initJobErr := exec.Command().WithCwd(cmd.Cwd).Args(cmd.Args...).Start()
 				if initJobErr != nil {
 					log.Error(initJobErr.Error())
 				}

@@ -34,16 +34,16 @@ func (b BranchInfo) String() string {
 }
 
 func Prune() error {
-	return exec.Command().WithStdio().Run("git", "fetch", "origin", "--prune")
+	return exec.Command().WithStdio().Args("git", "fetch", "origin", "--prune").Run()
 }
 
 func DeleteBranch(name string) error {
-	return exec.Command().WithStdio().Run("git", "branch", "-D", name)
+	return exec.Command().WithStdio().Args("git", "branch", "-D", name).Run()
 }
 
 func ListBranches() ([]BranchInfo, error) {
 	var stdout bytes.Buffer
-	spawnErr := exec.Command().WithBufout(&stdout, &bytes.Buffer{}).Run("git", "branch", "-vv")
+	spawnErr := exec.Command().WithBufout(&stdout, &bytes.Buffer{}).Args("git", "branch", "-vv").Run()
 	if spawnErr != nil {
 		return nil, spawnErr
 	}

@@ -47,7 +47,7 @@ func release(ctx context.Context) error {
 	linuxBuildErr := exec.Command().WithStdio().
 		WithCwd(path.Join(ctx.Homedir, ".dotfiles")).
 		WithEnv("CGO_ENABLED=0", "GOOS=linux", "GOARCH=amd64").
-		Run("go", "build", "-o", "bin/mycli-linux", "./mycli/main.go")
+		Args("go", "build", "-o", "bin/mycli-linux", "./mycli/main.go").Run()
 
 	if linuxBuildErr != nil {
 		return linuxBuildErr
@@ -56,7 +56,7 @@ func release(ctx context.Context) error {
 	darwinBuildErr := exec.Command().WithStdio().
 		WithCwd(path.Join(ctx.Homedir, ".dotfiles")).
 		WithEnv("CGO_ENABLED=0", "GOOS=darwin", "GOARCH=amd64").
-		Run("go", "build", "-o", "bin/mycli-darwin", "./mycli/main.go")
+		Args("go", "build", "-o", "bin/mycli-darwin", "./mycli/main.go").Run()
 	if darwinBuildErr != nil {
 		return darwinBuildErr
 	}

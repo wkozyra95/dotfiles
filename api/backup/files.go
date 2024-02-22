@@ -6,73 +6,73 @@ import (
 	"path"
 	"strings"
 
-	"github.com/wkozyra95/dotfiles/action"
 	"github.com/wkozyra95/dotfiles/utils/exec"
+	"github.com/wkozyra95/dotfiles/utils/file"
 )
 
-func fileSyncAction(src string, dst string) action.Object {
-	return action.SimpleAction{
-		Run: func() error {
-			fileInfo, statErr := os.Stat(src)
-			if statErr != nil {
-				return statErr
-			}
-			if fileInfo.IsDir() {
-				src = fmt.Sprintf("%s/", src)
-				dst = fmt.Sprintf("%s/", dst)
-			}
-			return exec.Command().
-				WithStdio().
-				Run(
-					"bash", "-c",
-					strings.Join([]string{
-						"rsync",
-						"--update",
-						"--delete",
-						"--progress",
-						"--recursive",
-						"--perms",
-						"--filter=':- .gitignore'",
-						src, dst,
-					}, " "),
-				)
-		},
-		Label: fmt.Sprintf("Syncing files %s -> %s", src, dst),
+func fileSync(src string, dst string) error {
+	fileInfo, statErr := os.Stat(src)
+	if statErr != nil {
+		return statErr
 	}
+	if fileInfo.IsDir() {
+		src = fmt.Sprintf("%s/", src)
+		dst = fmt.Sprintf("%s/", dst)
+	}
+	return exec.Command().
+		WithStdio().
+		Args(
+			"bash", "-c",
+			strings.Join([]string{
+				"rsync",
+				"--update",
+				"--delete",
+				"--progress",
+				"--recursive",
+				"--perms",
+				"--filter=':- .gitignore'",
+				src, dst,
+			}, " "),
+		).
+		Run()
 }
 
-func backupFilesAction(rootDir string, mapPaths map[string]string) action.Object {
+func backupFiles(rootDir string, mapPaths map[string]string) error {
 	dirPath := path.Join(rootDir, "files")
-	rsyncActions := []action.Object{}
+	if err := cmd().Args("mkdir", "-p", dirPath).Run(); err != nil {
+		return err
+	}
+
 	for srcPath, destinationPath := range mapPaths {
-		rsyncActions = append(rsyncActions, action.WithCondition{
-			If: action.PathExists(srcPath),
-			Then: fileSyncAction(
+		if file.Exists(srcPath) {
+			syncErr := fileSync(
 				srcPath,
 				path.Join(dirPath, destinationPath),
-			),
-		})
+			)
+			if syncErr != nil {
+				return syncErr
+			}
+		}
 	}
-	return append(
-		action.List{action.ShellCommand("mkdir", "-p", dirPath)},
-		rsyncActions...,
-	)
+	return nil
 }
 
-func restoreFilesAction(rootDir string, mapPaths map[string]string) action.Object {
+func restoreFiles(rootDir string, mapPaths map[string]string) error {
 	dirPath := path.Join(rootDir, "files")
-	rsyncActions := []action.Object{}
+	if err := cmd().Args("mkdir", "-p", dirPath).Run(); err != nil {
+		return err
+	}
+
 	for srcPath, destinationPath := range mapPaths {
-		rsyncActions = append(rsyncActions, action.WithCondition{
-			If: action.PathExists(path.Join(dirPath, destinationPath)),
-			Then: fileSyncAction(
+		if file.Exists(path.Join(dirPath, destinationPath)) {
+			syncErr := fileSync(
 				path.Join(dirPath, destinationPath),
 				srcPath,
-			),
-		})
+			)
+			if syncErr != nil {
+				return syncErr
+			}
+		}
 	}
-	return append(
-		action.List{action.ShellCommand("mkdir", "-p", dirPath)},
-		rsyncActions...,
-	)
+	return nil
 }

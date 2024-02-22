@@ -47,7 +47,7 @@ func getSubvolumeId(path string) (string, error) {
 	var stdout bytes.Buffer
 	cmdErr := exec.Command().
 		WithBufout(&stdout, &bytes.Buffer{}).
-		Run("sudo", "btrfs", "subvolume", "show", path)
+		Args("sudo", "btrfs", "subvolume", "show", path).Run()
 	if cmdErr != nil {
 		return "", cmdErr
 	}
@@ -63,7 +63,7 @@ func getSubvolumeChildren(subvolID string) ([]Volume, error) {
 	var stdout bytes.Buffer
 	cmdErr := exec.Command().
 		WithBufout(&stdout, &bytes.Buffer{}).
-		Run("sudo", "btrfs", "subvolume", "list", "-p", "/")
+		Args("sudo", "btrfs", "subvolume", "list", "-p", "/").Run()
 	if cmdErr != nil {
 		return nil, cmdErr
 	}
@@ -84,7 +84,7 @@ func GetSnapshots() ([]Volume, error) {
 	var snaphotListRaw bytes.Buffer
 	cmdErr := exec.Command().
 		WithBufout(&snaphotListRaw, &bytes.Buffer{}).
-		Run("sudo", "btrfs", "subvolume", "list", "-p", "-o", "/run/btrfs-root/__snapshot/")
+		Args("sudo", "btrfs", "subvolume", "list", "-p", "-o", "/run/btrfs-root/__snapshot/").Run()
 	if cmdErr != nil {
 		return nil, cmdErr
 	}
@@ -155,14 +155,14 @@ func RestoreRootSnapshot() error {
 				destinationPath := path.Join(rootPartition, pathSuffix)
 				srcPath := path.Join("/run/btrfs-root", child.Path)
 				fmt.Printf("reattach volume %s -> %s\n", srcPath, destinationPath)
-				if err := exec.Command().WithStdio().Run("sudo", "rmdir", destinationPath); err != nil {
+				if err := exec.Command().WithStdio().Args("sudo", "rmdir", destinationPath).Run(); err != nil {
 					return err
 				}
-				err := exec.Command().WithStdio().Run(
+				err := exec.Command().WithStdio().Args(
 					"sudo", "mv",
 					srcPath,
 					destinationPath,
-				)
+				).Run()
 				if err != nil {
 					return err
 				}
@@ -191,7 +191,7 @@ func CleanupSnapshots() error {
 		log.Infof(" - %s", fullPath)
 		err := exec.Command().
 			WithSudo().
-			Run("btrfs", "subvolume", "delete", fullPath)
+			Args("btrfs", "subvolume", "delete", fullPath).Run()
 		if err != nil {
 			return err
 		}

@@ -3,7 +3,6 @@ package drive
 import (
 	"errors"
 
-	"github.com/wkozyra95/dotfiles/action"
 	"github.com/wkozyra95/dotfiles/api/context"
 	"github.com/wkozyra95/dotfiles/tool/drive"
 	"github.com/wkozyra95/dotfiles/utils/prompt"
@@ -89,5 +88,5 @@ func Umount(ctx context.Context) error {
 		return nil
 	}
 
-	return action.RunActions(selected.CloseLUKSAction(), false)
+	return selected.CloseLUKS()
 }

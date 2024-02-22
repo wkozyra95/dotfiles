@@ -102,7 +102,10 @@ func GetStorageDevicesList() ([]StorageDevice, error) {
 
 func GetDeviceInfo(devicePath string) (SfdiskDeviceInfo, error) {
 	var stdout bytes.Buffer
-	sfdiskCmdErr := exec.Command().WithBufout(&stdout, &bytes.Buffer{}).Run("sudo", "sfdisk", devicePath, "--json")
+	sfdiskCmdErr := exec.Command().
+		WithBufout(&stdout, &bytes.Buffer{}).
+		Args("sudo", "sfdisk", devicePath, "--json").
+		Run()
 	if sfdiskCmdErr != nil {
 		return SfdiskDeviceInfo{}, nil
 	}
@@ -158,7 +161,7 @@ func (f *FindMntMountInfoWithChildren) getMountInfo() []FindMntMountInfo {
 
 func GetMountPointsInfo() ([]FindMntMountInfo, error) {
 	var stdout bytes.Buffer
-	findmntCmdErr := exec.Command().WithBufout(&stdout, &bytes.Buffer{}).Run("findmnt", "--json")
+	findmntCmdErr := exec.Command().WithBufout(&stdout, &bytes.Buffer{}).Args("findmnt", "--json").Run()
 	if findmntCmdErr != nil {
 		return nil, nil
 	}

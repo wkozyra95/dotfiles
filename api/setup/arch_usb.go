@@ -47,7 +47,7 @@ func ProvisionUsbArchInstaller(ctx context.Context) error {
 
 	workingdir := path.Join(os.TempDir(), "arch-bootable-workingdir")
 	if !file.Exists("/usr/share/archiso/configs/releng") {
-		if err := exec.Command().WithStdio().Run("yay", "-S", "archiso"); err != nil {
+		if err := exec.Command().WithStdio().Args("yay", "-S", "archiso").Run(); err != nil {
 			return err
 		}
 	}
@@ -88,14 +88,14 @@ func ProvisionUsbArchInstaller(ctx context.Context) error {
 			if !prompt.ConfirmPrompt(fmt.Sprintf("Do you want to copy files to %s device", target)) {
 				return fmt.Errorf("Aborting ...")
 			}
-			return exec.Command().WithStdio().Run("dd",
+			return exec.Command().WithStdio().Args("dd",
 				fmt.Sprintf("if=%s", outputIso),
 				fmt.Sprintf("of=%s", target),
 				fmt.Sprintf("bs=%dK", 4*1024),
 				"status=progress",
 				"conv=fsync",
 				"oflag=direct",
-			)
+			).Run()
 		}),
 		a.ShellCommand("sudo", "rm", "-rf", workingdir),
 	}

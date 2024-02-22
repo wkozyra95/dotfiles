@@ -19,7 +19,7 @@ var log = logger.NamedLogger("platform")
 func GetPackageManager(ctx context.Context) (api.PackageInstaller, error) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
-	if err := exec.Command().WithBufout(&stdout, &stderr).Run("uname", "-s"); err != nil {
+	if err := exec.Command().WithBufout(&stdout, &stderr).Args("uname", "-s").Run(); err != nil {
 		log.Error(stderr.String())
 		panic(err)
 	}

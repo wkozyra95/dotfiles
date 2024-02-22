@@ -19,10 +19,10 @@ type yayPackage []string
 func (p yayPackage) Install() error {
 	for _, pkg := range p {
 		var stdout bytes.Buffer
-		if err := exec.Command().WithBufout(&stdout, &bytes.Buffer{}).Run("yay", "-Qi", pkg); err == nil {
+		if err := exec.Command().WithBufout(&stdout, &bytes.Buffer{}).Args("yay", "-Qi", pkg).Run(); err == nil {
 			continue
 		}
-		installErr := exec.Command().WithStdio().Run("yay", "-S", pkg)
+		installErr := exec.Command().WithStdio().Args("yay", "-S", pkg).Run()
 		if installErr != nil && !prompt.ConfirmPrompt("Install failed, do you want to continue?") {
 			return installErr
 		}

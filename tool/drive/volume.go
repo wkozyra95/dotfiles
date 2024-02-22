@@ -3,7 +3,7 @@ package drive
 import (
 	"fmt"
 
-	"github.com/wkozyra95/dotfiles/action"
+	"github.com/wkozyra95/dotfiles/utils/exec"
 	"github.com/wkozyra95/dotfiles/utils/file"
 )
 
@@ -143,24 +143,35 @@ func (v *Volume) Description() string {
 }
 
 func (v *Volume) Mount() error {
-	return action.RunActions(v.MountAction(), false)
+	mountDevicePath := ""
+	if v.KnownVolume.Partition.LUKSDeviceMapperName == "" {
+		mountDevicePath = v.Partition.PartitionPath
+	} else {
+		mountDevicePath = fmt.Sprintf("/dev/mapper/%s", v.KnownVolume.Partition.LUKSDeviceMapperName)
+		if !file.Exists(mountDevicePath) {
+			cmdErr := exec.Command().WithStdio().WithSudo().Args(
+				"cryptsetup",
+				"open",
+				v.Partition.PartitionPath,
+				v.KnownVolume.Partition.LUKSDeviceMapperName,
+			).Run()
+			if cmdErr != nil {
+				return cmdErr
+			}
+		}
+	}
+	return exec.RunAll(
+		exec.Command().WithStdio().WithStdio().Args("mkdir", "-p", v.MountPath),
+		v.mountCommand(mountDevicePath),
+	)
 }
 
 func (v *Volume) Umount() error {
-	return action.RunActions(v.UmountAction(), false)
+	return v.UmountCommand().Run()
 }
 
-func (v *Volume) MountAction() action.Object {
-	openAction, mountDevicePath := v.maybeLUKSOpen()
-	return action.List{
-		openAction,
-		action.ShellCommand("sudo", "mkdir", "-p", v.MountPath),
-		v.mountAction(mountDevicePath),
-	}
-}
-
-func (v *Volume) UmountAction() action.Object {
-	return action.ShellCommand("sudo", "umount", v.MountPath)
+func (v *Volume) UmountCommand() *exec.Cmd {
+	return exec.Command().WithStdio().WithSudo().Args("umount", v.MountPath)
 }
 
 func (v *Volume) IsEncrypted() bool {
@@ -175,37 +186,24 @@ func (v *Volume) IsLUKSOpened() bool {
 	return file.Exists(mapperDevicePath)
 }
 
-func (v *Volume) CloseLUKSAction() action.Object {
-	return action.ShellCommand("sudo", "cryptsetup", "close", v.KnownVolume.Partition.LUKSDeviceMapperName)
+func (v *Volume) CloseLUKS() error {
+	return exec.Command().
+		WithStdio().
+		WithSudo().
+		Args("cryptsetup", "close", v.KnownVolume.Partition.LUKSDeviceMapperName).
+		Run()
 }
 
-func (v *Volume) maybeLUKSOpen() (action.Object, string) {
-	if v.KnownVolume.Partition.LUKSDeviceMapperName == "" {
-		return action.Nop(), v.Partition.PartitionPath
-	}
-	mapperDevicePath := fmt.Sprintf("/dev/mapper/%s", v.KnownVolume.Partition.LUKSDeviceMapperName)
-	return action.WithCondition{
-		If: action.Not(action.PathExists(mapperDevicePath)),
-		Then: action.ShellCommand(
-			"sudo",
-			"cryptsetup",
-			"open",
-			v.Partition.PartitionPath,
-			v.KnownVolume.Partition.LUKSDeviceMapperName,
-		),
-	}, mapperDevicePath
-}
-
-func (v *Volume) mountAction(mountDevicePath string) action.Object {
+func (v *Volume) mountCommand(mountDevicePath string) *exec.Cmd {
 	if v.BtrfsSubvolumePath == "" {
-		return action.ShellCommand("sudo", "mount", mountDevicePath, v.MountPath)
+		return exec.Command().WithStdio().WithSudo().Args("mount", mountDevicePath, v.MountPath)
 	}
 
-	return action.ShellCommand(
-		"sudo",
+	mountOptions := fmt.Sprintf("defaults,relatime,discard,ssd,nodev,subvol=%s", v.BtrfsSubvolumePath)
+	return exec.Command().WithStdio().WithSudo().Args(
 		"mount",
 		"-o",
-		fmt.Sprintf("defaults,relatime,discard,ssd,nodev,subvol=%s", v.BtrfsSubvolumePath),
+		mountOptions,
 		mountDevicePath,
 		v.MountPath,
 	)

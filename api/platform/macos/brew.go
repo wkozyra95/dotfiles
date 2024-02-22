@@ -24,7 +24,7 @@ func (p brewPackage) Install() error {
 			Command().
 			WithBufout(&stdout, &bytes.Buffer{}).
 			WithEnv("HOMEBREW_NO_AUTO_UPDATE=1").
-			Run("brew", "list", pkg)
+			Args("brew", "list", pkg).Run()
 		if err := checkErr; err == nil {
 			continue
 		}
@@ -32,7 +32,7 @@ func (p brewPackage) Install() error {
 			Command().
 			WithStdio().
 			WithEnv("HOMEBREW_NO_AUTO_UPDATE=1").
-			Run("brew", "install", pkg)
+			Args("brew", "install", pkg).Run()
 		if err := installErr; err != nil {
 			return err
 		}

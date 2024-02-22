@@ -33,7 +33,7 @@ func FindContainer(tree TreeNode, matchFn func(TreeNode) bool) *TreeNode {
 
 func GetTree() (TreeNode, error) {
 	var stdout, stderr bytes.Buffer
-	err := exec.Command().WithBufout(&stdout, &stderr).Run("swaymsg", "-t", "get_tree", "-r")
+	err := exec.Command().WithBufout(&stdout, &stderr).Args("swaymsg", "-t", "get_tree", "-r").Run()
 	if err != nil {
 		return TreeNode{}, err
 	}

@@ -118,7 +118,7 @@ func (l *launcher) launchTaskAsService(task env.LauncherTask, jobID string, rest
 					return err
 				}
 			}
-			cmdStr := []string{}
+			cmdStr := []string{"alacritty"}
 			if task.WorkspaceID != 0 {
 				cmdStr = append(cmdStr, "--class", fmt.Sprintf("workspace%d", task.WorkspaceID))
 			}
@@ -127,7 +127,7 @@ func (l *launcher) launchTaskAsService(task env.LauncherTask, jobID string, rest
 				"--task", task.Id,
 			)
 
-			_, cmdErr := exec.Command().Start("alacritty", cmdStr...)
+			_, cmdErr := exec.Command().Args(cmdStr...).Start()
 			if cmdErr != nil {
 				return cmdErr
 			}
@@ -142,7 +142,7 @@ func (l *launcher) launchTask(task env.LauncherTask, jobID string, restart bool)
 		return l.launchTaskAsService(task, jobID, restart)
 	}
 	log.Debugf("Launching task %s", task.Id)
-	err := exec.Command().WithStdio().WithCwd(task.Cwd).Run(task.Args[0], task.Args[1:]...)
+	err := exec.Command().WithStdio().WithCwd(task.Cwd).Args(task.Args...).Run()
 	if err != nil {
 		log.Errorf("Task %s failed with error %s", task.Id, err.Error())
 		return err
@@ -157,7 +157,7 @@ func (l *launcher) doLaunchInternalTask(task env.LauncherTask, restart bool) err
 		// If there are other supervisors kill
 		cmdInProgress, cmdErr := exec.
 			Command().WithStdio().WithCwd(task.Cwd).
-			Start(task.Args[0], task.Args[1:]...)
+			Args(task.Args...).Start()
 		if cmdErr != nil {
 			log.Errorf("Tried to run invalid command %s", strings.Join(task.Args, " "))
 			return cmdErr

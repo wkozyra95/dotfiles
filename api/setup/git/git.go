@@ -70,7 +70,7 @@ func RepoInstallAction(ctx context.Context, options RepoInstallOptions, installA
 					err := exec.Command().
 						WithCwd(options.Path).
 						WithBufout(&stdout, &stderr).
-						Run("git", "rev-parse", "HEAD")
+						Args("git", "rev-parse", "HEAD").Run()
 					if err != nil {
 						return err
 					}

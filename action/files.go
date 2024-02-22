@@ -39,7 +39,7 @@ func ShellCommand(args ...string) Object {
 	label := fmt.Sprintf("Shell(%s)", strings.Join(args, " "))
 	return SimpleAction{
 		Run: func() error {
-			return exec.Command().WithStdio().Run(args[0], args[1:]...)
+			return exec.Command().WithStdio().Args(args...).Run()
 		},
 		Label: label,
 	}
@@ -49,7 +49,7 @@ func Execute(cmd *exec.Cmd, args ...string) Object {
 	label := fmt.Sprintf("Shell(%s)", strings.Join(args, " "))
 	return SimpleAction{
 		Run: func() error {
-			return cmd.WithStdio().Run(args[0], args[1:]...)
+			return cmd.WithStdio().Args(args...).Run()
 		},
 		Label: label,
 	}

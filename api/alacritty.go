@@ -28,7 +28,7 @@ func AlacrittyCall(params AlacrittyConfig) error {
 		return jsonMarshalErr
 	}
 	baseEncodedString := base64.StdEncoding.EncodeToString(rawJson)
-	_, err := exec.Command().Start("alacritty", "-e", "mycli", "api", baseEncodedString)
+	_, err := exec.Command().Args("alacritty", "-e", "mycli", "api", baseEncodedString).Start()
 	return err
 }
 
@@ -42,7 +42,11 @@ func AlacrittyRun(params map[string]interface{}) error {
 		}
 	}
 	for {
-		if err := exec.Command().WithStdio().WithCwd(params["cwd"].(string)).Run(params["command"].(string), args...); err != nil {
+		cmd := exec.Command().
+			WithStdio().
+			WithCwd(params["cwd"].(string)).
+			Args(append([]string{params["command"].(string)}, args...)...)
+		if err := cmd.Run(); err != nil {
 			fmt.Println(err.Error())
 		}
 		if shouldRetry, isBool := (params["should_retry"]).(bool); isBool && !shouldRetry {

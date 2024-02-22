@@ -66,7 +66,7 @@ func NodePackageInstallAction(pkg string, reinstallCond action.Condition) action
 
 func isVoltaPackageInstalled(pkg string) (bool, error) {
 	var stdout bytes.Buffer
-	if err := exec.Command().WithBufout(&stdout, &bytes.Buffer{}).Run("volta", "list", "--format", "plain"); err != nil {
+	if err := exec.Command().WithBufout(&stdout, &bytes.Buffer{}).Args("volta", "list", "--format", "plain").Run(); err != nil {
 		return false, err
 	}
 	isInstalled, err := regexp.MatchString(regexp.QuoteMeta(fmt.Sprintf("package %s", pkg)), stdout.String())
@@ -82,7 +82,7 @@ func isGlobalNpmPackageInstalled(pkg string) (bool, error) {
 	if err := exec.
 		Command().
 		WithBufout(&stdout, &stderr).
-		Run("npm", "list", "-g", "--json"); err != nil {
+		Args("npm", "list", "-g", "--json").Run(); err != nil {
 		return false, err
 	}
 	var parsedJson struct {
@@ -103,13 +103,13 @@ func NodePlaygroundCreate(playgroundPath string) error {
 	if file.Exists(playgroundPath) {
 		return nil
 	}
-	if err := exec.Command().Run("mkdir", "-p", playgroundPath); err != nil {
+	if err := exec.Command().Args("mkdir", "-p", playgroundPath).Run(); err != nil {
 		return err
 	}
-	if err := exec.Command().Run("touch", path.Join(playgroundPath, "index.ts")); err != nil {
+	if err := exec.Command().Args("touch", path.Join(playgroundPath, "index.ts")).Run(); err != nil {
 		return err
 	}
-	if err := exec.Command().WithCwd(playgroundPath).Run("npm", "init", "-y"); err != nil {
+	if err := exec.Command().WithCwd(playgroundPath).Args("npm", "init", "-y").Run(); err != nil {
 		return err
 	}
 	rawTsconfigJson, marshalErr := json.Marshal(tsconfig)
@@ -121,7 +121,8 @@ func NodePlaygroundCreate(playgroundPath string) error {
 	}
 	yarnErr := exec.Command().
 		WithCwd(playgroundPath).
-		Run("yarn", "add", "--dev", "@types/node@14", "eslint", "eslint-plugin-import", "prettier", "typescript", "ts-node")
+		Args("yarn", "add", "--dev", "@types/node@14", "eslint", "eslint-plugin-import", "prettier", "typescript", "ts-node").
+		Run()
 	if yarnErr != nil {
 		return yarnErr
 	}
@@ -151,7 +152,7 @@ func NodePlaygroundZshShell(playgroundPath string) error {
 }
 
 func NodePlaygroundInstall(playgroundPath string, pkg string) error {
-	if err := exec.Command().WithCwd(playgroundPath).Run("yarn", "add", pkg); err != nil {
+	if err := exec.Command().WithCwd(playgroundPath).Args("yarn", "add", pkg).Run(); err != nil {
 		return err
 	}
 	splitPackage := strings.Split(pkg, "/")
