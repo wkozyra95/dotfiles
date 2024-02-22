@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"path"
 
-	"github.com/wkozyra95/dotfiles/action"
 	"github.com/wkozyra95/dotfiles/utils/exec"
 	"github.com/wkozyra95/dotfiles/utils/file"
 )

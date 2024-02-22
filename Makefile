@@ -3,7 +3,7 @@
 lua_config=./configs/nvim/lua.editorconfig
 
 build:
-	CGO_ENABLED=0 go build -o bin/mycli ./mycli
+	CGO_ENABLED=0 go build -o bin/mycli .
 
 lint:
 	golangci-lint run ./...
