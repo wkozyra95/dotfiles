@@ -6,9 +6,9 @@ import (
 	"path"
 	"strings"
 
-	"github.com/wkozyra95/dotfiles/action"
 	"github.com/wkozyra95/dotfiles/api"
 	"github.com/wkozyra95/dotfiles/utils/exec"
+	"github.com/wkozyra95/dotfiles/utils/file"
 	"github.com/wkozyra95/dotfiles/utils/prompt"
 )
 
@@ -113,12 +113,14 @@ func (y Yay) CustomPackageList(pkgs []string) api.Package {
 	return yayPackage(pkgs)
 }
 
-func (y Yay) EnsurePackagerAction(homedir string) action.Object {
-	return action.WithCondition{
-		If: action.Not(action.PathExists(path.Join(homedir, "yay"))),
-		Then: action.List{
-			action.ShellCommand("git", "clone", "https://aur.archlinux.org/yay.git", path.Join(homedir, "/yay")),
-			action.ShellCommand("bash", "-c", "cd ~/yay && makepkg -si"),
-		},
+func (y Yay) EnsurePackagerInstalled(homedir string) error {
+	if file.Exists(path.Join(homedir, "yay")) {
+		return nil
 	}
+	return exec.RunAll(
+		exec.Command().
+			WithStdio().
+			Args("git", "clone", "https://aur.archlinux.org/yay.git", path.Join(homedir, "/yay")),
+		exec.Command().WithStdio().Args("bash", "-c", "cd ~/yay && makepkg -si"),
+	)
 }

@@ -5,7 +5,6 @@ import (
 	"os/user"
 	"strings"
 
-	"github.com/wkozyra95/dotfiles/action"
 	"github.com/wkozyra95/dotfiles/api"
 	"github.com/wkozyra95/dotfiles/utils/exec"
 	"github.com/wkozyra95/dotfiles/utils/prompt"
@@ -88,11 +87,11 @@ func (a Apt) CustomPackageList(pkgs []string) api.Package {
 	return aptPackage(pkgs)
 }
 
-func (a Apt) EnsurePackagerAction(homedir string) action.Object {
+func (a Apt) EnsurePackagerInstalled(homedir string) error {
 	user, _ := user.Current()
 	if user != nil && user.Name != "root" {
-		return action.ShellCommand("sudo", "apt-get", "update", "-y")
+		return exec.Command().WithStdio().WithSudo().Args("apt-get", "update", "-y").Run()
 	} else {
-		return action.ShellCommand("apt-get", "update", "-y")
+		return exec.Command().WithStdio().Args("apt-get", "update", "-y").Run() 
 	}
 }

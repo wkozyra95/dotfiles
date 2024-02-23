@@ -17,14 +17,18 @@ func SetupUbuntuInDocker(ctx context.Context, opts SetupEnvironmentOptions) erro
 	if pkgInstallerErr != nil {
 		return pkgInstallerErr
 	}
+	if err := pkgInstaller.EnsurePackagerInstalled(ctx.Homedir); err != nil {
+		return err
+	}
+	packageInstallErr := api.InstallPackages([]api.Package{
+		pkgInstaller.ShellTools(),
+		pkgInstaller.DevelopmentTools(),
+	})
+
+	if packageInstallErr != nil {
+		return packageInstallErr
+	}
 	cmds := a.List{
-		a.List{
-			pkgInstaller.EnsurePackagerAction(ctx.Homedir),
-			api.PackageInstallAction([]api.Package{
-				pkgInstaller.ShellTools(),
-				pkgInstaller.DevelopmentTools(),
-			}),
-		},
 		a.WithCondition{
 			If: a.Not(a.CommandExists("go")),
 			Then: a.List{

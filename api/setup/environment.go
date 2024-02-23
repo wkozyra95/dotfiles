@@ -56,15 +56,18 @@ func setupEnvironmentManually(ctx context.Context, opts SetupEnvironmentOptions)
 	if pkgInstallerErr != nil {
 		return pkgInstallerErr
 	}
+	if err := pkgInstaller.EnsurePackagerInstalled(ctx.Homedir); err != nil {
+		return err
+	}
+	packageInstallErr := api.InstallPackages([]api.Package{
+		pkgInstaller.ShellTools(),
+		pkgInstaller.DevelopmentTools(),
+		pkgInstaller.Desktop(),
+	})
+	if packageInstallErr != nil {
+		return packageInstallErr
+	}
 	cmds := List{
-		List{
-			pkgInstaller.EnsurePackagerAction(ctx.Homedir),
-			api.PackageInstallAction([]api.Package{
-				pkgInstaller.ShellTools(),
-				pkgInstaller.DevelopmentTools(),
-				pkgInstaller.Desktop(),
-			}),
-		},
 		SetupLanguageToolchainAction(ctx, SetupLanguageToolchainActionOpts{Reinstall: opts.Reinstall}),
 		SetupLspAction(ctx, SetupLspActionOpts{Reinstall: opts.Reinstall}),
 		WithCondition{

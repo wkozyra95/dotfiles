@@ -26,7 +26,7 @@
         systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
         perSystem = { config, self', inputs', pkgs, system, lib, ... }@args:
           {
-            devShells = import ./develop.nix args;
+            devShells = import ./configs/nix/dev-shells args;
             formatter = pkgs.nixpkgs-fmt;
           };
       };

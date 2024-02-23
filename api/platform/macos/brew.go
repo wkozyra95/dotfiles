@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/wkozyra95/dotfiles/action"
 	"github.com/wkozyra95/dotfiles/api"
 	"github.com/wkozyra95/dotfiles/logger"
 	"github.com/wkozyra95/dotfiles/utils/exec"
@@ -63,11 +62,12 @@ func (y Brew) Desktop() api.Package {
 	return brewPackage{}
 }
 
-func (y Brew) EnsurePackagerAction(homedir string) action.Object {
-	return action.WithCondition{
-		If: action.Not(action.CommandExists("brew")),
-		Then: action.List{
-			action.ShellCommand("curl", "-fsSL", "https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"),
-		},
+func (y Brew) EnsurePackagerInstalled(homedir string) error {
+	if exec.CommandExists("brew") {
+		return nil
 	}
+	return exec.Command().
+		WithStdio().
+		Args("curl", "-fsSL", "https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)").
+		Run()
 }

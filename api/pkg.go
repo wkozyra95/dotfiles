@@ -1,40 +1,23 @@
 package api
 
-import (
-	"fmt"
-	"strings"
-
-	"github.com/wkozyra95/dotfiles/action"
-)
-
 type Package interface {
 	Install() error
 	String() string
 }
 
 type PackageInstaller interface {
-	EnsurePackagerAction(homedir string) action.Object
+	EnsurePackagerInstalled(homedir string) error
 	UpgradePackages() error
 	DevelopmentTools() Package
 	ShellTools() Package
 	Desktop() Package
 }
 
-func PackageInstallAction(packages []Package) action.Object {
-	packageNames := []string{}
+func InstallPackages(packages []Package) error {
 	for _, pkg := range packages {
-		packageNames = append(packageNames, fmt.Sprintf(" - %s", pkg.String()))
+		if err := pkg.Install(); err != nil {
+			return err
+		}
 	}
-	label := fmt.Sprintf("Install system packages:\n%s", strings.Join(packageNames, "\n"))
-	return action.SimpleAction{
-		Run: func() error {
-			for _, pkg := range packages {
-				if err := pkg.Install(); err != nil {
-					return err
-				}
-			}
-			return nil
-		},
-		Label: label,
-	}
+	return nil
 }
