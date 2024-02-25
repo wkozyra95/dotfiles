@@ -92,6 +92,6 @@ func (a Apt) EnsurePackagerInstalled(homedir string) error {
 	if user != nil && user.Name != "root" {
 		return exec.Command().WithStdio().WithSudo().Args("apt-get", "update", "-y").Run()
 	} else {
-		return exec.Command().WithStdio().Args("apt-get", "update", "-y").Run() 
+		return exec.Command().WithStdio().Args("apt-get", "update", "-y").Run()
 	}
 }

@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, ... }@args:
 
 {
   default = pkgs.mkShell {
@@ -13,4 +13,6 @@
       nixpkgs-fmt
     ];
   };
+  elixir = import ./elixir.nix args;
+  membrane = import ./membrane.nix args;
 }

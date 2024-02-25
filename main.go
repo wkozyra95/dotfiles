@@ -24,6 +24,7 @@ func main() {
 	tool.RegisterCmds(rootCmd)
 	api.RegisterCmds(rootCmd)
 	command.RegisterGitCmds(rootCmd)
+	command.RegisterNixCmds(rootCmd)
 	command.RegisterCompletionCmds(rootCmd)
 	command.RegisterDockerCmds(rootCmd)
 

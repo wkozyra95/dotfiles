@@ -7,7 +7,6 @@ import (
 	"github.com/wkozyra95/dotfiles/action"
 	"github.com/wkozyra95/dotfiles/env"
 	"github.com/wkozyra95/dotfiles/env/common"
-	"github.com/wkozyra95/dotfiles/utils/exec"
 )
 
 var homeDir = os.Getenv("HOME")
@@ -180,16 +179,6 @@ var Config = env.EnvironmentConfig{
 		},
 	},
 	CustomSetupAction: func(ctx env.Context) action.Object {
-		return action.List{
-			action.Execute(exec.Command().WithCwd(ctx.FromHome(".dotfiles")), "git", "add", "-A"),
-			action.Execute(
-				exec.Command().WithCwd(ctx.FromHome(".dotfiles")),
-				"sudo",
-				"nixos-rebuild",
-				"switch",
-				"--flake",
-				".#home",
-			),
-		}
+		return action.Nop()
 	},
 }
