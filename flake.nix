@@ -17,15 +17,19 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
   };
 
-  outputs = { self, flake-parts, nixpkgs, nix-darwin, home-manager, ... }@inputs:
+  outputs = { self, flake-parts, nixpkgs, nixpkgs-unstable, nix-darwin, home-manager, ... }@inputs:
     let
       perSystemConfig = flake-parts.lib.mkFlake { inherit inputs; } {
         systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
         perSystem = { config, self', inputs', pkgs, system, lib, ... }@args:
           {
+            _module.args.pkgs = import nixpkgs-unstable {
+              inherit system;
+            };
             devShells = import ./configs/nix/dev-shells args;
             formatter = pkgs.nixpkgs-fmt;
           };
