@@ -1,7 +1,12 @@
-{ home-manager, overlays, pkgs }:
+{ home-manager, overlays, pkgs, unstable }:
 
 home-manager.lib.homeManagerConfiguration {
   pkgs = pkgs;
+
+  extraSpecialArgs = {
+    inherit unstable;
+  };
+
   modules = [
     (import ../hm-modules/myconfig.nix {
       username = "wojtek";

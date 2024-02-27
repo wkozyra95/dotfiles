@@ -40,7 +40,7 @@
       nixosConfigurations = {
         # sudo nixos-rebuild switch --flake ".#home"
         home = (import ./configs/nix/home {
-          inherit nixpkgs home-manager overlays;
+          inherit nixpkgs home-manager overlays nixpkgs-unstable;
         });
         # Build installer ISO
         # nix build .#nixosConfigurations.iso-installer.config.system.build.isoImage
@@ -61,7 +61,7 @@
         # Rebuild:
         # darwin-rebuild switch --flake ".#work-mac"
         work-mac = (import ./configs/nix/work-darwin {
-          inherit nix-darwin home-manager overlays;
+          inherit nix-darwin home-manager overlays nixpkgs-unstable;
         });
       };
       homeConfigurations = {
@@ -72,7 +72,8 @@
         # home-manger switch --flake ".#work"
         work = (import ./configs/nix/work-arch {
           inherit home-manager overlays;
-          pkgs = nixpkgs.legacyPackages.x86_64-linux;
+          pkgs = import nixpkgs { system = "x86_64-linux"; };
+          unstable = import nixpkgs-unstable { system = "x86_64-linux"; };
         });
       };
       devShells = perSystemConfig.devShells;

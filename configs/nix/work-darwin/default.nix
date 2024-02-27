@@ -1,7 +1,14 @@
-{ nix-darwin, home-manager, overlays }:
+{ nix-darwin, home-manager, overlays, nixpkgs-unstable }:
+
+let
+  system = "x86_64-darwin";
+  unstable = import nixpkgs-unstable { inherit system; };
+in
 
 nix-darwin.lib.darwinSystem {
-  system = "x86_64-darwin";
+  inherit system;
+
+  specialArgs = { inherit unstable; };
 
   modules = [
     home-manager.darwinModules.home-manager
@@ -13,6 +20,9 @@ nix-darwin.lib.darwinSystem {
     (import ../common.nix)
     ({ config, lib, pkgs, ... }: {
       home-manager = {
+        extraSpecialArgs = {
+          inherit unstable;
+        };
         useGlobalPkgs = true;
         useUserPackages = true;
         users.${config.myconfig.username} = (

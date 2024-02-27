@@ -1,7 +1,14 @@
-{ nixpkgs, home-manager, overlays }:
+{ nixpkgs, nixpkgs-unstable, home-manager, overlays }:
+
+let
+  system = "x86_64-linux";
+  unstable = import nixpkgs-unstable { inherit system; };
+in
 
 nixpkgs.lib.nixosSystem {
-  system = "x86_64-linux";
+  inherit system;
+
+  specialArgs = { inherit unstable; };
 
   modules = [
     home-manager.nixosModules.home-manager
@@ -21,6 +28,9 @@ nixpkgs.lib.nixosSystem {
     ({ config, lib, pkgs, ... }: {
       nixpkgs.overlays = overlays;
       home-manager = {
+        extraSpecialArgs = {
+          inherit unstable;
+        };
         useGlobalPkgs = true;
         useUserPackages = true;
         users.${config.myconfig.username} = (

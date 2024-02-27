@@ -1,4 +1,4 @@
-{ pkgs, config, ... }:
+{ unstable, config, ... }:
 {
   programs.neovim = {
     enable = true;
@@ -7,7 +7,7 @@
       vim.opt.rtp:prepend("${config.home.homeDirectory}/.dotfiles/configs/nvim")
       require("myconfig.main")
     '';
-    plugins = with pkgs.vimPlugins; [
+    plugins = with unstable.vimPlugins; [
       popup-nvim
       nvim-web-devicons
       plenary-nvim
