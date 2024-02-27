@@ -17,6 +17,9 @@
       telescope-file-browser-nvim
 
       noice-nvim
+      nui-nvim
+      nvim-notify
+
       neogit
       diffview-nvim
       vim-gitgutter
