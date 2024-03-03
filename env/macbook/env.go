@@ -4,10 +4,8 @@ import (
 	"os"
 	"path"
 
-	"github.com/wkozyra95/dotfiles/action"
 	"github.com/wkozyra95/dotfiles/env"
 	"github.com/wkozyra95/dotfiles/env/common"
-	"github.com/wkozyra95/dotfiles/utils/exec"
 )
 
 var (
@@ -32,16 +30,7 @@ var Config = env.EnvironmentConfig{
 	Init: []env.InitAction{
 		{Args: []string{"mycli", "api", "--simple", "backup:zsh_history"}},
 	},
-	CustomSetupAction: func(ctx env.Context) action.Object {
-		return action.List{
-			action.Execute(exec.Command().WithCwd(ctx.FromHome(".dotfiles")), "git", "add", "-A"),
-			action.Execute(
-				exec.Command().WithCwd(ctx.FromHome(".dotfiles")),
-				"darwin-rebuild",
-				"switch",
-				"--flake",
-				".#work-mac",
-			),
-		}
+	CustomSetupAction: func(ctx env.Context) error {
+		return nil
 	},
 }

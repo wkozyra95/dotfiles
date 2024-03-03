@@ -5,11 +5,11 @@ import (
 	"path"
 	"strings"
 
-	. "github.com/wkozyra95/dotfiles/action"
 	"github.com/wkozyra95/dotfiles/api"
 	"github.com/wkozyra95/dotfiles/api/context"
 	"github.com/wkozyra95/dotfiles/api/platform"
 	"github.com/wkozyra95/dotfiles/api/setup/nvim"
+	"github.com/wkozyra95/dotfiles/utils/file"
 )
 
 type SetupEnvironmentOptions struct {
@@ -26,29 +26,22 @@ func SetupEnvironment(ctx context.Context, opts SetupEnvironmentOptions) error {
 }
 
 func setupEnvironmentWithNix(ctx context.Context, opts SetupEnvironmentOptions) error {
-	cmds := List{
-		WithCondition{
-			If: Not(PathExists(ctx.FromHome(".dotfiles-private"))),
-			Then: ShellCommand(
-				"git",
-				"clone",
-				"git@github.com:wkozyra95/dotfiles-private.git",
-				ctx.FromHome(".dotfiles-private"),
-			),
-		},
-		Scope("Run custom environment hooks", func() Object {
-			if ctx.EnvironmentConfig.CustomSetupAction != nil {
-				return ctx.EnvironmentConfig.CustomSetupAction(ctx)
-			}
-			return Nop()
-		}),
+	if !file.Exists(ctx.FromHome(".dotfiles-private")) {
+		err := cmd().Args(
+			"git", "clone",
+			"git@github.com:wkozyra95/dotfiles-private.git",
+			ctx.FromHome(".dotfiles-private"),
+		).Run()
+		if err != nil {
+			return err
+		}
 	}
-	if opts.DryRun {
-		PrintActionTree(cmds)
-		return nil
-	} else {
-		return RunActions(cmds, true)
+	if ctx.EnvironmentConfig.CustomSetupAction != nil {
+		if err := ctx.EnvironmentConfig.CustomSetupAction(ctx); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 func setupEnvironmentManually(ctx context.Context, opts SetupEnvironmentOptions) error {
@@ -67,43 +60,71 @@ func setupEnvironmentManually(ctx context.Context, opts SetupEnvironmentOptions)
 	if packageInstallErr != nil {
 		return packageInstallErr
 	}
-	cmds := List{
-		SetupLanguageToolchainAction(ctx, SetupLanguageToolchainActionOpts{Reinstall: opts.Reinstall}),
-		SetupLspAction(ctx, SetupLspActionOpts{Reinstall: opts.Reinstall}),
-		WithCondition{
-			If: FuncCond("current shell is not zsh", func() (bool, error) {
-				return !strings.Contains(os.Getenv("SHELL"), "zsh"), nil
-			}),
-			Then: ShellCommand("sudo", "chsh", "-s", "/usr/bin/zsh"),
-		},
-		WithCondition{
-			If: Not(
-				PathExists(path.Join(ctx.Homedir, ".oh-my-zsh")),
-			),
-			Then: ShellCommand("bash",
-				"-c",
-				"curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | bash",
-			),
-		},
-		WithCondition{
-			If: Not(PathExists(ctx.FromHome(".dotfiles-private"))),
-			Then: ShellCommand(
-				"git",
-				"clone",
-				"git@github.com:wkozyra95/dotfiles-private.git",
-				ctx.FromHome(".dotfiles-private"),
-			),
-		},
-		EnsureSymlink(ctx.FromHome(".dotfiles-private/nvim/spell"), ctx.FromHome(".dotfiles/configs/nvim/spell")),
-		EnsureSymlink(ctx.FromHome(".dotfiles-private/notes"), ctx.FromHome("notes")),
-		SetupEnvironmentCoreAction(ctx),
-		nvim.NvimEnsureLazyNvimInstalled(ctx),
-		nvim.NvimInstallAction(ctx, "c0cb1e8e9437b738c8d3232ec4594113d2221bb2"),
+
+	if !strings.Contains(os.Getenv("SHELL"), "zsh") {
+		if err := sudo().Args("chsh", "-s", "/usr/bin/zsh").Run(); err != nil {
+			return err
+		}
 	}
-	if opts.DryRun {
-		PrintActionTree(cmds)
-		return nil
-	} else {
-		return RunActions(cmds, true)
+
+	if !file.Exists(path.Join(ctx.Homedir, ".oh-my-zsh")) {
+		cmd := cmd().Args(
+			"bash",
+			"-c",
+			"curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | bash",
+		)
+		if err := cmd.Run(); err != nil {
+			return err
+		}
 	}
+
+	if !file.Exists(ctx.FromHome(".dotfiles-private")) {
+		cmd := cmd().Args(
+			"git",
+			"clone",
+			"git@github.com:wkozyra95/dotfiles-private.git",
+			ctx.FromHome(".dotfiles-private"),
+		)
+		if err := cmd.Run(); err != nil {
+			return err
+		}
+	}
+
+	if err := SetupLanguageToolchain(ctx, opts.Reinstall); err != nil {
+		return err
+	}
+
+	if err := InstallLSP(ctx, SetupLspActionOpts{Reinstall: opts.Reinstall}); err != nil {
+		return err
+	}
+
+	if err := nvim.EnsureLazyNvimInstalled(ctx); err != nil {
+		return err
+	}
+
+	if err := nvim.InstallNvimFromSource(ctx, "c0cb1e8e9437b738c8d3232ec4594113d2221bb2"); err != nil {
+		return err
+	}
+
+	if err := SetupConfigFiles(ctx); err != nil {
+		return err
+	}
+
+	if err := file.EnsureSymlink(
+		ctx.FromHome(".dotfiles-private/nvim/spell"),
+		ctx.FromHome(".dotfiles/configs/nvim/spell"),
+	); err != nil {
+		return err
+	}
+
+	if err := file.EnsureSymlink(ctx.FromHome(".dotfiles-private/notes"), ctx.FromHome("notes")); err != nil {
+		return err
+	}
+
+	if ctx.EnvironmentConfig.CustomSetupAction != nil {
+		if err := ctx.EnvironmentConfig.CustomSetupAction(ctx); err != nil {
+			return err
+		}
+	}
+	return nil
 }

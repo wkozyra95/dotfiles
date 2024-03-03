@@ -90,3 +90,88 @@ func RepoInstallAction(ctx context.Context, options RepoInstallOptions, installA
 		},
 	}
 }
+
+func cmd() *exec.Cmd {
+	return exec.Command().WithStdio()
+}
+
+func getCurrentHashFromFile(hashFile string) string {
+	if !file.Exists(hashFile) {
+		return ""
+	}
+	file, readErr := os.ReadFile(hashFile)
+	if readErr != nil {
+		return ""
+	}
+	return strings.Trim(string(file), "\n ")
+}
+
+func getCurrentHashFromRepo(dir string) (string, error) {
+	var stderr, stdout bytes.Buffer
+	err := exec.Command().
+		WithCwd(dir).
+		WithBufout(&stdout, &stderr).
+		Args("git", "rev-parse", "HEAD").Run()
+	if err != nil {
+		return "", err
+	}
+	return strings.Trim(stdout.String(), "\n "), nil
+}
+
+func updateHash(hashFile string, hash string) error {
+	if file.Exists(hashFile) {
+		if err := os.Remove(hashFile); err != nil {
+			return err
+		}
+	}
+	return os.WriteFile(
+		hashFile,
+		[]byte(hash),
+		0o644,
+	)
+}
+
+func InstallFromRepo(ctx context.Context, options RepoInstallOptions, installFn func(ctx context.Context) error) error {
+	installPrefix := ctx.FromHome(".local")
+	hashFileName := fmt.Sprintf(".%s.hash", options.Name)
+	hashFile := path.Join(installPrefix, hashFileName)
+
+	if !file.Exists(options.Path) {
+		err := exec.RunAll(
+			cmd().Args("mkdir", "-p", path.Dir(options.Path)),
+			cmd().Args("git", "clone", options.RepoUrl, options.Path),
+		)
+		if err != nil {
+			return err
+		}
+	}
+
+	currentHash := getCurrentHashFromFile(hashFile)
+
+	if currentHash != options.CommitHash {
+		cmdErr := exec.RunAll(
+			cmd().Args("mkdir", "-p", installPrefix),
+			cmd().WithCwd(options.Path).Args("git", "fetch", "origin"),
+			cmd().WithCwd(options.Path).Args("git", "checkout", options.CommitHash),
+			cmd().WithCwd(options.Path).Args("git", "clean", "-xfd"),
+			cmd().WithCwd(options.Path).Args(
+				"git", "submodule", "foreach", "--recursive", "git", "clean", "-xfd",
+			),
+		)
+		if cmdErr != nil {
+			return cmdErr
+		}
+		if err := installFn(ctx); err != nil {
+			return err
+		}
+
+		newHash, newHashErr := getCurrentHashFromRepo(options.Path)
+		if newHashErr != nil {
+			return newHashErr
+		}
+		if err := updateHash(hashFile, newHash); err != nil {
+			return err
+		}
+	}
+	return nil
+}

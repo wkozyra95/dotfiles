@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os/user"
 
-	a "github.com/wkozyra95/dotfiles/action"
+	"github.com/wkozyra95/dotfiles/utils/exec"
 )
 
 func InstallNixOS() error {
@@ -16,29 +16,30 @@ func InstallNixOS() error {
 	if targetErr != nil {
 		return targetErr
 	}
-	actions := a.List{
-		// Partition
-		a.ShellCommand("sudo", "sgdisk", "-Z", target.device),
-		a.ShellCommand("sudo", "sgdisk", "-a", "2048", "-o", target.device),
-		a.ShellCommand(
-			"sudo",
+
+	partitionErr := exec.RunAll(
+		sudo().Args("sgdisk", "-Z", target.device),
+		sudo().Args("sgdisk", "-a", "2048", "-o", target.device),
+		// partition 1 (BIOS Boot Partition)
+		sudo().Args(
 			"sgdisk",
 			"-n",
 			"1::+1M",
 			"--typecode=1:ef02",
 			"--change-name=1:'BIOS boot partition'",
 			target.device,
-		), // partition 1 (BIOS Boot Partition)
-		a.ShellCommand(
-			"sudo",
+		),
+		// partition 2 (UEFI Boot Partition)
+		sudo().Args(
 			"sgdisk",
 			"-n",
 			"2::+300M",
 			"--typecode=2:ef00",
 			"--change-name=2:'EFI system partition'",
 			target.device,
-		), // partition 2 (UEFI Boot Partition)
-		a.ShellCommand(
+		),
+		// partition 3 (Root), default start, remaining
+		sudo().Args(
 			"sudo",
 			"sgdisk",
 			"-n",
@@ -46,52 +47,54 @@ func InstallNixOS() error {
 			"--typecode=3:8300",
 			"--change-name=3:'Root'",
 			target.device,
-		), // partition 3 (Root), default start, remaining
-
-		// Format
-		a.ShellCommand("sudo", "mkfs.fat", "-F", "32", "-n", "EFIBOOT", target.efiPartition),
-		a.ShellCommand("sudo", "cryptsetup", "-y", "-v", "luksFormat", "--type", "luks1", target.mainPartition),
-		a.ShellCommand("sudo", "cryptsetup", "open", target.mainPartition, "root"),
-		a.ShellCommand("sudo", "mkfs.btrfs", "--label", "BTRFS_ROOT", "--force", "/dev/mapper/root"),
-
-		// setup btrfs subvolumes and mount volumes
-		a.ShellCommand("sudo", "mkdir", "-p", "/mnt/btrfs-root"),
-		a.ShellCommand(
-			"sudo",
-			"mount",
-			"-o",
-			"defaults,relatime,discard,ssd,nodev,nosuid",
-			"/dev/mapper/root",
-			"/mnt/btrfs-root",
 		),
-		a.ShellCommand("sudo", "mkdir", "-p", "/mnt/btrfs-root/__current"),
-		a.ShellCommand("sudo", "mkdir", "-p", "/mnt/btrfs-root/__snapshot"),
-		a.ShellCommand("sudo", "btrfs", "subvolume", "create", "/mnt/btrfs-root/__current/root"),
-		a.ShellCommand("sudo", "btrfs", "subvolume", "create", "/mnt/btrfs-root/__current/home"),
-		a.ShellCommand("sudo", "mkdir", "-p", "/mnt/btrfs-current"),
-		a.ShellCommand(
-			"sudo",
-			"mount",
-			"-o",
-			"defaults,relatime,discard,ssd,nodev,subvol=__current/root",
-			"/dev/mapper/root",
-			"/mnt/btrfs-current",
-		),
-		a.ShellCommand("sudo", "mkdir", "-p", "/mnt/btrfs-current/boot/efi"),
-		a.ShellCommand("sudo", "mount", target.efiPartition, "/mnt/btrfs-current/boot/efi"),
-		a.ShellCommand("sudo", "mkdir", "-p", "/mnt/btrfs-current/home"),
-		a.ShellCommand(
-			"sudo",
-			"mount",
-			"-o",
-			"defaults,relatime,discard,ssd,nodev,nosuid,subvol=__current/home",
-			"/dev/mapper/root",
-			"/mnt/btrfs-current/home",
-		),
+	)
+	if partitionErr != nil {
+		return partitionErr
+	}
 
-		// add additionl crypt key
-		a.ShellCommand(
-			"sudo",
+	formatPartitionsErr := exec.RunAll(
+		sudo().Args("mkfs.fat", "-F", "32", "-n", "EFIBOOT", target.efiPartition),
+		sudo().Args("mkfs.setup", "-y", "-v", "luksFormat", "--type", "luks1", target.mainPartition),
+		sudo().Args("mkfs.setup", "open", target.mainPartition, "root"),
+		sudo().Args("mkfs.btrfs", "--label", "BTRFS_ROOT", "--force", "/dev/mapper/root"),
+	)
+	if formatPartitionsErr != nil {
+		return formatPartitionsErr
+	}
+
+	setupBtrfsSubvolumesErr := exec.RunAll(
+		sudo().Args("mkdir", "-p", "/mnt/btrfs-root"),
+		sudo().Args(
+			"mount",
+			"-o", "defaults,relatime,discard,ssd,nodev,nosuid",
+			"/dev/mapper/root", "/mnt/btrfs-root",
+		),
+		sudo().Args("mkdir", "-p", "/mnt/btrfs-root/__current"),
+		sudo().Args("mkdir", "-p", "/mnt/btrfs-root/__snapshot"),
+		sudo().Args("btrfs", "subvolume", "create", "/mnt/btrfs-root/__current/root"),
+		sudo().Args("btrfs", "subvolume", "create", "/mnt/btrfs-root/__current/home"),
+		sudo().Args("mkdir", "-p", "/mnt/btrfs-current"),
+		sudo().Args(
+			"mount",
+			"-o", "defaults,relatime,discard,ssd,nodev,subvol=__current/root",
+			"/dev/mapper/root", "/mnt/btrfs-current",
+		),
+		sudo().Args("mkdir", "-p", "/mnt/btrfs-current/boot/efi"),
+		sudo().Args("mount", target.efiPartition, "/mnt/btrfs-current/boot/efi"),
+		sudo().Args("mkdir", "-p", "/mnt/btrfs-current/home"),
+		sudo().Args(
+			"mount",
+			"-o", "defaults,relatime,discard,ssd,nodev,nosuid,subvol=__current/home",
+			"/dev/mapper/root", "/mnt/btrfs-current/home",
+		),
+	)
+	if setupBtrfsSubvolumesErr != nil {
+		return setupBtrfsSubvolumesErr
+	}
+
+	generateCryptKeyErr := exec.RunAll(
+		sudo().Args(
 			"dd",
 			"bs=512",
 			"count=4",
@@ -99,33 +102,33 @@ func InstallNixOS() error {
 			"of=/mnt/btrfs-current/root/cryptlvm.keyfile",
 			"iflag=fullblock",
 		),
-		a.ShellCommand("sudo", "chmod", "000", "/mnt/btrfs-current/root/cryptlvm.keyfile"),
-		a.ShellCommand(
-			"sudo",
+		sudo().Args("chmod", "000", "/mnt/btrfs-current/root/cryptlvm.keyfile"),
+		sudo().Args(
 			"cryptsetup",
 			"-v",
 			"luksAddKey",
 			target.mainPartition,
 			"/mnt/btrfs-current/root/cryptlvm.keyfile",
 		),
+	)
+	if generateCryptKeyErr != nil {
+		return generateCryptKeyErr
+	}
 
-		// copy dotfiles
-		a.ShellCommand("sudo", "mkdir", "-p", fmt.Sprintf("/mnt/btrfs-current/home/%s", username)),
-		a.ShellCommand(
-			"sudo",
-			"cp",
-			"-R",
-			"/iso/dotfiles",
+	copyFilesErr := exec.RunAll(
+		sudo().Args("mkdir", "-p", fmt.Sprintf("/mnt/btrfs-current/home/%s", username)),
+		sudo().Args(
+			"cp", "-R", "/iso/dotfiles",
 			fmt.Sprintf("/mnt/btrfs-current/home/%s/.dotfiles", username),
 		),
-
-		a.ShellCommand(
-			"echo",
-			fmt.Sprintf(
-				"sudo nixos-install --root /mnt/btrfs-current --flake /mnt/btrfs-current/home/%s/.dotfiles#home",
-				username,
-			),
-		),
+	)
+	if copyFilesErr != nil {
+		return copyFilesErr
 	}
-	return a.RunActions(actions, false)
+
+	log.Info(
+		"sudo nixos-install --root /mnt/btrfs-current --flake /mnt/btrfs-current/home/%s/.dotfiles#home",
+		username,
+	)
+	return nil
 }

@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/wkozyra95/dotfiles/action"
 	"github.com/wkozyra95/dotfiles/api"
 	"github.com/wkozyra95/dotfiles/api/backup"
 	"github.com/wkozyra95/dotfiles/api/context"
@@ -109,7 +108,7 @@ var endpoints = map[string]endpoint{
 	"elixir:lsp:install": {
 		name: "elixir:lsp:install",
 		handler: func(ctx context.Context, input object) (any, error) {
-			return nil, action.RunSilent(nvim.ElixirLspInstallAction(ctx, true))
+			return nil, nvim.InstallElixirLSP(ctx, true)
 		},
 	},
 	"terminal:new": {

@@ -54,13 +54,14 @@ func RegisterNixCmds(rootCmd *cobra.Command) {
 			var rebuildCmd *exec.Cmd
 			switch os.Getenv("CURRENT_ENV") {
 			case "home":
-				rebuildCmd = exec.Command().
-					WithStdio().
-					WithCwd(cwd).
-					WithSudo().
+				rebuildCmd = exec.Command().WithStdio().WithCwd(cwd).WithSudo().
 					Args("nixos-rebuild", "switch", "--flake", ".#home")
 			case "work":
-				rebuildCmd = exec.Command().WithStdio().WithCwd(cwd).Args("home-manger", "switch", "--flake", ".#work")
+				rebuildCmd = exec.Command().WithStdio().WithCwd(cwd).
+					Args("home-manger", "switch", "--flake", ".#work")
+			case "macbook":
+				rebuildCmd = exec.Command().WithStdio().WithCwd(cwd).
+					Args("darwin-rebuild", "switch", "--flake", ".#work-mac")
 			default:
 				log.Warn("nix rebuild not supported in this environment.")
 				return

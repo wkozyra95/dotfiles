@@ -2,14 +2,13 @@ package setup
 
 import (
 	"os"
-	"path"
 
-	a "github.com/wkozyra95/dotfiles/action"
 	"github.com/wkozyra95/dotfiles/api"
 	"github.com/wkozyra95/dotfiles/api/context"
 	"github.com/wkozyra95/dotfiles/api/platform"
 	"github.com/wkozyra95/dotfiles/api/setup/nvim"
 	"github.com/wkozyra95/dotfiles/utils/exec"
+	"github.com/wkozyra95/dotfiles/utils/file"
 )
 
 func SetupUbuntuInDocker(ctx context.Context, opts SetupEnvironmentOptions) error {
@@ -28,58 +27,78 @@ func SetupUbuntuInDocker(ctx context.Context, opts SetupEnvironmentOptions) erro
 	if packageInstallErr != nil {
 		return packageInstallErr
 	}
-	cmds := a.List{
-		a.WithCondition{
-			If: a.Not(a.CommandExists("go")),
-			Then: a.List{
-				a.ShellCommand("wget", "-P", "/tmp", "https://go.dev/dl/go1.20.2.linux-amd64.tar.gz"),
-				a.WithCondition{
-					If:   a.Const(ctx.Username == "root"),
-					Then: a.ShellCommand("tar", "-C", "/usr/local", "-xzf", "/tmp/go1.20.2.linux-amd64.tar.gz"),
-					Else: a.ShellCommand("sudo", "tar", "-C", "/usr/local", "-xzf", "/tmp/go1.20.2.linux-amd64.tar.gz"),
-				},
-				a.Func("Add /usr/local/go/bin to PATH", func() error {
-					os.Setenv("PATH", "/usr/local/go/bin:"+os.Getenv("PATH"))
-					return nil
-				}),
-			},
-		},
-		SetupLanguageToolchainAction(ctx, SetupLanguageToolchainActionOpts{Reinstall: opts.Reinstall}),
-		SetupLspAction(ctx, SetupLspActionOpts{Reinstall: opts.Reinstall}),
-		a.WithCondition{
-			If: a.Not(a.PathExists(ctx.FromHome(".dotfiles"))),
-			Then: a.List{
-				a.ShellCommand(
-					"git",
-					"clone",
-					"https://github.com/wkozyra95/dotfiles.git",
-					ctx.FromHome(".dotfiles"),
-				),
-				a.Execute(exec.Command().WithCwd(ctx.FromHome(".dotfiles")), "make"),
-			},
-		},
-		a.WithCondition{
-			If: a.Not(a.PathExists(ctx.FromHome(".fzf"))),
-			Then: a.ShellCommand(
+
+	if exec.CommandExists("go") {
+		if err := cmd().Args("wget", "-P", "/tmp", "https://go.dev/dl/go1.20.2.linux-amd64.tar.gz").Run(); err != nil {
+			return err
+		}
+		unpackCmd := cmd().Args("tar", "-C", "/usr/local", "-xzf", "/tmp/go1.20.2.linux-amd64.tar.gz")
+		if ctx.Username == "root" {
+			unpackCmd = unpackCmd.WithSudo()
+		}
+		if err := unpackCmd.Run(); err != nil {
+			return err
+		}
+		os.Setenv("PATH", "/usr/local/go/bin:"+os.Getenv("PATH"))
+	}
+
+	if err := SetupLanguageToolchain(ctx, opts.Reinstall); err != nil {
+		return err
+	}
+
+	if err := InstallLSP(ctx, SetupLspActionOpts{Reinstall: opts.Reinstall}); err != nil {
+		return err
+	}
+
+	if err := nvim.EnsureLazyNvimInstalled(ctx); err != nil {
+		return err
+	}
+
+	if err := nvim.InstallNvimFromSource(ctx, "c0cb1e8e9437b738c8d3232ec4594113d2221bb2"); err != nil {
+		return err
+	}
+
+	if err := SetupConfigFiles(ctx); err != nil {
+		return err
+	}
+
+	if !file.Exists(ctx.FromHome(".dotfiles")) {
+		err := exec.RunAll(
+			cmd().Args(
 				"git",
 				"clone",
-				"--depth", "1",
-				"https://github.com/junegunn/fzf.git",
-				ctx.FromHome(".fzf"),
+				"https://github.com/wkozyra95/dotfiles.git",
+				ctx.FromHome(".dotfiles"),
 			),
-		},
-		a.WithCondition{
-			If: a.Not(
-				a.PathExists(path.Join(ctx.Homedir, ".oh-my-zsh")),
-			),
-			Then: a.ShellCommand("bash",
-				"-c",
-				"curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | bash",
-			),
-		},
-		SetupEnvironmentCoreAction(ctx),
-		nvim.NvimEnsureLazyNvimInstalled(ctx),
-		nvim.NvimInstallAction(ctx, "fdc8e966a9183c08f2afec0817d03b7417a883b3"),
+			cmd().WithCwd(ctx.FromHome(".dotfiles")).Args("make"),
+		)
+		if err != nil {
+			return err
+		}
 	}
-	return a.RunActions(cmds, false)
+
+	if !file.Exists(ctx.FromHome(".fzf")) {
+		cmd := cmd().Args(
+			"git",
+			"clone",
+			"--depth", "1",
+			"https://github.com/junegunn/fzf.git",
+			ctx.FromHome(".fzf"),
+		)
+		if err := cmd.Run(); err != nil {
+			return err
+		}
+	}
+
+	if !file.Exists(ctx.FromHome(".oh-my-zsh")) {
+		cmd := cmd().Args(
+			"bash",
+			"-c",
+			"curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | bash",
+		)
+		if err := cmd.Run(); err != nil {
+			return err
+		}
+	}
+	return nil
 }

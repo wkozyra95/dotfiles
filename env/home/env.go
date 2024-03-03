@@ -4,7 +4,6 @@ import (
 	"os"
 	"path"
 
-	"github.com/wkozyra95/dotfiles/action"
 	"github.com/wkozyra95/dotfiles/env"
 	"github.com/wkozyra95/dotfiles/env/common"
 )
@@ -178,7 +177,7 @@ var Config = env.EnvironmentConfig{
 			ContainerName:  "live-compositor",
 		},
 	},
-	CustomSetupAction: func(ctx env.Context) action.Object {
-		return action.Nop()
+	CustomSetupAction: func(ctx env.Context) error {
+		return nil
 	},
 }

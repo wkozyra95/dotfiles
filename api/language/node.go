@@ -64,6 +64,33 @@ func NodePackageInstallAction(pkg string, reinstallCond action.Condition) action
 	}
 }
 
+func EnsureNodePackageInstalled(pkg string, reinstall bool) error {
+	if exec.CommandExists("volta") {
+		isInstalled, checkErr := isVoltaPackageInstalled(pkg)
+		if checkErr != nil {
+			return checkErr
+		}
+		if !isInstalled || reinstall {
+			err := exec.Command().WithStdio().Args("volta", "install", pkg).Run()
+			if err != nil {
+				return err
+			}
+		}
+	} else {
+		isInstalled, checkErr := isGlobalNpmPackageInstalled(pkg)
+		if checkErr != nil {
+			return checkErr
+		}
+		if !isInstalled || reinstall {
+			err := exec.Command().WithStdio().Args("npm", "-g", "install", pkg).Run()
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 func isVoltaPackageInstalled(pkg string) (bool, error) {
 	var stdout bytes.Buffer
 	if err := exec.Command().WithBufout(&stdout, &bytes.Buffer{}).Args("volta", "list", "--format", "plain").Run(); err != nil {

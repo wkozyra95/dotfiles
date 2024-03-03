@@ -3,6 +3,9 @@ package installer
 import (
 	"github.com/wkozyra95/dotfiles/action"
 	"github.com/wkozyra95/dotfiles/api/context"
+	"github.com/wkozyra95/dotfiles/utils/exec"
+	"github.com/wkozyra95/dotfiles/utils/file"
+	"github.com/wkozyra95/dotfiles/utils/http"
 )
 
 type DownloadInstallOptions struct {
@@ -27,4 +30,24 @@ func DownloadZipInstallAction(
 			},
 		},
 	}
+}
+
+func InstallFromZip(
+	ctx context.Context,
+	options DownloadInstallOptions,
+) error {
+	if file.Exists(options.Path) && !options.Reinstall {
+		return nil
+	}
+	if err := exec.Command().WithStdio().Args(
+		"rm", "-rf", options.Path, options.ArchivePath).Run(); err != nil {
+		return err
+	}
+	if err := http.DownloadFile(options.Url, options.ArchivePath); err != nil {
+		return err
+	}
+	if err := exec.Command().WithStdio().Args("unzip", "-d", options.Path, options.ArchivePath).Run(); err != nil {
+		return err
+	}
+	return nil
 }

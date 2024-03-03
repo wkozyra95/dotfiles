@@ -2,8 +2,6 @@ package env
 
 import (
 	"encoding/json"
-
-	"github.com/wkozyra95/dotfiles/action"
 )
 
 const (
@@ -93,7 +91,7 @@ type EnvironmentConfig struct {
 	Actions           []LauncherAction
 	Backup            BackupConfig
 	Init              []InitAction
-	CustomSetupAction func(Context) action.Object
+	CustomSetupAction func(Context) error
 	DockerEnvsSpec    []DockerEnvSpec
 }
 
