@@ -26,21 +26,7 @@ func SetupEnvironment(ctx context.Context, opts SetupEnvironmentOptions) error {
 }
 
 func setupEnvironmentWithNix(ctx context.Context, opts SetupEnvironmentOptions) error {
-	if !file.Exists(ctx.FromHome(".dotfiles-private")) {
-		err := cmd().Args(
-			"git", "clone",
-			"git@github.com:wkozyra95/dotfiles-private.git",
-			ctx.FromHome(".dotfiles-private"),
-		).Run()
-		if err != nil {
-			return err
-		}
-	}
-	if ctx.EnvironmentConfig.CustomSetupAction != nil {
-		if err := ctx.EnvironmentConfig.CustomSetupAction(ctx); err != nil {
-			return err
-		}
-	}
+	log.Warn("Env configured with nix, run \"mycli nix rebuild\" or re-run this command with FORCE_MANUAL_SETUP env.")
 	return nil
 }
 

@@ -2,7 +2,10 @@
 
 let
   system = "x86_64-linux";
-  unstable = import nixpkgs-unstable { inherit system; };
+  unstable = import nixpkgs-unstable {
+    inherit system;
+    config = { allowUnfree = true; };
+  };
 in
 
 nixpkgs.lib.nixosSystem {
@@ -25,6 +28,7 @@ nixpkgs.lib.nixosSystem {
     ../nix-modules/docker.nix
     ../nix-modules/steam.nix
     ../nix-modules/vm.nix
+    ../nix-modules/android.nix
     ({ config, lib, pkgs, ... }: {
       nixpkgs.overlays = overlays;
       home-manager = {

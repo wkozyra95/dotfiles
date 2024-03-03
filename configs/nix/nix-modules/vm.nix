@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 {
   # It might be necessary to run `sudo virsh net-autostart default` once
   # or `sudo virsh net-start default` on system startup
@@ -6,6 +6,9 @@
   virtualisation.libvirtd.enable = true;
   programs.virt-manager.enable = true;
   environment.systemPackages = with pkgs; [ qemu ];
+  users.users.${config.myconfig.username} = {
+    extraGroups = [ "libvirtd" "kvm" "qemu-libvirtd" ];
+  };
   myconfig.hm-modules = [
     {
       dconf.settings = {

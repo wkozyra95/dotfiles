@@ -19,6 +19,7 @@ func RegisterNixCmds(rootCmd *cobra.Command) {
 
 	shells := []string{
 		"membrane",
+		"devops",
 		"elixir",
 	}
 

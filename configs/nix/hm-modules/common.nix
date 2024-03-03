@@ -68,6 +68,8 @@ in
   };
 
   home.packages = with pkgs; [
+    file
+    lsof
     git-crypt
     wget
     curl

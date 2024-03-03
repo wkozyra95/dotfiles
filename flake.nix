@@ -48,11 +48,11 @@
           inherit nixpkgs;
         });
         # Build vm
-        # nix build .#nixosConfigurations.dev.config.system.build.vm
+        # nix build .#nixosConfigurations.dev-vm.config.system.build.vm
         # Run vm
         # ./result/bin/run-dev-vm
         dev-vm = (import ./configs/nix/dev-vm {
-          inherit nixpkgs home-manager overlays;
+          inherit nixpkgs home-manager overlays nixpkgs-unstable;
         });
       };
       darwinConfigurations = {
@@ -71,9 +71,7 @@
         # Rebuild:
         # home-manger switch --flake ".#work"
         work = (import ./configs/nix/work-arch {
-          inherit home-manager overlays;
-          pkgs = import nixpkgs { system = "x86_64-linux"; };
-          unstable = import nixpkgs-unstable { system = "x86_64-linux"; };
+          inherit nixpkgs home-manager overlays nixpkgs-unstable;
         });
       };
       devShells = perSystemConfig.devShells;

@@ -7,7 +7,7 @@
       ${config.myconfig.username} = {
         isNormalUser = true;
         home = "/home/${config.myconfig.username}";
-        extraGroups = [ "wheel" "networkmanager" "libvirtd" "docker" "kvm" "qemu-libvirtd" ];
+        extraGroups = [ "wheel" "networkmanager" ];
         shell = pkgs.zsh;
       };
 

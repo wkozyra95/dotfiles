@@ -1,4 +1,15 @@
-{ home-manager, overlays, pkgs, unstable }:
+{ home-manager, overlays, nixpkgs, nixpkgs-unstable }:
+
+let
+  pkgs = import nixpkgs {
+    system = "x86_64-linux";
+    config = { allowUnfree = true; };
+  };
+  unstable = import nixpkgs-unstable {
+    system = "x86_64-linux";
+    config = { allowUnfree = true; };
+  };
+in
 
 home-manager.lib.homeManagerConfiguration {
   pkgs = pkgs;
