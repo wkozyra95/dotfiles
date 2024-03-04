@@ -27,7 +27,10 @@ local handlers = {
         vim.opt_local.expandtab = false
         snippets.load("go", require("myconfig.lang.go_snippets"))
     end,
-    elixir = require("myconfig.lang.elixir").apply,
+    elixir = function()
+        require("myconfig.lang.elixir").apply()
+        spell.preset("elixir")
+    end,
     json = format.preset_2,
     lua = function()
         format.preset(4)
