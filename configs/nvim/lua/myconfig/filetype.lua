@@ -39,7 +39,7 @@ local handlers = {
     end,
     markdown = function()
         format.preset(4)
-        spell.strict_preset()
+        spell.generic_preset()
     end,
     gitcommit = spell.strict_preset,
     plist = format.preset_4,

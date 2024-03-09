@@ -138,6 +138,7 @@ function module.apply()
 
     module.lsp_setup("elixirls", require("myconfig.lang.elixir").elixirls_config())
     module.lsp_setup("ocamllsp", {})
+    module.lsp_setup("ltex", require("myconfig.spell").lsp_config())
     module.lsp_setup("nil_ls", {
         settings = {
             ["nil"] = {

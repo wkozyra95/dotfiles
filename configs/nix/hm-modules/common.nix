@@ -92,6 +92,7 @@ in
     efm-langserver
     elixir_ls
     nixpkgs-fmt
+    ltex-ls
 
     # Custom
     (pkgs.callPackage ../packages/lua-code-format.nix { })

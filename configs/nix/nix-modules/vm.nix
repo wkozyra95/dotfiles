@@ -1,9 +1,26 @@
-{ pkgs, config, ... }:
+{ pkgs, unstable, config, ... }:
 {
   # It might be necessary to run `sudo virsh net-autostart default` once
   # or `sudo virsh net-start default` on system startup
 
-  virtualisation.libvirtd.enable = true;
+  virtualisation.libvirtd = {
+    enable = true;
+    qemu = {
+      package = pkgs.qemu_kvm;
+      runAsRoot = true;
+      swtpm.enable = true;
+      ovmf = {
+        enable = true;
+        packages = [
+          (unstable.OVMF.override {
+            secureBoot = true;
+            tpmSupport = true;
+          }).fd
+        ];
+      };
+    };
+  };
+
   programs.virt-manager.enable = true;
   environment.systemPackages = with pkgs; [ qemu ];
   users.users.${config.myconfig.username} = {
@@ -11,6 +28,11 @@
   };
   myconfig.hm-modules = [
     {
+      home.pointerCursor = {
+        gtk.enable = true;
+        name = "Vanilla-DMZ";
+        package = pkgs.vanilla-dmz;
+      };
       dconf.settings = {
         "org/virt-manager/virt-manager/connections" = {
           autoconnect = [ "qemu:///system" ];
