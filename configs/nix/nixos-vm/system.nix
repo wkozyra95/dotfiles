@@ -9,7 +9,7 @@
         home = "/home/${config.myconfig.username}";
         extraGroups = [ "wheel" ];
         shell = pkgs.zsh;
-        initialPassword = "wojtek";
+        initialPassword = "password";
       };
 
       root = {

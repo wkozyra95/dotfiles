@@ -1,39 +1,44 @@
-{ nixpkgs, home-manager, overlays, nixpkgs-unstable }:
+{ home-manager, overlays, nixpkgs, nixpkgs-unstable }:
 
 let
-  system = "x86_64-linux";
+  pkgs = import nixpkgs {
+    system = "x86_64-linux";
+    config = { allowUnfree = true; };
+  };
   unstable = import nixpkgs-unstable {
-    inherit system;
+    system = "x86_64-linux";
     config = { allowUnfree = true; };
   };
 in
 
-nixpkgs.lib.nixosSystem {
-  system = "x86_64-linux";
+home-manager.lib.homeManagerConfiguration {
+  pkgs = pkgs;
 
-  specialArgs = { inherit unstable; };
+  extraSpecialArgs = {
+    inherit unstable;
+  };
 
   modules = [
-    home-manager.nixosModules.home-manager
-    (import ../nix-modules/myconfig.nix {
+    (import ../hm-modules/myconfig.nix {
       username = "wojtek";
       email = "wkozyra95@gmail.com";
       env = "dev-vm";
     })
-    ./system.nix
-    ../nix-modules/sway.nix
+    ../common.nix
+    ../hm-modules/common.nix
+    ../hm-modules/git.nix
+    ../hm-modules/vim.nix
+    ../hm-modules/neovim.nix
+    ../hm-modules/dotfiles.nix
     ({ config, lib, pkgs, ... }: {
+      home.username = config.myconfig.username;
+      home.homeDirectory = "/home/${config.myconfig.username}";
+
       nixpkgs.overlays = overlays;
-      home-manager = {
-        extraSpecialArgs = {
-          inherit unstable;
-        };
-        useGlobalPkgs = true;
-        useUserPackages = true;
-        users.${config.myconfig.username} = (
-          import ./home.nix config.myconfig.hm-modules
-        );
-      };
+      nix.package = pkgs.nix;
+
+      programs.home-manager.enable = true;
+      home.stateVersion = "23.11";
     })
   ];
 }

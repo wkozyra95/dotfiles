@@ -33,6 +33,7 @@ in
     playerctl
     pamixer
     libnotify
+    rhythmbox
     dunst # notification daemon
   ];
   programs.sway.enable = true;

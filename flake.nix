@@ -35,34 +35,29 @@
           };
       };
       overlays = [ inputs.neovim-nightly-overlay.overlay ];
+      opts = {
+        inherit nixpkgs home-manager overlays nixpkgs-unstable;
+      };
     in
     {
       nixosConfigurations = {
         # sudo nixos-rebuild switch --flake ".#home"
-        home = (import ./configs/nix/home {
-          inherit nixpkgs home-manager overlays nixpkgs-unstable;
-        });
+        home = (import ./configs/nix/home opts);
         # Build installer ISO
         # nix build .#nixosConfigurations.iso-installer.config.system.build.isoImage
-        iso-installer = (import ./configs/nix/iso.nix {
-          inherit nixpkgs;
-        });
+        iso-installer = (import ./configs/nix/iso.nix opts);
         # Build vm
         # nix build .#nixosConfigurations.dev-vm.config.system.build.vm
         # Run vm
         # ./result/bin/run-dev-vm
-        dev-vm = (import ./configs/nix/dev-vm {
-          inherit nixpkgs home-manager overlays nixpkgs-unstable;
-        });
+        dev-vm = (import ./configs/nix/nixos-vm opts);
       };
       darwinConfigurations = {
         # First install:
         # nix run nix-darwin -- switch --flake ".#work-mac" 
         # Rebuild:
         # darwin-rebuild switch --flake ".#work-mac"
-        work-mac = (import ./configs/nix/work-darwin {
-          inherit nix-darwin home-manager overlays nixpkgs-unstable;
-        });
+        work-mac = (import ./configs/nix/work-darwin opts);
       };
       homeConfigurations = {
         # Work desktop config
@@ -70,9 +65,9 @@
         # nix run home-manager/release-23.11 -- switch --flake ".#work"
         # Rebuild:
         # home-manger switch --flake ".#work"
-        work = (import ./configs/nix/work-arch {
-          inherit nixpkgs home-manager overlays nixpkgs-unstable;
-        });
+        work = (import ./configs/nix/work-arch opts);
+        # Config for VM for development non-nixos
+        dev-vm = (import ./configs/nix/dev-vm opts);
       };
       devShells = perSystemConfig.devShells;
       packages = perSystemConfig.packages;
