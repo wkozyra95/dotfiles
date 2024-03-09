@@ -126,7 +126,7 @@ func InstallNixOS() error {
 		return copyFilesErr
 	}
 
-	log.Info(
+	log.Infof(
 		"sudo nixos-install --root /mnt/btrfs-current --flake /mnt/btrfs-current/home/%s/.dotfiles#home",
 		username,
 	)

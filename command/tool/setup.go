@@ -109,6 +109,17 @@ func registerSetupCommands(rootCmd *cobra.Command) {
 		},
 	}
 
+	setupNixInstallerCmd := &cobra.Command{
+		Use:   "setup:nix:usb",
+		Short: "prepare Nix installer",
+		Run: func(cmd *cobra.Command, args []string) {
+			ctx := context.CreateContext()
+			if err := setup.ProvisionUsbNixInstaller(ctx); err != nil {
+				log.Error(err)
+			}
+		},
+	}
+
 	installNixOSCmd := &cobra.Command{
 		Use:   "install:nixos",
 		Short: "install NixOS",
@@ -158,6 +169,7 @@ func registerSetupCommands(rootCmd *cobra.Command) {
 	rootCmd.AddCommand(setupArchChrootCmd)
 	rootCmd.AddCommand(setupArchCompanionChrootCmd)
 	rootCmd.AddCommand(setupDesktopArchCmd)
+	rootCmd.AddCommand(setupNixInstallerCmd)
 	rootCmd.AddCommand(installNixOSCmd)
 	rootCmd.AddCommand(connectExistingArchChrootCmd)
 	rootCmd.AddCommand(setupInDockerCmd)
