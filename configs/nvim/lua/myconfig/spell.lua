@@ -31,8 +31,13 @@ end
 
 function module.lsp_config()
     local dictionary = {}
-    for word in io.open(common, "r"):lines() do
-        table.insert(dictionary, word)
+    if vim.fn.filereadable(common) == 1 then
+        for word in io.open(common, "r"):lines() do
+            local trimed = vim.trim(word)
+            if trimed ~= "" then
+                table.insert(dictionary, word)
+            end
+        end
     end
     return {
         filetypes = {
@@ -43,6 +48,8 @@ function module.lsp_config()
             ltex = {
                 language = "en-US",
                 additionalRules = {
+                    -- https://languagetool.org/download/ngram-data/ngrams-en-20150817.zip
+                    -- unzip to ~/.ngrams/en
                     languageModel = "~/.ngrams",
                 },
                 dictionary = {["en-US"] = dictionary},
