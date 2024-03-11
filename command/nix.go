@@ -59,7 +59,7 @@ func RegisterNixCmds(rootCmd *cobra.Command) {
 					Args("nixos-rebuild", "switch", "--flake", ".#home")
 			case "work":
 				rebuildCmd = exec.Command().WithStdio().WithCwd(cwd).
-					Args("home-manger", "switch", "--flake", ".#work")
+					Args("home-manager", "switch", "--flake", ".#work")
 			case "macbook":
 				rebuildCmd = exec.Command().WithStdio().WithCwd(cwd).
 					Args("darwin-rebuild", "switch", "--flake", ".#work-mac")
