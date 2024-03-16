@@ -41,6 +41,12 @@ nixpkgs.lib.nixosSystem {
           import ./home.nix config.myconfig.hm-modules
         );
       };
+
+      programs.wireshark.enable = true;
+      programs.wireshark.package = pkgs.wireshark;
+      users.users.${config.myconfig.username} = {
+        extraGroups = [ "wireshark" ];
+      };
     })
   ];
 }
