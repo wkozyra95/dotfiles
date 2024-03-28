@@ -10,6 +10,7 @@ local rest_client = require("rest-nvim")
 
 local tel = require("myconfig.telescope")
 local workspaces = require("myconfig.workspaces")
+local present = require("myconfig.present")
 local lsp = require("myconfig.lsp")
 
 local homeDir = vim.env.HOME
@@ -102,6 +103,10 @@ local actions = {
             end
         end)(),
     },
+    present = {
+        name = "present",
+        fn = present.present_toggle
+    }
 }
 
 local function create_local_action(action)

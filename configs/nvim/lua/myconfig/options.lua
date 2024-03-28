@@ -1,5 +1,9 @@
 local o = vim.opt
+local gruvbox = require("gruvbox");
 
+gruvbox.setup({
+    underline = false;
+})
 vim.cmd.colorscheme("gruvbox")
 
 o.exrc = true         -- read rc files in parent directories

@@ -4,6 +4,7 @@ local format = require("myconfig.format")
 local spell = require("myconfig.spell")
 local snippets = require("myconfig.snippets")
 local workspace = require("myconfig.workspaces")
+local present = require("myconfig.present")
 
 local javascript = function()
     format.preset(2)
@@ -72,6 +73,7 @@ local on_buf_enter_cb = function()
         handlers[filetype]()
     end
     apply_workspace_settings(filetype)
+    present.on_buf_enter_hook()
 end
 
 function module.apply()
