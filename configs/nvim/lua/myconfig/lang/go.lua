@@ -4,24 +4,26 @@ local workspaces = require("myconfig.workspaces")
 local parsers = require("nvim-treesitter.parsers")
 
 function module.gopls_config()
-    return {
-        on_attach = function(client)
-            client.server_capabilities.documentFormattingProvider = false;
-        end,
-        settings = {gopls = {buildFlags = {"-tags=e2e"}}},
-    }
-end
-
-function module.golangci_config()
     if workspaces.current.vim.go_efm then
         return {
             on_attach = function(client)
                 client.server_capabilities.documentFormattingProvider = false;
             end,
+            settings = {gopls = {buildFlags = {"-tags=e2e"}}},
         }
     else
-        return {}
+        return {
+            settings = {gopls = {buildFlags = {"-tags=e2e"}}},
+        }
     end
+end
+
+function module.golangci_config()
+    return {
+        on_attach = function(client)
+            client.server_capabilities.documentFormattingProvider = false;
+        end,
+    }
 end
 
 function module.attach_efm(config)

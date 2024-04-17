@@ -93,6 +93,7 @@ in
     elixir_ls
     nixpkgs-fmt
     ltex-ls
+    yaml-language-server
 
     # Custom
     (pkgs.callPackage ../packages/lua-code-format.nix { })
