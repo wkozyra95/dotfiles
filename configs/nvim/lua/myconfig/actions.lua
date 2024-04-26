@@ -75,7 +75,7 @@ local actions = {
     },
     http_request = {
         name = "HTTP request under the cursor",
-        fn = function() rest_client.run() end,
+        fn = function() vim.cmd [[Rest run]] end,
     },
     toggle_ignored = {
         name = "toggle ignored files",

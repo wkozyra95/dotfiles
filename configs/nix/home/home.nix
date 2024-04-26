@@ -14,6 +14,7 @@ systemModules:
   config = {
     home.packages = with pkgs; [
       bitwarden-cli
+      gh
     ];
 
     myconfig = {

@@ -2,7 +2,7 @@ local o = vim.opt
 local gruvbox = require("gruvbox");
 
 gruvbox.setup({
-    underline = false;
+    underline = false,
 })
 vim.cmd.colorscheme("gruvbox")
 
