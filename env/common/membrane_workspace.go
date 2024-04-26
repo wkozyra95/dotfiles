@@ -13,7 +13,7 @@ type MembraneWorkspacesConfig struct {
 var MembraneConfig = MembraneWorkspacesConfig{
 	VideoCompositor: func(p string) env.Workspace {
 		return env.Workspace{
-			Name: "video_compositor",
+			Name: "live_compositor",
 			Path: p,
 			VimConfig: env.VimConfig{
 				FiletypeConfig: map[string]env.VimFiletypeConfig{
