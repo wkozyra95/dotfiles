@@ -99,12 +99,4 @@ in
     (pkgs.callPackage ../packages/lua-code-format.nix { })
     (pkgs.callPackage ../packages/mycli.nix { })
   ];
-
-  programs.gpg.enable = true;
-  services.gpg-agent = {
-    enable = true;
-    pinentryFlavor = "curses";
-    enableSshSupport = true;
-    enableExtraSocket = true;
-  };
 }

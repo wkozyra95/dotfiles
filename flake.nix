@@ -57,7 +57,9 @@
         # nix run nix-darwin -- switch --flake ".#work-mac" 
         # Rebuild:
         # darwin-rebuild switch --flake ".#work-mac"
-        work-mac = (import ./configs/nix/work-darwin opts);
+        work-mac = (import ./configs/nix/work-darwin {
+          inherit nix-darwin home-manager overlays nixpkgs-unstable;
+        });
       };
       homeConfigurations = {
         # Work desktop config

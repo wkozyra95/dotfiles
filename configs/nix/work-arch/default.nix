@@ -41,6 +41,14 @@ home-manager.lib.homeManagerConfiguration {
         git.signingKey = "C577 851A 36BB 9BBA CF11  8A44 CA11 EA63 4382 0983";
       };
 
+      programs.gpg.enable = true;
+      services.gpg-agent = {
+        enable = true;
+        pinentryFlavor = "curses";
+        enableSshSupport = true;
+        enableExtraSocket = true;
+      };
+
       programs.home-manager.enable = true;
       home.stateVersion = "23.11";
     })
