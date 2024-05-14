@@ -27,6 +27,7 @@
 
       vim-dadbod
       vim-dadbod-ui
+      vim-dadbod-completion
 
       rest-nvim
 
