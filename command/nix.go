@@ -21,6 +21,7 @@ func RegisterNixCmds(rootCmd *cobra.Command) {
 		"membrane",
 		"devops",
 		"elixir",
+		"rust",
 	}
 
 	nixShell := &cobra.Command{

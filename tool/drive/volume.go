@@ -161,7 +161,7 @@ func (v *Volume) Mount() error {
 		}
 	}
 	return exec.RunAll(
-		exec.Command().WithStdio().WithStdio().Args("mkdir", "-p", v.MountPath),
+		exec.Command().WithSudo().WithStdio().Args("mkdir", "-p", v.MountPath),
 		v.mountCommand(mountDevicePath),
 	)
 }
