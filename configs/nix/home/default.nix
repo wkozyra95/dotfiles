@@ -29,6 +29,7 @@ nixpkgs.lib.nixosSystem {
     ../nix-modules/steam.nix
     ../nix-modules/vm.nix
     ../nix-modules/android.nix
+    ../nix-modules/printer.nix
     ({ config, lib, pkgs, ... }: {
       nixpkgs.overlays = overlays;
       home-manager = {
@@ -42,8 +43,10 @@ nixpkgs.lib.nixosSystem {
         );
       };
 
-      programs.wireshark.enable = true;
-      programs.wireshark.package = pkgs.wireshark;
+      environment.systemPackages = [
+        pkgs.usbutils
+      ];
+
       users.users.${config.myconfig.username} = {
         extraGroups = [ "wireshark" ];
       };

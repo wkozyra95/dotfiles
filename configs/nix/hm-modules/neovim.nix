@@ -52,6 +52,11 @@
       playground
       nvim-treesitter-context
     ];
-    extraLuaPackages = pkgs: [ pkgs.lua-curl ];
+    extraLuaPackages = pkgs: [
+      pkgs.lua-curl
+      pkgs.xml2lua
+      pkgs.mimetypes
+      pkgs.nvim-nio
+    ];
   };
 }
