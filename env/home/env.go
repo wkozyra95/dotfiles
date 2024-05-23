@@ -13,7 +13,6 @@ var homeDir = os.Getenv("HOME")
 var Config = env.EnvironmentConfig{
 	Workspaces: []env.Workspace{
 		common.DotfilesWorkspace,
-		{Name: "vim plugins", Path: path.Join(homeDir, ".local/share/nvim/lazy")},
 		{
 			Name: "npm-cache", Path: path.Join(homeDir, "drive/MyProjects/npm-cache"),
 			VimConfig: env.VimConfig{
@@ -52,8 +51,6 @@ var Config = env.EnvironmentConfig{
 				},
 			},
 		},
-		{Name: "telescope", Path: path.Join(homeDir, ".local/share/nvim/lazy/telescope.nvim")},
-		{Name: "treesitter", Path: path.Join(homeDir, ".local/share/nvim/lazy/nvim-treesitter")},
 		common.HomeWorkspace,
 		{Name: "test", Path: path.Join(homeDir, "playground/vimtest"), VimConfig: env.VimConfig{
 			Eslint: common.EslintConfig.Eslint,
