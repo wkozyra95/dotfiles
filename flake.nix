@@ -29,6 +29,7 @@
           {
             _module.args.pkgs = import nixpkgs-unstable {
               inherit system;
+              config = { allowUnfree = true; };
             };
             devShells = import ./configs/nix/dev-shells args;
             formatter = pkgs.nixpkgs-fmt;
