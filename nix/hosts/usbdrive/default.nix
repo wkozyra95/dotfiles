@@ -15,7 +15,7 @@ nixpkgs.lib.nixosSystem {
 
   modules = [
     home-manager.nixosModules.home-manager
-    (import ../nix-modules/myconfig.nix {
+    (import ../../nix-modules/myconfig.nix {
       username = "wojtek";
       email = "wkozyra95@gmail.com";
       env = "home";
@@ -23,13 +23,12 @@ nixpkgs.lib.nixosSystem {
     ./filesystems.nix
     ./system.nix
     ./boot.nix
-    ../common.nix
-    ../nix-modules/sway.nix
-    ../nix-modules/docker.nix
-    ../nix-modules/steam.nix
-    ../nix-modules/vm.nix
-    ../nix-modules/android.nix
-    ../nix-modules/printer.nix
+    ../../common.nix
+    ../../nix-modules/sway.nix
+    #../../nix-modules/docker.nix
+    #../../nix-modules/vm.nix
+    #../../nix-modules/android.nix
+    #../../nix-modules/printer.nix
     ({ config, lib, pkgs, ... }: {
       nixpkgs.overlays = overlays;
       home-manager = {

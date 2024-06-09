@@ -1,4 +1,4 @@
-{ nixpkgs, nixpkgs-unstable, home-manager, overlays }:
+{ nixpkgs, home-manager, overlays, nixpkgs-unstable }:
 
 let
   system = "x86_64-linux";
@@ -9,26 +9,19 @@ let
 in
 
 nixpkgs.lib.nixosSystem {
-  inherit system;
+  system = "x86_64-linux";
 
   specialArgs = { inherit unstable; };
 
   modules = [
     home-manager.nixosModules.home-manager
-    (import ../nix-modules/myconfig.nix {
+    (import ../../nix-modules/myconfig.nix {
       username = "wojtek";
       email = "wkozyra95@gmail.com";
-      env = "home";
+      env = "dev-vm";
     })
-    ./filesystems.nix
     ./system.nix
-    ./boot.nix
-    ../common.nix
-    ../nix-modules/sway.nix
-    #../nix-modules/docker.nix
-    #../nix-modules/vm.nix
-    #../nix-modules/android.nix
-    ../nix-modules/printer.nix
+    ../../nix-modules/sway.nix
     ({ config, lib, pkgs, ... }: {
       nixpkgs.overlays = overlays;
       home-manager = {
@@ -40,14 +33,6 @@ nixpkgs.lib.nixosSystem {
         users.${config.myconfig.username} = (
           import ./home.nix config.myconfig.hm-modules
         );
-      };
-
-      environment.systemPackages = [
-        pkgs.usbutils
-      ];
-
-      users.users.${config.myconfig.username} = {
-        extraGroups = [ "wireshark" ];
       };
     })
   ];

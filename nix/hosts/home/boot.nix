@@ -19,8 +19,8 @@
         efiSupport = true;
         enableCryptodisk = true;
         configurationLimit = 40;
-        theme = ../../grub-theme;
-        splashImage = ../../grub-theme/background.png;
+        theme = ../../../configs/grub-theme;
+        splashImage = ../../../configs/grub-theme/background.png;
       };
     };
     initrd = {
