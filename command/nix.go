@@ -58,6 +58,9 @@ func RegisterNixCmds(rootCmd *cobra.Command) {
 			case "home":
 				rebuildCmd = exec.Command().WithStdio().WithCwd(cwd).WithSudo().
 					Args("nixos-rebuild", "switch", "--flake", ".#home")
+			case "usbdrive":
+				rebuildCmd = exec.Command().WithStdio().WithCwd(cwd).WithSudo().
+					Args("nixos-rebuild", "switch", "--flake", ".#usbdrive")
 			case "work":
 				rebuildCmd = exec.Command().WithStdio().WithCwd(cwd).
 					Args("home-manager", "switch", "--flake", ".#work")

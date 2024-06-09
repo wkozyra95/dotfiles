@@ -19,9 +19,21 @@
       };
     };
     initrd = {
-      availableKernelModules = [ "nvme" "ahci" "xhci_pci" "usb_storage" "usbhid" "sd_mod" ];
+      availableKernelModules = [
+        "amdgpu"
+        "ext4"
+        "nvme"
+        "ahci"
+        "xhci_pci"
+        "usbhid"
+        "sd_mod"
+        "uhci_hcd"
+        "ehci_hcd"
+        "ohci_hcd"
+        "uas"
+      ];
       supportedFilesystems = [ "ext4" ];
-      kernelModules = [ "amdgpu" "ext4" "nvme" "ahci" "xhci_pci" "usb_storage" "usbhid" "sd_mod" ];
+      kernelModules = [ ];
     };
   };
 

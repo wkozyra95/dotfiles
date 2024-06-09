@@ -18,7 +18,7 @@ nixpkgs.lib.nixosSystem {
     (import ../../nix-modules/myconfig.nix {
       username = "wojtek";
       email = "wkozyra95@gmail.com";
-      env = "home";
+      env = "usbdrive";
     })
     ./filesystems.nix
     ./system.nix

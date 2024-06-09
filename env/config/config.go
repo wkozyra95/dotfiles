@@ -23,6 +23,12 @@ func GetConfig() env.EnvironmentConfig {
 		return macbook.Config
 	case "docker":
 		return docker.Config
+	case "usbdrive":
+		return env.EnvironmentConfig{
+			Workspaces: []env.Workspace{},
+			Actions:    []env.LauncherAction{},
+			Init:       []env.InitAction{},
+		}
 	default:
 		log.Warn("Missing or invalid CURRENT_ENV")
 		return env.EnvironmentConfig{
