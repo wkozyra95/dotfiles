@@ -3,22 +3,25 @@
 
   inputs = {
     # NixOS
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
 
     # Nix darwin
-    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-23.11-darwin";
+    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-24.05-darwin";
     nix-darwin = {
       url = "github:LnL7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs-darwin";
     };
 
     home-manager = {
-      url = "github:nix-community/home-manager/release-23.11";
+      url = "github:nix-community/home-manager/release-24.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
+    neovim-nightly-overlay = {
+      url = "github:nix-community/neovim-nightly-overlay/7b5ca2486bba58cac80b9229209239740b67cf90";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, flake-parts, nixpkgs, nixpkgs-unstable, nix-darwin, home-manager, ... }@inputs:
@@ -35,7 +38,7 @@
             formatter = pkgs.nixpkgs-fmt;
           };
       };
-      overlays = [ inputs.neovim-nightly-overlay.overlay ];
+      overlays = [ inputs.neovim-nightly-overlay.overlays.default ];
       opts = {
         inherit nixpkgs home-manager overlays nixpkgs-unstable;
       };

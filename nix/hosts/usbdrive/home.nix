@@ -15,7 +15,7 @@ systemModules:
     programs.gpg.enable = true;
     services.gpg-agent = {
       enable = true;
-      pinentryFlavor = "curses";
+      pinentryPackage = pkgs.pinentry-curses;
       enableSshSupport = true;
       enableExtraSocket = true;
     };
