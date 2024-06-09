@@ -1,4 +1,4 @@
-{ nixpkgs }:
+{ nixpkgs, ... }:
 nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
   modules = [
@@ -18,7 +18,7 @@ nixpkgs.lib.nixosSystem {
         curl
         wget
         git
-        (pkgs.callPackage ./packages/mycli.nix { })
+        (pkgs.callPackage ../packages/mycli.nix { })
       ];
     })
   ];

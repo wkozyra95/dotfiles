@@ -19,17 +19,17 @@ home-manager.lib.homeManagerConfiguration {
   };
 
   modules = [
-    (import ../hm-modules/myconfig.nix {
+    (import ../../hm-modules/myconfig.nix {
       username = "wojtek";
       email = "wkozyra95@gmail.com";
       env = "dev-vm";
     })
-    ../common.nix
-    ../hm-modules/common.nix
-    ../hm-modules/git.nix
-    ../hm-modules/vim.nix
-    ../hm-modules/neovim.nix
-    ../hm-modules/dotfiles.nix
+    ../../common.nix
+    ../../hm-modules/common.nix
+    ../../hm-modules/git.nix
+    ../../hm-modules/vim.nix
+    ../../hm-modules/neovim.nix
+    ../../hm-modules/dotfiles.nix
     ({ config, lib, pkgs, ... }: {
       home.username = config.myconfig.username;
       home.homeDirectory = "/home/${config.myconfig.username}";

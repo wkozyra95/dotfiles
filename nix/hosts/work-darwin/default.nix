@@ -12,12 +12,12 @@ nix-darwin.lib.darwinSystem {
 
   modules = [
     home-manager.darwinModules.home-manager
-    (import ../nix-modules/myconfig.nix {
+    (import ../../nix-modules/myconfig.nix {
       username = "wojciechkozyra";
       email = "wojciech.kozyra@swmansion.com";
       env = "macbook";
     })
-    (import ../common.nix)
+    (import ../../common.nix)
     ({ config, lib, pkgs, ... }: {
       home-manager = {
         extraSpecialArgs = {

@@ -30,7 +30,7 @@
             _module.args.pkgs = import nixpkgs-unstable {
               inherit system;
             };
-            devShells = import ./configs/nix/dev-shells args;
+            devShells = import ./nix/dev-shells args;
             formatter = pkgs.nixpkgs-fmt;
           };
       };
@@ -42,23 +42,23 @@
     {
       nixosConfigurations = {
         # sudo nixos-rebuild switch --flake ".#home"
-        home = (import ./configs/nix/home opts);
-        usbdrive = (import ./configs/nix/usbdrive opts);
+        home = (import ./nix/hosts/home opts);
+        usbdrive = (import ./nix/hosts/usbdrive opts);
         # Build installer ISO
         # nix build .#nixosConfigurations.iso-installer.config.system.build.isoImage
-        iso-installer = (import ./configs/nix/iso.nix opts);
+        iso-installer = (import ./nix/hosts/iso.nix opts);
         # Build vm
         # nix build .#nixosConfigurations.dev-vm.config.system.build.vm
         # Run vm
         # ./result/bin/run-dev-vm
-        dev-vm = (import ./configs/nix/nixos-vm opts);
+        dev-vm = (import ./nix/hosts/nixos-vm opts);
       };
       darwinConfigurations = {
         # First install:
         # nix run nix-darwin -- switch --flake ".#work-mac" 
         # Rebuild:
         # darwin-rebuild switch --flake ".#work-mac"
-        work-mac = (import ./configs/nix/work-darwin {
+        work-mac = (import ./nix/hosts/work-darwin {
           inherit nix-darwin home-manager overlays nixpkgs-unstable;
         });
       };
@@ -68,9 +68,9 @@
         # nix run home-manager/release-23.11 -- switch --flake ".#work"
         # Rebuild:
         # home-manger switch --flake ".#work"
-        work = (import ./configs/nix/work-arch opts);
+        work = (import ./nix/hosts/work-arch opts);
         # Config for VM for development non-nixos
-        dev-vm = (import ./configs/nix/dev-vm opts);
+        dev-vm = (import ./nix/hosts/dev-vm opts);
       };
       devShells = perSystemConfig.devShells;
       packages = perSystemConfig.packages;
