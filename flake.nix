@@ -44,6 +44,7 @@
       nixosConfigurations = {
         # sudo nixos-rebuild switch --flake ".#home"
         home = (import ./configs/nix/home opts);
+        usbdrive = (import ./configs/nix/usbdrive opts);
         # Build installer ISO
         # nix build .#nixosConfigurations.iso-installer.config.system.build.isoImage
         iso-installer = (import ./configs/nix/iso.nix opts);
