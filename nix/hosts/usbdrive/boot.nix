@@ -10,11 +10,11 @@
     supportedFilesystems = [ "ext4" ];
     loader = {
       efi.efiSysMountPoint = "/boot/efi";
-      efi.canTouchEfiVariables = true;
       grub = {
         enable = true;
         device = "/dev/disk/by-id/usb-SanDisk_Extreme_55AE_323333364B31413030433539-0:0";
         efiSupport = true;
+        efiInstallAsRemovable = true;
         configurationLimit = 40;
       };
     };
