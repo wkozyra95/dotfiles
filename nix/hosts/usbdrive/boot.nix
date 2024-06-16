@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 {
   nixpkgs.config.allowUnfree = true;
   hardware.enableAllFirmware = true;
@@ -21,6 +21,7 @@
     initrd = {
       availableKernelModules = [
         "amdgpu"
+        "nvidia"
         "ext4"
         "nvme"
         "ahci"
@@ -45,7 +46,16 @@
     keyMap = "us";
   };
 
-  services.xserver.videoDrivers = [ "amdgpu" ];
+  services.xserver.videoDrivers = [ "amdgpu" "nvidia" ];
+
+  hardware.nvidia = {
+    modesetting.enable = true;
+    powerManagement.enable = false;
+    powerManagement.finegrained = false;
+    open = false;
+    nvidiaSettings = true;
+    package = config.boot.kernelPackages.nvidiaPackages.stable;
+  };
 
   security.rtkit.enable = true;
   hardware.bluetooth.enable = true;

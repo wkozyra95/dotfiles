@@ -94,6 +94,7 @@ in
     nixpkgs-fmt
     ltex-ls
     yaml-language-server
+    clang-tools
 
     # Custom
     (pkgs.callPackage ../packages/lua-code-format.nix { })

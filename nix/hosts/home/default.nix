@@ -47,6 +47,8 @@ nixpkgs.lib.nixosSystem {
         pkgs.usbutils
       ];
 
+      programs.wireshark.enable = true;
+      programs.wireshark.package = pkgs.wireshark;
       users.users.${config.myconfig.username} = {
         extraGroups = [ "wireshark" ];
       };

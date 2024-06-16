@@ -25,10 +25,6 @@ nixpkgs.lib.nixosSystem {
     ./boot.nix
     ../../common.nix
     ../../nix-modules/sway.nix
-    #../../nix-modules/docker.nix
-    #../../nix-modules/vm.nix
-    #../../nix-modules/android.nix
-    #../../nix-modules/printer.nix
     ({ config, lib, pkgs, ... }: {
       nixpkgs.overlays = overlays;
       home-manager = {
@@ -45,10 +41,6 @@ nixpkgs.lib.nixosSystem {
       environment.systemPackages = [
         pkgs.usbutils
       ];
-
-      users.users.${config.myconfig.username} = {
-        extraGroups = [ "wireshark" ];
-      };
     })
   ];
 }
