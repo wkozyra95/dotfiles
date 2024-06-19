@@ -4,7 +4,7 @@
   hardware.enableAllFirmware = true;
   hardware.system76.kernel-modules.enable = true;
   boot = {
-    kernelPackages = pkgs.linuxPackages_latest;
+    kernelPackages = pkgs.linuxPackages_5_4;
     kernelModules = [ "kvm-amd" "kvm-intel" ];
     extraModulePackages = [ ];
     supportedFilesystems = [ "ext4" ];
@@ -20,8 +20,6 @@
     };
     initrd = {
       availableKernelModules = [
-        "amdgpu"
-        "nvidia"
         "ext4"
         "nvme"
         "ahci"
@@ -46,17 +44,18 @@
     keyMap = "us";
   };
 
-  services.xserver.videoDrivers = [ "amdgpu" "nvidia" ];
+  services.xserver.videoDrivers = [ "nouveau" ];
 
-  hardware.nvidia = {
-    modesetting.enable = true;
-    powerManagement.enable = false;
-    powerManagement.finegrained = false;
-    open = false;
-    nvidiaSettings = true;
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
-  };
+  #hardware.nvidia = {
+  #  modesetting.enable = true;
+  #  powerManagement.enable = false;
+  #  powerManagement.finegrained = false;
+  #  open = false;
+  #  nvidiaSettings = true;
+  #  package = config.boot.kernelPackages.nvidiaPackages.stable;
+  #};
 
+  services.openssh.enable = true;
   security.rtkit.enable = true;
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;

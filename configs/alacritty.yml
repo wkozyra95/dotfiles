@@ -47,7 +47,7 @@ font:
     family: "Source Code Pro"
     style: "Bold Italic"
 
-  size: 10.0
+  size: 20.0
 
   offset:
     x: 0
