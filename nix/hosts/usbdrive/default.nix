@@ -38,8 +38,13 @@ nixpkgs.lib.nixosSystem {
         );
       };
 
+      hardware.decklink.enable= true;
       environment.systemPackages = [
         pkgs.usbutils
+        pkgs.pciutils
+        pkgs.ffmpeg
+        pkgs.vlc
+        pkgs.mpv
       ];
     })
   ];
