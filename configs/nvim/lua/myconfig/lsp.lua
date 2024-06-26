@@ -131,7 +131,15 @@ function module.apply()
     module.lsp_setup("tsserver", typescript.tsserver_config())
     module.lsp_setup("eslint", typescript.eslint_config())
     module.lsp_setup("clojure_lsp", {})
-    module.lsp_setup("rust_analyzer", {})
+    module.lsp_setup("rust_analyzer", {
+        settings = {
+            ["rust-analyzer"] = {
+                cargo = {
+                    features = "all"
+                }
+            }
+        }
+    })
 
     module.lsp_setup("yamlls", require("myconfig.lang.yaml").yamlls_config())
     module.lsp_setup("jsonls", require("myconfig.lang.json").jsonls_config())
