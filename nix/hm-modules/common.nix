@@ -76,6 +76,7 @@ in
     unzip
     jq
     btop
+    htop
     rsync
     killall
     ripgrep

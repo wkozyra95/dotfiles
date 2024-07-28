@@ -46,6 +46,31 @@ in
     alsa.support32Bit = true;
     pulse.enable = true;
     jack.enable = true;
+    wireplumber = {
+      extraConfig =
+        # pw-cli info all
+        {
+          "wh-1000xm3-ldac-hq" = {
+            "monitor.bluez.rules" = [
+              {
+                matches = [
+                  {
+                    "device.name" = "~bluez_card.*";
+                    "device.product.id" = "0x0cd3";
+                    "device.vendor.id" = "usb:054c";
+                  }
+                ];
+                actions = {
+                  update-props = {
+                    "bluez5.codecs" = [ "ldac" "aac" ];
+                    "bluez5.a2dp.ldac.quality" = "hq";
+                  };
+                };
+              }
+            ];
+          };
+        };
+    };
   };
 
   services.dbus.enable = true;
