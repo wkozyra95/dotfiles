@@ -29,6 +29,7 @@ var Config = env.EnvironmentConfig{
 		common.DotfilesWorkspace,
 		common.HomeWorkspace,
 		common.MembraneConfig.VideoCompositor(path.Join(homeDir, "membrane/live_compositor")),
+		common.MembraneConfig.VideoCompositorTypescript(path.Join(homeDir, "membrane/live_compositor/ts")),
 	},
 	Actions: []env.LauncherAction{
 		expoLauncherConfig.EasCli,

@@ -7,7 +7,8 @@ import (
 )
 
 type MembraneWorkspacesConfig struct {
-	VideoCompositor func(p string) env.Workspace
+	VideoCompositor           func(p string) env.Workspace
+	VideoCompositorTypescript func(p string) env.Workspace
 }
 
 var MembraneConfig = MembraneWorkspacesConfig{
@@ -29,6 +30,19 @@ var MembraneConfig = MembraneWorkspacesConfig{
 					{
 						FileMatch: []string{"*.register.json"},
 						Url:       "file://" + path.Join(p, "schemas/register.schema.json"),
+					},
+				},
+			},
+		}
+	},
+	VideoCompositorTypescript: func(p string) env.Workspace {
+		return env.Workspace{
+			Name: "live_compositor",
+			Path: p,
+			VimConfig: env.VimConfig{
+				FiletypeConfig: map[string]env.VimFiletypeConfig{
+					"json": {
+						IndentSize: 2,
 					},
 				},
 			},

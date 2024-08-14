@@ -25,6 +25,7 @@ pkgs.mkShell {
     xorg.libXScrnSaver
     alsa-lib
     openssl
+    ffmpeg
   ]);
   packages = with pkgs; [
     ffmpeg
