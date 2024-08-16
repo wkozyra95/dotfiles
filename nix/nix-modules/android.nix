@@ -9,9 +9,9 @@
   };
   myconfig.hm-modules = [
     (
-      { unstable, ... }:
+      { custom, ... }:
       {
-        home.packages = with unstable; [
+        home.packages = with custom.unstable; [
           android-studio
         ];
       }

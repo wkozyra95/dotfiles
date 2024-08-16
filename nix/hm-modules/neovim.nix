@@ -1,13 +1,14 @@
-{ unstable, config, ... }:
+{ custom, config, ... }:
 {
   programs.neovim = {
     enable = true;
     defaultEditor = true;
+    package = custom.neovim-nightly;
     extraLuaConfig = ''
       vim.opt.rtp:prepend("${config.home.homeDirectory}/.dotfiles/configs/nvim")
       require("myconfig.main")
     '';
-    plugins = with unstable.vimPlugins; [
+    plugins = with custom.unstable.vimPlugins; [
       popup-nvim
       nvim-web-devicons
       plenary-nvim

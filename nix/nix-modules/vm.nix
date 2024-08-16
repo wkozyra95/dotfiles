@@ -1,4 +1,4 @@
-{ pkgs, unstable, config, ... }:
+{ pkgs, custom, config, ... }:
 {
   # It might be necessary to run `sudo virsh net-autostart default` once
   # or `sudo virsh net-start default` on system startup
@@ -12,7 +12,7 @@
       ovmf = {
         enable = true;
         packages = [
-          (unstable.OVMF.override {
+          (custom.unstable.OVMF.override {
             secureBoot = true;
             tpmSupport = true;
           }).fd

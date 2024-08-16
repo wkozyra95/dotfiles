@@ -19,8 +19,8 @@
 
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     neovim-nightly-overlay = {
-      url = "github:nix-community/neovim-nightly-overlay/7b5ca2486bba58cac80b9229209239740b67cf90";
-      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:nix-community/neovim-nightly-overlay";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
   };
 
@@ -40,7 +40,7 @@
       };
       overlays = [ inputs.neovim-nightly-overlay.overlays.default ];
       opts = {
-        inherit nixpkgs home-manager overlays nixpkgs-unstable;
+        inherit nixpkgs overlays inputs;
       };
     in
     {
@@ -63,7 +63,7 @@
         # Rebuild:
         # darwin-rebuild switch --flake ".#work-mac"
         work-mac = (import ./nix/hosts/work-darwin {
-          inherit nix-darwin home-manager overlays nixpkgs-unstable;
+          inherit nix-darwin overlays inputs;
         });
       };
       homeConfigurations = {

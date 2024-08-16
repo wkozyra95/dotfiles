@@ -1,20 +1,23 @@
-{ nixpkgs, nixpkgs-unstable, home-manager, overlays }:
+{ nixpkgs, overlays, inputs }:
 
 let
   system = "x86_64-linux";
-  unstable = import nixpkgs-unstable {
-    inherit system;
-    config = { allowUnfree = true; };
+  custom = {
+    unstable = import inputs.nixpkgs-unstable {
+      inherit system;
+      config = { allowUnfree = true; };
+    };
+    neovim-nightly = inputs.neovim-nightly-overlay.packages.${system}.default;
   };
 in
 
 nixpkgs.lib.nixosSystem {
   inherit system;
 
-  specialArgs = { inherit unstable; };
+  specialArgs = { inherit custom; };
 
   modules = [
-    home-manager.nixosModules.home-manager
+    inputs.home-manager.nixosModules.home-manager
     (import ../../nix-modules/myconfig.nix {
       username = "wojtek";
       email = "wkozyra95@gmail.com";
@@ -28,9 +31,7 @@ nixpkgs.lib.nixosSystem {
     ({ config, lib, pkgs, ... }: {
       nixpkgs.overlays = overlays;
       home-manager = {
-        extraSpecialArgs = {
-          inherit unstable;
-        };
+        extraSpecialArgs = { inherit custom; };
         useGlobalPkgs = true;
         useUserPackages = true;
         users.${config.myconfig.username} = (

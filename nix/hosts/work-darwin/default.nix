@@ -1,17 +1,23 @@
-{ nix-darwin, home-manager, overlays, nixpkgs-unstable }:
+{ nix-darwin, overlays, inputs }:
 
 let
   system = "x86_64-darwin";
-  unstable = import nixpkgs-unstable { inherit system; };
+  custom = {
+    unstable = import inputs.nixpkgs-unstable {
+      inherit system;
+      config = { allowUnfree = true; };
+    };
+    neovim-nightly = inputs.neovim-nightly-overlay.packages.${system}.default;
+  };
 in
 
 nix-darwin.lib.darwinSystem {
   inherit system;
 
-  specialArgs = { inherit unstable; };
+  specialArgs = { inherit custom; };
 
   modules = [
-    home-manager.darwinModules.home-manager
+    inputs.home-manager.darwinModules.home-manager
     (import ../../nix-modules/myconfig.nix {
       username = "wojciechkozyra";
       email = "wojciech.kozyra@swmansion.com";
@@ -21,7 +27,7 @@ nix-darwin.lib.darwinSystem {
     ({ config, lib, pkgs, ... }: {
       home-manager = {
         extraSpecialArgs = {
-          inherit unstable;
+          inherit custom;
         };
         useGlobalPkgs = true;
         useUserPackages = true;
