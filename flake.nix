@@ -79,5 +79,11 @@
       devShells = perSystemConfig.devShells;
       packages = perSystemConfig.packages;
       formatter = perSystemConfig.formatter;
+      templates = {
+        rust = {
+          path = ./nix/templates/rust;
+          description = "Basic setup for Rust setup";
+        };
+      };
     };
 }

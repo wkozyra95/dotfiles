@@ -32,7 +32,7 @@ local function start_playground(user_command_opts)
             on_detach = function()
                 if not name then
                     -- _.rpc_run({name = "node:playground:delete", path = playground_path})
-                    playground_buffers[buffer] = nil
+                    -- playground_buffers[buffer] = nil
                 end
             end,
         }

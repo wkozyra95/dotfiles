@@ -148,7 +148,7 @@ func NodePlaygroundCreate(playgroundPath string) error {
 	}
 	yarnErr := exec.Command().
 		WithCwd(playgroundPath).
-		Args("yarn", "add", "--dev", "@types/node@14", "eslint", "eslint-plugin-import", "prettier", "typescript", "ts-node").
+		Args("npm", "install", "--save-dev", "@types/node@14", "eslint", "eslint-plugin-import", "prettier", "typescript", "ts-node").
 		Run()
 	if yarnErr != nil {
 		return yarnErr
@@ -179,7 +179,7 @@ func NodePlaygroundZshShell(playgroundPath string) error {
 }
 
 func NodePlaygroundInstall(playgroundPath string, pkg string) error {
-	if err := exec.Command().WithCwd(playgroundPath).Args("yarn", "add", pkg).Run(); err != nil {
+	if err := exec.Command().WithCwd(playgroundPath).Args("npm", "install", "--save", pkg).Run(); err != nil {
 		return err
 	}
 	splitPackage := strings.Split(pkg, "/")

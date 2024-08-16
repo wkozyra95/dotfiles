@@ -8,6 +8,7 @@ import (
 
 	"github.com/wkozyra95/dotfiles/api/context"
 	"github.com/wkozyra95/dotfiles/utils/exec"
+	"github.com/wkozyra95/dotfiles/utils/fn"
 	"github.com/wkozyra95/dotfiles/utils/prompt"
 )
 
@@ -24,6 +25,8 @@ func RegisterNixCmds(rootCmd *cobra.Command) {
 		"rust",
 	}
 
+	templates := []string{"rust"}
+
 	nixShell := &cobra.Command{
 		Use:   "shell",
 		Short: "start one of the global shells",
@@ -33,7 +36,7 @@ func RegisterNixCmds(rootCmd *cobra.Command) {
 			selectedShell, didSelect := prompt.SelectPrompt(
 				"Select shell:",
 				shells,
-				func(s string) string { return s },
+				fn.Identity,
 			)
 			if didSelect {
 				runErr := exec.Command().
@@ -82,8 +85,33 @@ func RegisterNixCmds(rootCmd *cobra.Command) {
 		},
 	}
 
+	nixTemplate := &cobra.Command{
+		Use:   "template",
+		Short: "generate from template",
+		Run: func(cmd *cobra.Command, args []string) {
+			ctx := context.CreateContext()
+			cwd := ctx.FromHome(".dotfiles")
+
+			selectedTemplate, didSelect := prompt.SelectPrompt(
+				"Select template:",
+				templates,
+				fn.Identity,
+			)
+			if !didSelect {
+				return
+			}
+			runErr := exec.Command().WithStdio().
+				Args("nix", "flake", "init", "-t", fmt.Sprintf("%s#%s", cwd, selectedTemplate)).Run()
+
+			if runErr != nil {
+				log.Error(runErr)
+			}
+		},
+	}
+
 	nixCmds.AddCommand(nixShell)
 	nixCmds.AddCommand(nixRebuildConfig)
+	nixCmds.AddCommand(nixTemplate)
 
 	rootCmd.AddCommand(nixCmds)
 }

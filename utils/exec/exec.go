@@ -156,7 +156,7 @@ func (c *Cmd) runWithoutStdio() error {
 			buffer.WriteString("\n\t\t")
 			buffer.WriteString(line)
 		}
-		log.Errorf(buffer.String())
+		log.Error(buffer.String())
 		return cmdErr
 	}
 	return nil
