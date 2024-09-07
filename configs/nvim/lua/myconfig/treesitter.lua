@@ -115,7 +115,7 @@ function module.apply()
             -- Treat patterns.rust as a Lua pattern (i.e "^impl_item$" will
             -- exactly match "impl_item" only)
             -- rust = true,
-        },
+        }
     }
 end
 

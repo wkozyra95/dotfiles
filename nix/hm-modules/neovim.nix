@@ -1,4 +1,4 @@
-{ custom, config, ... }:
+{ custom, pkgs, config, ... }:
 {
   programs.neovim = {
     enable = true;
@@ -49,7 +49,7 @@
 
       gruvbox-nvim
 
-      nvim-treesitter.withAllGrammars
+      pkgs.vimPlugins.nvim-treesitter.withAllGrammars
       playground
       nvim-treesitter-context
     ];

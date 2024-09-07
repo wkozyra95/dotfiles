@@ -38,7 +38,7 @@
             formatter = pkgs.nixpkgs-fmt;
           };
       };
-      overlays = [ inputs.neovim-nightly-overlay.overlays.default ];
+      overlays = [ ];
       opts = {
         inherit nixpkgs overlays inputs;
       };
