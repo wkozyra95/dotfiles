@@ -21,7 +21,6 @@
 
   environment.systemPackages = with pkgs; [
     vulkan-tools
-    amdvlk
     home-manager
   ];
 
@@ -36,10 +35,14 @@
   powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
-  hardware.opengl = {
+  hardware.amdgpu.amdvlk = {
+    enable = true;
+    support32Bit.enable = true;
+  };
+  hardware.amdgpu.initrd.enable = true;
+  hardware.graphics = {
     enable = lib.mkForce true;
-    driSupport = true;
-    driSupport32Bit = true;
+    enable32Bit = true;
     extraPackages = [ pkgs.amdvlk ];
   };
 

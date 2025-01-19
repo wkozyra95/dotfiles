@@ -27,7 +27,7 @@
   myconfig.hm-modules = [
     {
       home.packages = [
-        pkgs.gnome.simple-scan
+        pkgs.simple-scan
       ];
     }
   ];

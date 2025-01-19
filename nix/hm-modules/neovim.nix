@@ -3,7 +3,7 @@
   programs.neovim = {
     enable = true;
     defaultEditor = true;
-    package = custom.neovim-nightly;
+    package = custom.unstable.neovim-unwrapped;
     extraLuaConfig = ''
       vim.opt.rtp:prepend("${config.home.homeDirectory}/.dotfiles/configs/nvim")
       require("myconfig.main")

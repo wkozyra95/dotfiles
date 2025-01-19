@@ -2,7 +2,6 @@
 {
   nixpkgs.config.allowUnfree = true;
   hardware.enableAllFirmware = true;
-  hardware.system76.kernel-modules.enable = true;
   boot = {
     kernelPackages = pkgs.linuxPackages_latest;
     kernelModules = [ "kvm-amd" ];

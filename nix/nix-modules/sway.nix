@@ -22,7 +22,7 @@ in
     dbus
     dbus-sway-environment
     j4-dmenu-desktop
-    alacritty
+    # alacritty
     bemenu
     pavucontrol
     grim
@@ -83,6 +83,7 @@ in
 
   myconfig.hm-modules = [
     {
+      programs.alacritty.enable = true;
       gtk = {
         enable = true;
         gtk3.extraConfig = {
