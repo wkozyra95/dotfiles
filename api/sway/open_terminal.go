@@ -104,7 +104,7 @@ func getPidOfLastDescendantRunningZsh(pid int) int {
 		}
 		// /proc/pid/cmdline is using byte 0 a separator, so we need to remove it
 		trimed := strings.Replace(string(cmdline), string([]byte{0}), "", -1)
-		if trimed == "zsh" || trimed == "/bin/zsh--login" {
+		if trimed == "zsh" || trimed == "zsh--login" {
 			return pid
 		}
 	}

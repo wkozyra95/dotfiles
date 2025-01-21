@@ -118,7 +118,7 @@ local function find_opening_bracket(position, open_symbol, close_symbol)
         local last_close = find_before(last, close_symbol);
 
         if counter == 0 then
-            if (not last_close) or (last_close and not last_open:is_before(last_close)) then
+            if (not last_close) or (last_close and not last_open:is_before(last_close)) or (open_symbol == close_symbol) then
                 return last_open;
             end
         end
@@ -176,7 +176,7 @@ local function find_closing_bracket(position, open_symbol, close_symbol)
         local first_open = find_after(last, open_symbol);
 
         if counter == 0 then
-            if (not first_open) or (first_open and first_close:is_before(first_open)) then
+            if (not first_open) or (first_open and first_close:is_before(first_open)) or (open_symbol == close_symbol) then
                 return first_close;
             end
         end
