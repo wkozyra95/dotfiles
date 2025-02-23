@@ -44,6 +44,7 @@
     enable = lib.mkForce true;
     enable32Bit = true;
     extraPackages = [ pkgs.amdvlk ];
+    extraPackages32 = [ pkgs.driversi686Linux.amdvlk ];
   };
 
   # required to make wgpu project work without amdvlk installed

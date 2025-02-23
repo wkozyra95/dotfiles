@@ -34,6 +34,8 @@ in
     pamixer
     libnotify
     rhythmbox
+    mpv
+    vlc
     dunst # notification daemon
   ];
   programs.sway.enable = true;

@@ -57,12 +57,11 @@
 
   fileSystems."/home/wojtek/Videos" =
     {
-      device = "/dev/disk/by-label/LOCAL_DATA_SSD";
+      device = "/dev/disk/by-label/LOCAL_DATA_HDD";
       fsType = "btrfs";
       options = [
         "nosuid"
         "nodev"
-        "ssd"
         "discard"
         "noatime"
         "space_cache=v2"
@@ -71,9 +70,9 @@
       ];
       encrypted = {
         enable = true;
-        blkDev = "/dev/disk/by-uuid/010f5771-8ef1-47a7-9237-a5da9bbb507b";
+        blkDev = "/dev/disk/by-uuid/a2f19d9b-359f-470f-a5f6-71faf8dc6d8e";
         keyFile = "/mnt-root/root/cryptlvm.keyfile";
-        label = "local_data_ssd";
+        label = "local_data_hdd";
       };
       depends = [ "/home" ];
     };

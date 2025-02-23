@@ -84,6 +84,7 @@ in
     python3Packages.pygments # needed by oh-my-zsh plugin
     tree-sitter
     silver-searcher
+    ranger
 
     # LSP
     nodejs_18

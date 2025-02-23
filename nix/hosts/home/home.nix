@@ -15,6 +15,7 @@ systemModules:
     home.packages = with pkgs; [
       bitwarden-cli
       gh
+      obs-studio
     ];
 
     myconfig = {

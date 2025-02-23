@@ -76,3 +76,11 @@ vim.api.nvim_create_autocmd(
 vim.api.nvim_create_autocmd(
     "WinEnter", {group = group, callback = function() vim.opt_local.cursorline = true end}
 )
+
+vim.filetype.add({
+    extension = {
+        mdx = "markdown"
+    }
+})
+
+require("notify").setup({ background_colour = "#000000" })

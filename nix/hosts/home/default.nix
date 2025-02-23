@@ -50,6 +50,8 @@ nixpkgs.lib.nixosSystem {
         pkgs.usbutils
       ];
 
+      programs.nix-ld.enable = true;
+      programs.nix-ld.libraries = with pkgs; [ ];
       programs.wireshark.enable = true;
       programs.wireshark.package = pkgs.wireshark;
       users.users.${config.myconfig.username} = {
