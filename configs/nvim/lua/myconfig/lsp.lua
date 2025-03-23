@@ -48,8 +48,18 @@ end
 module.goToDefinition = tel.lsp_definitions
 module.goToDeclaration = vim.lsp.buf.declaration
 module.goToTypeDefinition = vim.lsp.buf.type_definition
-module.goToNext = vim.diagnostic.goto_next
-module.goToPrev = vim.diagnostic.goto_prev
+module.goToNext = function()
+    local diagnostic = vim.diagnostic.get_next();
+    if diagnostic then
+        vim.diagnostic.jump({diagnostic = diagnostic})
+    end
+end
+module.goToPrev = function()
+    local diagnostic = vim.diagnostic.get_prev();
+    if diagnostic then
+        vim.diagnostic.jump({diagnostic = diagnostic})
+    end
+end
 module.references = tel.lsp_references
 module.onHover = vim.lsp.buf.hover
 module.showLineDiagnostics = vim.diagnostic.open_float
@@ -92,19 +102,10 @@ function module.lsp_setup(name, config)
 end
 
 function module.apply()
-    vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-        vim.lsp.diagnostic.on_publish_diagnostics, {
-            -- Enable underline, use default values
-            underline = true,
-            -- Enable virtual text, override spacing to 4
-            virtual_text = {spacing = 4},
-            -- Use a function to dynamically turn signs off
-            -- and on, using buffer local variables
-            -- signs = function(bufnr, client_id) return vim.bo[bufnr].show_signs == false end,
-            -- Disable a feature
-            update_in_insert = false,
-        }
-    )
+    vim.diagnostic.config({
+        virtual_text = true,
+        underline = true,
+    });
 
     local efm_config = {
         on_attach = function(client)
@@ -128,7 +129,7 @@ function module.apply()
     module.lsp_setup("lua_ls", lua.lua_ls_config())
 
     local typescript = require("myconfig.lang.typescript")
-    module.lsp_setup("tsserver", typescript.tsserver_config())
+    module.lsp_setup("ts_ls", typescript.tsserver_config())
     module.lsp_setup("eslint", typescript.eslint_config())
     module.lsp_setup("clojure_lsp", {})
 

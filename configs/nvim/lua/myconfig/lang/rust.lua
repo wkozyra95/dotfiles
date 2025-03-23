@@ -34,7 +34,7 @@ function module.actions()
                 fn = function()
                     module.settings["rust-analyzer"].cargo.target = "wasm32-unknown-unknown"
                     module.settings["rust-analyzer"].cargo.features = nil
-                    module.settings["rust-analyzer"].cargo.noDefaultFeatures = true 
+                    module.settings["rust-analyzer"].cargo.noDefaultFeatures = true
                     update_config()
                 end
             }

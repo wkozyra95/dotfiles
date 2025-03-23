@@ -118,7 +118,11 @@ function module.rpc_run(action)
         command = "mycli",
         args = {"api", encoded},
 
-        on_stderr = vim.schedule_wrap(function(_, data) print("[err]:", data) end),
+        on_stderr = vim.schedule_wrap(function(_, data)
+            if data then
+                print("[err]:", data)
+            end
+        end),
         skip_validation = true,
     }
     job:sync(60000)
@@ -138,7 +142,11 @@ function module.rpc_start(action, cb)
         command = "mycli",
         args = {"api", encoded},
 
-        on_stderr = vim.schedule_wrap(function(_, data) print("[err]:", data) end),
+        on_stderr = vim.schedule_wrap(function(_, data)
+            if data then
+                print("[err]:", data)
+            end
+        end),
         on_exit = vim.schedule_wrap(
             function(self, return_val)
                 local stdout = self:result()

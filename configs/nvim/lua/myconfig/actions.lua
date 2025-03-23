@@ -96,17 +96,9 @@ local actions = {
     },
     toggle_diagnostics = {
         name = "[lsp] toggle diagnostics",
-        fn = (function()
-            local enabled = true;
-            return function()
-                if (enabled) then
-                    vim.diagnostic.disable()
-                else
-                    vim.diagnostic.enable()
-                end
-                enabled = not enabled
-            end
-        end)(),
+        fn = function()
+            vim.diagnostic.enable(vim.diagnostic.is_enabled())
+        end
     },
     present = {
         name = "present",

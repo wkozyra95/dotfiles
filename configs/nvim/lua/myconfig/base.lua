@@ -14,7 +14,7 @@ function module.apply()
             group = group,
             pattern = "*",
             callback = function()
-                vim.highlight.on_yank({higroup = "IncSearch", timeout = 1000})
+                vim.hl.on_yank({higroup = "IncSearch", timeout = 1000})
             end,
         }
     )

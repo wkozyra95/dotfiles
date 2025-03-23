@@ -13,13 +13,13 @@ end
 
 local function get_runtime()
     local result = {};
-    local plugin_path = path.data() .. "/lazy"
-    for _, plugin in pairs(vim.fn.readdir(plugin_path)) do
-        local lua_path = plugin_path .. "/" .. plugin .. "/lua";
-        if vim.fn.isdirectory(lua_path) == 1 then
-            result[lua_path] = true
-        end
-    end
+    -- local plugin_path = path.data() .. "/lazy"
+    -- for _, plugin in pairs(vim.fn.readdir(plugin_path)) do
+    --     local lua_path = plugin_path .. "/" .. plugin .. "/lua";
+    --     if vim.fn.isdirectory(lua_path) == 1 then
+    --         result[lua_path] = true
+    --     end
+    -- end
     result[vim.fn.expand("$VIMRUNTIME/lua")] = true
     result[vim.fn.expand("$VIMRUNTIME/lua/vim/lsp")] = true
     return result

@@ -113,10 +113,10 @@ local function statusline()
         right_separator .. "%#StatusLine#"
     local file = "%f"
 
-    local lsp = ""
-    if (#vim.lsp.get_clients() > 0) then
-        lsp = lsp_status() .. " "
-    end
+    --local lsp = ""
+    --if (#vim.lsp.get_clients() > 0) then
+    --    lsp = lsp_status() .. " "
+    --end
 
     -- for some reason it breaks noice.nvim
     -- local git = ""
@@ -127,7 +127,7 @@ local function statusline()
     -- end
 
     local position = "%#StatusLineGit# %2.p%% [%3.l/%L] %c"
-    return mode .. file .. "%=" .. lsp .. position
+    return mode .. file .. "%=" .. position
 end
 
 _G.statusline = statusline
