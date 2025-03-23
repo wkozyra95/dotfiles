@@ -15,6 +15,11 @@ local lsp = require("myconfig.lsp")
 
 local homeDir = vim.env.HOME
 
+--- @class Action
+--- @filed name string
+--- @field fn function
+---
+--- @type table<Action>
 local actions = {
     lsp_code_actions = {name = "[lsp] code action", fn = lsp.codeAction},
     lsp_rename = {name = "[lsp] rename", fn = lsp.rename},
@@ -126,14 +131,18 @@ local function select_action()
         return {value = entry, display = entry.name, ordinal = entry.id}
     end
 
-    local actions_list = {}
-    for _, v in pairs(workspaces.current.vim.actions or {}) do
-        table.insert(actions_list, create_local_action(v))
-    end
-    for k, v in pairs(actions) do
-        table.insert(actions_list, vim.tbl_extend("force", v, {id = k}))
-    end
     return function()
+        local actions_list = {}
+
+        for k, v in pairs(require("myconfig.lang.rust").actions()) do
+            table.insert(actions_list, vim.tbl_extend("force", v, {id = k}))
+        end
+        for _, v in pairs(workspaces.current.vim.actions or {}) do
+            table.insert(actions_list, create_local_action(v))
+        end
+        for k, v in pairs(actions) do
+            table.insert(actions_list, vim.tbl_extend("force", v, {id = k}))
+        end
         pickers.new(
             {}, vim.tbl_extend(
                 "force", {
