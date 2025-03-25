@@ -98,6 +98,7 @@ in
     ltex-ls
     yaml-language-server
     clang-tools
+    rust-analyzer
 
     # Custom
     (pkgs.callPackage ../packages/lua-code-format.nix { })
