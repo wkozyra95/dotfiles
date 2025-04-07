@@ -1,7 +1,7 @@
 { nix-darwin, overlays, inputs }:
 
 let
-  system = "x86_64-darwin";
+  system = "aarch64-darwin";
   custom = {
     unstable = import inputs.nixpkgs-unstable {
       inherit system;
@@ -41,7 +41,7 @@ nix-darwin.lib.darwinSystem {
       networking.hostName = "wojtek-mac";
 
       nixpkgs = {
-        hostPlatform = lib.mkDefault "x86_64-darwin";
+        hostPlatform = lib.mkDefault "aarch64-darwin";
         overlays = overlays;
       };
 
