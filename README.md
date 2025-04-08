@@ -1,11 +1,26 @@
 # dotfiles
 
-### Setup `mycli` inside a Docker container
+## Install
 
-`v0.0.0` is a fake release that is used to publicly host `mycli` binaries. Files are updated every time `mycli tool release` is run. 
+On first install might be necessary to add
+```
+--extra-experimental-features "nix-command flakes"
+```
+
+#### Home - NixOS
 
 ```
-curl -L -o mycli https://github.com/wkozyra95/dotfiles/releases/download/v0.0.0/mycli-linux && \
-chmod +x mycli && \
-./mycli tool setup:environment:docker
+sudo nixos-rebuild switch --flake ".#home"
+```
+
+#### Work - arch
+
+```
+nix run home-manager/release-24.11 -- switch --flake ".#work"
+```
+
+#### Work - macOS
+
+```
+nix run nix-darwin -- switch --flake ".#work-mac" 
 ```
