@@ -1,4 +1,9 @@
 { pkgs, lib, ... }:
+let
+  ffmpeg = pkgs.ffmpeg_7-full.override {
+    withRtmp = false;
+  };
+in
 pkgs.mkShell {
   env.LD_LIBRARY_PATH = lib.makeLibraryPath (with pkgs; [
     xorg.libX11
@@ -11,10 +16,10 @@ pkgs.mkShell {
     xorg.libXScrnSaver
     alsa-lib
     openssl
-    ffmpeg_7-full
+    ffmpeg
   ]);
   packages = with pkgs; [
-    ffmpeg_7-full
+    ffmpeg
     elixir
     nodejs_18
     rustfmt

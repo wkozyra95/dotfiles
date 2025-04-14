@@ -49,9 +49,9 @@ module.goToDefinition = tel.lsp_definitions
 module.goToDeclaration = vim.lsp.buf.declaration
 module.goToTypeDefinition = vim.lsp.buf.type_definition
 module.goToNext = function()
-    local diagnostic = vim.diagnostic.get_next();
+    local diagnostic = vim.diagnostic.get_next({float = true});
     if diagnostic then
-        vim.diagnostic.jump({diagnostic = diagnostic})
+        vim.diagnostic.jump({diagnostic = diagnostic, float = true})
     end
 end
 module.goToPrev = function()

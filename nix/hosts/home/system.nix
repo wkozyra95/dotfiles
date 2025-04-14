@@ -26,6 +26,7 @@
 
   networking.hostName = "wojtek-nix";
   networking.networkmanager.enable = true;
+  networking.networkmanager.insertNameservers = [ "8.8.8.8" ];
 
   networking.useDHCP = lib.mkDefault true;
   networking.interfaces.enp39s0.useDHCP = lib.mkDefault true;
