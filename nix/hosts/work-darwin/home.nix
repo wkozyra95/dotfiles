@@ -2,7 +2,6 @@ systemModules:
 { pkgs, config, ... }:
 {
   imports = [
-    ../../common.nix
     ../../hm-modules/common.nix
     ../../hm-modules/git.nix
     ../../hm-modules/vim.nix

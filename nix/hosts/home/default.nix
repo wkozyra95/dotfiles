@@ -26,7 +26,7 @@ nixpkgs.lib.nixosSystem {
     ./filesystems.nix
     ./system.nix
     ./boot.nix
-    ../../common.nix
+    ../../nix-modules/common.nix
     ../../nix-modules/sway.nix
     ../../nix-modules/docker.nix
     ../../nix-modules/steam.nix

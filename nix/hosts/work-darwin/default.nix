@@ -23,7 +23,7 @@ nix-darwin.lib.darwinSystem {
       email = "wojciech.kozyra@swmansion.com";
       env = "macbook";
     })
-    (import ../../common.nix)
+    (import ../../nix-modules/common.nix)
     ({ config, lib, pkgs, ... }: {
       home-manager = {
         extraSpecialArgs = {

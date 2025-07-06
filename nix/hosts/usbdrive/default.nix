@@ -26,7 +26,7 @@ nixpkgs.lib.nixosSystem {
     ./filesystems.nix
     ./system.nix
     ./boot.nix
-    ../../common.nix
+    ../../nix-modules/common.nix
     ../../nix-modules/sway.nix
     ({ config, lib, pkgs, ... }: {
       nixpkgs.overlays = overlays;

@@ -26,7 +26,6 @@ inputs.home-manager.lib.homeManagerConfiguration {
       email = "wojciech.kozyra@swmansion.com";
       env = "work";
     })
-    ../../common.nix
     ../../hm-modules/common.nix
     ../../hm-modules/git.nix
     ../../hm-modules/vim.nix
@@ -46,7 +45,9 @@ inputs.home-manager.lib.homeManagerConfiguration {
       programs.gpg.enable = true;
       services.gpg-agent = {
         enable = true;
-        pinentryPackage = pkgs.pinentry-curses;
+        pinentry = {
+          package = pkgs.pinentry-curses;
+        };
         enableSshSupport = true;
         enableExtraSocket = true;
       };

@@ -15,7 +15,7 @@ in
 {
   fonts.packages = with pkgs; [
     source-code-pro
-    nerdfonts
+    nerd-fonts.droid-sans-mono
     corefonts
   ];
   environment.systemPackages = with pkgs; [

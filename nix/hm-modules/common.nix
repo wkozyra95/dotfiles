@@ -5,6 +5,11 @@ let
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/${path}";
 in
 {
+  nix = {
+    settings = {
+      experimental-features = [ "nix-command" "flakes" ];
+    };
+  };
   programs.direnv = {
     enable = true;
     enableZshIntegration = true;
@@ -26,7 +31,7 @@ in
       g = "git";
       ggpush = "git push --set-upstream origin $(git_current_branch)";
     };
-    initExtra = ''
+    initContent = ''
       function try_source() {
           test -s $1 && source $1
       }
@@ -87,7 +92,7 @@ in
     ranger
 
     # LSP
-    nodejs_18
+    nodejs
     nil
     sumneko-lua-language-server
     nodePackages.typescript-language-server

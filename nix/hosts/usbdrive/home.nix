@@ -2,7 +2,6 @@ systemModules:
 { pkgs, config, ... }:
 {
   imports = [
-    ../../common.nix
     ../../hm-modules/common.nix
     ../../hm-modules/common-desktop.nix
     ../../hm-modules/git.nix
@@ -15,7 +14,9 @@ systemModules:
     programs.gpg.enable = true;
     services.gpg-agent = {
       enable = true;
-      pinentryPackage = pkgs.pinentry-curses;
+      pinentry = {
+        package = pkgs.pinentry-curses;
+      };
       enableSshSupport = true;
       enableExtraSocket = true;
     };

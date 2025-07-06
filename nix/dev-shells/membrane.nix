@@ -21,7 +21,7 @@ pkgs.mkShell {
   packages = with pkgs; [
     ffmpeg
     elixir
-    nodejs_18
+    nodejs
     rustfmt
     clippy
     rust-analyzer

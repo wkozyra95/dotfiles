@@ -13,7 +13,14 @@ function module.gopls_config()
         }
     else
         return {
-            settings = {gopls = {buildFlags = {"-tags=e2e"}}},
+            settings = {
+                gopls = {
+                    buildFlags = {"-tags=e2e"},
+                    analyses = {
+                        composites = false
+                    }
+                }
+            },
         }
     end
 end

@@ -26,7 +26,6 @@ inputs.home-manager.lib.homeManagerConfiguration {
       email = "wkozyra95@gmail.com";
       env = "dev-vm";
     })
-    ../../common.nix
     ../../hm-modules/common.nix
     ../../hm-modules/git.nix
     ../../hm-modules/vim.nix
