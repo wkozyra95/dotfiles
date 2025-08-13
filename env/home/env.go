@@ -151,7 +151,6 @@ var Config = env.EnvironmentConfig{
 			path.Join(homeDir, ".ssh"):         "ssh",
 			path.Join(homeDir, ".zsh_history"): "zsh_history",
 			path.Join(homeDir, "drive"):        "drive",
-			path.Join(homeDir, "notes"):        "notes",
 		},
 	},
 	DockerEnvsSpec: []env.DockerEnvSpec{

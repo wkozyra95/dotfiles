@@ -22,7 +22,6 @@
 
   environment.systemPackages = with pkgs; [
     vulkan-tools
-    amdvlk
     home-manager
   ];
 
@@ -30,18 +29,16 @@
   networking.networkmanager.enable = true;
 
   networking.useDHCP = lib.mkDefault true;
-  networking.interfaces.enp39s0.useDHCP = lib.mkDefault true;
-  networking.interfaces.wlp41s0.useDHCP = lib.mkDefault true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
-  hardware.opengl = {
+  hardware.amdgpu.initrd.enable = true;
+  hardware.graphics = {
     enable = lib.mkForce true;
-    driSupport = true;
-    driSupport32Bit = true;
-    extraPackages = [ pkgs.amdvlk ];
+    enable32Bit = true;
   };
 
   # required to make wgpu project work without amdvlk installed

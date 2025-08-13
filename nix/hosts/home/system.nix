@@ -29,8 +29,8 @@
   networking.networkmanager.insertNameservers = [ "8.8.8.8" ];
 
   networking.useDHCP = lib.mkDefault true;
-  networking.interfaces.enp39s0.useDHCP = lib.mkDefault true;
-  networking.interfaces.wlp41s0.useDHCP = lib.mkDefault true;
+  networking.interfaces.eno1.useDHCP = lib.mkDefault true;
+  networking.interfaces.wlp11s0.useDHCP = lib.mkDefault true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";

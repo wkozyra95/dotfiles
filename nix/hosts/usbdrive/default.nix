@@ -34,13 +34,25 @@ nixpkgs.lib.nixosSystem {
         extraSpecialArgs = { inherit custom; };
         useGlobalPkgs = true;
         useUserPackages = true;
+        backupFileExtension = "backup";
         users.${config.myconfig.username} = (
           import ./home.nix config.myconfig.hm-modules
         );
       };
 
+      networking.firewall.allowedTCPPorts= [ 8002 ];
+      networking.firewall.enable = false;
+     # hardware.decklink.enable= true;
       environment.systemPackages = [
         pkgs.usbutils
+        pkgs.pciutils
+        pkgs.ffmpeg
+        pkgs.vlc
+        pkgs.mpv
+        pkgs.cryptsetup
+        pkgs.gptfdisk
+        pkgs.btrfs-progs
+        pkgs.parted
       ];
     })
   ];

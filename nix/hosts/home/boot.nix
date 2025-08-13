@@ -14,7 +14,7 @@
         enable = true;
         # To skip grub installation
         # device = "nodev";
-        device = "/dev/disk/by-id/nvme-KINGSTON_SA2000M81000G_50026B768404F6F5";
+        device = "/dev/disk/by-id/nvme-Samsung_SSD_990_EVO_Plus_4TB_S7U9NJ0Y508453F";
         efiSupport = true;
         enableCryptodisk = true;
         configurationLimit = 40;
@@ -27,7 +27,7 @@
       kernelModules = [ "amdgpu" ];
       luks.devices = {
         root = {
-          device = "/dev/disk/by-uuid/546d1104-c026-4072-9e46-1b52fed323a5";
+          device = "/dev/disk/by-uuid/6c560c44-363f-4e19-91a1-7709bbc0d9b6";
           keyFile = "/root/cryptlvm.keyfile";
           fallbackToPassword = true;
         };

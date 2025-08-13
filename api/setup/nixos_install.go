@@ -8,7 +8,7 @@ import (
 )
 
 func InstallNixOS() error {
-	if user, userErr := user.Current(); userErr != nil || user.Username != "nixos" {
+	if user, userErr := user.Current(); userErr != nil || user.Username != "root" {
 		panic("This command should be only be run from an install media")
 	}
 	username := "wojtek"
@@ -55,8 +55,8 @@ func InstallNixOS() error {
 
 	formatPartitionsErr := exec.RunAll(
 		sudo().Args("mkfs.fat", "-F", "32", "-n", "EFIBOOT", target.efiPartition),
-		sudo().Args("mkfs.setup", "-y", "-v", "luksFormat", "--type", "luks1", target.mainPartition),
-		sudo().Args("mkfs.setup", "open", target.mainPartition, "root"),
+		sudo().Args("cryptsetup", "-y", "-v", "luksFormat", "--type", "luks1", target.mainPartition),
+		sudo().Args("cryptsetup", "open", target.mainPartition, "root"),
 		sudo().Args("mkfs.btrfs", "--label", "BTRFS_ROOT", "--force", "/dev/mapper/root"),
 	)
 	if formatPartitionsErr != nil {
@@ -88,6 +88,7 @@ func InstallNixOS() error {
 			"-o", "defaults,relatime,discard,ssd,nodev,nosuid,subvol=__current/home",
 			"/dev/mapper/root", "/mnt/btrfs-current/home",
 		),
+		sudo().Args("mkdir", "-p", "/mnt/btrfs-current/root"),
 	)
 	if setupBtrfsSubvolumesErr != nil {
 		return setupBtrfsSubvolumesErr

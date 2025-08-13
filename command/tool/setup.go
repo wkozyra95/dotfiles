@@ -129,8 +129,8 @@ func registerSetupCommands(rootCmd *cobra.Command) {
 				log.Error(userErr)
 				return
 			}
-			if user.Username != "nixos" {
-				log.Error("This command should only be ran from installer medium. (Username=nixos expected)")
+			if user.Username != "root" {
+				log.Errorf("This command should only be ran from installer medium. (Username=wojtek expected, found: %v)", user.Username)
 				return
 			}
 			if err := setup.InstallNixOS(); err != nil {

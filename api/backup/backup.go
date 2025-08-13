@@ -78,12 +78,12 @@ func RestoreBackup(ctx context.Context) error {
 	}
 
 	var secretsBackupVolume *drive.Volume
-	var externalDataBackupVolume *drive.Volume
+	var localDataBackupVolume *drive.Volume
 
 	for _, volume := range volumes {
 		volume := volume
-		if volume.KnownVolume.MountPath == externalDataBackupMountPath {
-			externalDataBackupVolume = &volume
+		if volume.KnownVolume.MountPath == localDataBackupMountPath {
+			localDataBackupVolume = &volume
 		} else if volume.KnownVolume.MountPath == secretsBackupMountPath {
 			secretsBackupVolume = &volume
 		}
@@ -118,10 +118,10 @@ func RestoreBackup(ctx context.Context) error {
 		}
 	}
 
-	if externalDataBackupVolume != nil {
+	if localDataBackupVolume != nil {
 		dataBackupErr := runFnWithBackupVolume(
 			ctx,
-			*externalDataBackupVolume,
+			*localDataBackupVolume,
 			ctx.Environment,
 			restoreData,
 		)
