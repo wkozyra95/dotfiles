@@ -2,15 +2,11 @@ package setup
 
 import (
 	"fmt"
-	"os/user"
 
 	"github.com/wkozyra95/dotfiles/utils/exec"
 )
 
 func InstallNixOS() error {
-	if user, userErr := user.Current(); userErr != nil || user.Username != "root" {
-		panic("This command should be only be run from an install media")
-	}
 	username := "wojtek"
 	target, targetErr := selectInstallTargetDrive("Which device do you want to install NixOS on?")
 	if targetErr != nil {

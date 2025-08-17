@@ -47,6 +47,8 @@
       nixosConfigurations = {
         # sudo nixos-rebuild switch --flake ".#home"
         home = (import ./nix/hosts/home opts);
+        # sudo nixos-rebuild switch --flake ".#home-nas"
+        home-nas = (import ./nix/hosts/home-nas opts);
         usbdrive = (import ./nix/hosts/usbdrive opts);
         # Build installer ISO
         # nix build .#nixosConfigurations.iso-installer.config.system.build.isoImage
