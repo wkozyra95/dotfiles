@@ -15,11 +15,20 @@
         "space_cache=v2"
         "subvol=root"
       ];
+      neededForBoot = true;
     };
 
-  fileSystems."/boot/efi" =
+  fileSystems."/efi" =
     {
-      device = "/dev/disk/by-label/EFIBOOT";
+      device = "/dev/disk/by-label/EFI";
       fsType = "vfat";
+      depends = [ "/" ];
+    };
+
+  fileSystems."/boot" =
+    {
+      device = "/dev/disk/by-label/BOOT";
+      fsType = "ext4";
+      depends = [ "/" ];
     };
 }
