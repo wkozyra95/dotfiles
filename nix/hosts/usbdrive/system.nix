@@ -10,6 +10,9 @@
         extraGroups = [ "wheel" "networkmanager" ];
         shell = pkgs.zsh;
         initialPassword = "password";
+        openssh.authorizedKeys.keys = [
+          "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCsauS5jVzD5Wc+Ekhs/IgxFIXS/P+4JtluuSly5h5o0+b1cXi4q0c2Z9o7u0lp6bticWX2IS+1XVzZsbbVNtPkENtstgG979lbHbWMs/dpoqgUicZzLvRgbG0NxF13cQBnQ2vafLlImvUhGIu0Prep4XRc6iH8QLmgUgG9glgZZxCAa4gWtwUA6wqMyLcYGuMjP6dHnuUP6XHfmMMG32p42UZ0Qu/IiEuphrwLPB/YWm/9kyLt/9gSW4fxd5jxDfF2Mbv4ifT9q2vJhLmgcwRosnNUAVVC69mF6lgGgJJwdSoHvtrfYPA4MJyfe5QeDgVpO118xopvYu4j74EBQ6MtUUnXi+IXct04I1s+3Bxe9h/hn1DwwGaLLfagvu97gRytCcVoMCPIfx4vYljc/Lz+7iNYp3wfRU6TSaUNnQL/ao0NaOrbIx6YQUcFKRT2kgpqiYTt4FENOeXsRyv2SqYmLRWmJA40KmIEPp4nDdnXhmUnaGNWz1KEZGiYWf0DXl8="
+        ];
       };
 
       root = {
