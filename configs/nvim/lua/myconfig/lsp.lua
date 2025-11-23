@@ -18,9 +18,9 @@ local function lsp(opts)
     return function()
         local lsp_fn
         -- if client does not support capability
-        if opts.required_capability then
+        if opts.required_method then
             for _, client in pairs(vim.lsp.get_clients()) do
-                if client.server_capabilities[opts.required_capability] == true then
+                if client.supports_method(opts.required_method) then
                     lsp_fn = opts.lsp_func
                     break
                 end
@@ -67,14 +67,14 @@ module.showLineDiagnostics = vim.diagnostic.open_float
 module.format = lsp {
     lsp_func = function() vim.lsp.buf.format({async = true}) end,
     action_name = "format",
-    required_capability = "documentFormattingProvider",
+    required_method = "textDocument/formatting",
     fallback = function() vim.cmd.normal("gg=G") end,
 }
 
 module.formatSelected = lsp {
     lsp_func = vim.lsp.buf.range_formatting,
     action_name = "format",
-    required_capability = "documentRangeFormattingProvider",
+    required_method = "textDocument/rangeFormatting",
     fallback = module.format,
 }
 
@@ -122,8 +122,12 @@ function module.apply()
     module.lsp_setup("golangci_lint_ls", go.golangci_config())
     go.attach_efm(efm_config)
 
-    module.lsp_setup("clangd",
-        {filetypes = {"c", "cpp"}, init_options = {clangdFileStatus = true}})
+    module.lsp_setup(
+        "clangd",
+        {
+            filetypes = {"c", "cpp"}, init_options = {clangdFileStatus = true}
+        }
+    )
 
     local lua = require("myconfig.lang.lua")
     module.lsp_setup("lua_ls", lua.lua_ls_config())

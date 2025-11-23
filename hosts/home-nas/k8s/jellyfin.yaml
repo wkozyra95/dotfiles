@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: jellyfin
+  labels:
+    name: jellyfin
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jellyfin
+  namespace: jellyfin
+  annotations:
+    tailscale.com/hostname: jellyfin
+spec:
+  selector:
+    app: jellyfin
+  ports:
+    - protocol: TCP
+      name: http-tcp
+      port: 80
+      targetPort: 8096
+    - protocol: TCP
+      name: https-tcp
+      port: 443
+      targetPort: 8920
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  loadBalancerClass: tailscale
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: jellyfin
+  name: jellyfin
+  namespace: jellyfin
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: jellyfin
+  template:
+    metadata:
+      labels:
+        app: jellyfin
+    spec:
+      volumes:
+        - name: jellyfin-config
+          hostPath:
+            path: /storage/config/jellyfin
+            type: DirectoryOrCreate
+        - name: jellyfin-data
+          hostPath:
+            path: /storage/data/jellyfin
+            type: DirectoryOrCreate
+      containers:
+        - env:
+            - name: JELLYFIN_PublishedServerUrl
+              value: jellyfin.tail3f81b7.ts.net # The IP number for your jellyfin server (see service config)
+            - name: TZ
+              value: Europe/Warsaw
+          securityContext:
+            privileged: true # Container must run as privileged inside of the pod, required for hardware acceleration
+          image: ghcr.io/linuxserver/jellyfin
+          imagePullPolicy: Always
+          name: jellyfin
+          ports:
+            - containerPort: 8096
+              name: http-tcp
+              protocol: TCP
+            - containerPort: 8920
+              name: https-tcp
+              protocol: TCP
+            - containerPort: 1900
+              name: dlna-udp
+              protocol: UDP
+            - containerPort: 7359
+              name: discovery-udp
+              protocol: UDP
+          resources: {}
+          stdin: true
+          tty: true
+          volumeMounts:
+            - mountPath: /config
+              name: jellyfin-config
+            - mountPath: /data
+              name: jellyfin-data
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always

@@ -27,8 +27,7 @@ nixpkgs.lib.nixosSystem {
     ./system.nix
     ./boot.nix
     ../../nix-modules/common.nix
-    ../../nix-modules/docker.nix
-    #../../nix-modules/vm.nix
+    ../../nix-modules/podman.nix
     ({ config, lib, pkgs, ... }: {
       nixpkgs.overlays = overlays;
       home-manager = {
@@ -44,6 +43,10 @@ nixpkgs.lib.nixosSystem {
 
       environment.systemPackages = [
         pkgs.usbutils
+        pkgs.kubectl
+        pkgs.kubernetes-helm
+        pkgs.kind
+        pkgs.kustomize
       ];
 
       users.users.${config.myconfig.username} = {

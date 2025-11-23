@@ -17,6 +17,8 @@ func GetConfig() env.EnvironmentConfig {
 	switch os.Getenv("CURRENT_ENV") {
 	case "home":
 		return home.Config
+	case "home-nas":
+		return home.NasConfig
 	case "work":
 		return work.Config
 	case "macbook":

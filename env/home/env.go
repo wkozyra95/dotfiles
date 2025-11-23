@@ -177,3 +177,16 @@ var Config = env.EnvironmentConfig{
 		return nil
 	},
 }
+
+var NasConfig = env.EnvironmentConfig{
+	Workspaces: []env.Workspace{
+		common.DotfilesWorkspace,
+	},
+	Actions:        []env.LauncherAction{},
+	Init:           []env.InitAction{},
+	Backup:         env.BackupConfig{},
+	DockerEnvsSpec: []env.DockerEnvSpec{},
+	CustomSetupAction: func(ctx env.Context) error {
+		return nil
+	},
+}
