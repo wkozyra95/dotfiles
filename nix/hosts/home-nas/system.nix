@@ -40,16 +40,10 @@
   powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
-  hardware.amdgpu.amdvlk = {
-    enable = true;
-    support32Bit.enable = true;
-  };
   hardware.amdgpu.initrd.enable = true;
   hardware.graphics = {
     enable = lib.mkForce true;
     enable32Bit = true;
-    extraPackages = [ pkgs.amdvlk ];
-    extraPackages32 = [ pkgs.driversi686Linux.amdvlk ];
   };
 
   system.stateVersion = "23.11";

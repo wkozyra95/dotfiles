@@ -50,7 +50,9 @@ function module.lsp_config()
     return {
         filetypes = {
             "bib", "gitcommit", "markdown", "org", "plaintex", "rst", "rnoweb", "tex", "pandoc",
-            "quarto", "rmd", "context", "html", "xhtml"
+            "quarto", "rmd", "context",
+            -- "html",
+            "xhtml"
         },
         settings = {
             ltex = {

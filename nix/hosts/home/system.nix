@@ -26,26 +26,19 @@
 
   networking.hostName = "wojtek-nix";
   networking.networkmanager.enable = true;
-  networking.networkmanager.insertNameservers = [ "8.8.8.8" ];
+  networking.networkmanager.insertNameservers = [ "100.100.100.100" "8.8.8.8" ];
 
   networking.useDHCP = lib.mkDefault true;
   networking.interfaces.eno1.useDHCP = lib.mkDefault true;
-  networking.interfaces.wlp11s0.useDHCP = lib.mkDefault true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
-  hardware.amdgpu.amdvlk = {
-    enable = true;
-    support32Bit.enable = true;
-  };
   hardware.amdgpu.initrd.enable = true;
   hardware.graphics = {
     enable = lib.mkForce true;
     enable32Bit = true;
-    extraPackages = [ pkgs.amdvlk ];
-    extraPackages32 = [ pkgs.driversi686Linux.amdvlk ];
   };
 
   # required to make wgpu project work without amdvlk installed

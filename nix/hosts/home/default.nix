@@ -29,6 +29,7 @@ nixpkgs.lib.nixosSystem {
     ../../nix-modules/common.nix
     ../../nix-modules/sway.nix
     ../../nix-modules/docker.nix
+    ../../nix-modules/podman.nix
     ../../nix-modules/steam.nix
     ../../nix-modules/vm.nix
     ../../nix-modules/android.nix
@@ -48,7 +49,13 @@ nixpkgs.lib.nixosSystem {
 
       environment.systemPackages = [
         pkgs.usbutils
+        pkgs.tailscale
       ];
+      services.tailscale.enable = true;
+      systemd.oomd = {
+        enable = true;
+        enableUserSlices = true;
+      };
 
       programs.nix-ld.enable = true;
       programs.nix-ld.libraries = with pkgs; [ ];

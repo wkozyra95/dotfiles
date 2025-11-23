@@ -5,7 +5,7 @@
   boot = {
     kernelPackages = pkgs.linuxPackages_latest;
     kernelModules = [ "kvm-amd" ];
-    extraModulePackages = [ ];
+    extraModulePackages = [ pkgs.linuxPackages_latest.v4l2loopback ];
     supportedFilesystems = [ "btrfs" ];
     loader = {
       efi.efiSysMountPoint = "/boot/efi";

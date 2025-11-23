@@ -2,6 +2,8 @@
 
 pkgs.mkShell {
   packages = with pkgs; [
+    openssl
+    pkg-config
     rustfmt
     clippy
     cargo
