@@ -29,7 +29,6 @@ nixpkgs.lib.nixosSystem {
     ../../nix-modules/common.nix
     ../../nix-modules/sway.nix
     ../../nix-modules/docker.nix
-    ../../nix-modules/podman.nix
     ../../nix-modules/steam.nix
     ../../nix-modules/vm.nix
     ../../nix-modules/android.nix
