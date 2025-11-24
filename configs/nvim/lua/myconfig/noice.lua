@@ -71,16 +71,16 @@ function module.apply()
                 -- kind See :h ui-messages
 
                 -- route to bottom-right corner
-                {filter = {event = "notify", find = "method textDocument/hover is not supported"}, view = "mini"},
-                {filter = {event = "notify", kind = "info"},                                       view = "mini"}, -- e.g. LSP info messages
-                {filter = {event = "msg_show", kind = "emsg", find = "E486"},                      view = "mini"}, -- pattern not found
+                {filter = {event = "notify", find = "method textDocument/hover is not supported"},   view = "mini"},
+                {filter = {event = "notify", kind = "info"},                                         view = "mini"}, -- e.g. LSP info messages
+                {filter = {event = "msg_show", kind = "emsg", find = "E486"},                        view = "mini"}, -- pattern not found
 
                 -- skip
-                {filter = {event = "msg_show", find = "is deprecated"},                            skip = true}, -- vim deprecated api
-                {filter = {event = "msg_show", kind = "", find = "lines yanked"},                  skip = true},
-                {filter = {event = "msg_show", kind = "", find = "more lines"},                    skip = true},
-                {filter = {event = "msg_show", kind = "", find = "fewer lines"},                   skip = true},
-                {filter = {event = "msg_show", kind = "echomsg", find = "No more valid diagnostic"},                   skip = true},
+                {filter = {event = "msg_show", find = "is deprecated"},                              skip = true}, -- vim deprecated api
+                {filter = {event = "msg_show", kind = "", find = "lines yanked"},                    skip = true},
+                {filter = {event = "msg_show", kind = "", find = "more lines"},                      skip = true},
+                {filter = {event = "msg_show", kind = "", find = "fewer lines"},                     skip = true},
+                {filter = {event = "msg_show", kind = "echomsg", find = "No more valid diagnostic"}, skip = true},
                 --{filter = {find = "No signature help"},                      skip = true},
                 --{filter = {find = "E37"},                                    skip = true},
             },

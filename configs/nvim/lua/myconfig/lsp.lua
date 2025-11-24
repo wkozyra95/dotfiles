@@ -98,7 +98,8 @@ function module.lsp_setup(name, config)
         capabilities = capabilities,
     }
     local result_config = vim.tbl_extend("force", config, default_config)
-    lsp_config[name].setup(result_config)
+    vim.lsp.config(name, result_config)
+    vim.lsp.enable(name)
 end
 
 function module.apply()
