@@ -10,6 +10,15 @@ systemModules:
   ] ++ systemModules;
 
   config = {
+    home.packages = with pkgs; [
+      ueberzugpp
+    ];
+
+    programs.ranger.extraConfig = ''
+      set preview_images true
+      set preview_images_method ueberzug
+    '';
+
     programs.home-manager.enable = true;
     home.stateVersion = "23.11";
   };

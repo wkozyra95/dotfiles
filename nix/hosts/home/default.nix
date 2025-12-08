@@ -51,6 +51,8 @@ nixpkgs.lib.nixosSystem {
         pkgs.tailscale
       ];
       services.tailscale.enable = true;
+      services.openssh.enable = true;
+
       systemd.oomd = {
         enable = true;
         enableUserSlices = true;

@@ -16,6 +16,7 @@ systemModules:
       gh
       obs-studio
       prusa-slicer
+      ueberzugpp
     ];
 
     myconfig = {
@@ -31,6 +32,11 @@ systemModules:
       enableSshSupport = true;
       enableExtraSocket = true;
     };
+
+    programs.ranger.extraConfig = ''
+      set preview_images true
+      set preview_images_method ueberzug
+    '';
 
     programs.home-manager.enable = true;
     home.stateVersion = "23.11";
