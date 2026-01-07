@@ -1,9 +1,6 @@
-{ pkgs, config, ... }:
+{ config, ... }:
 {
   programs.adb.enable = true;
-  services.udev.packages = [
-    pkgs.android-udev-rules
-  ];
   users.users.${config.myconfig.username} = {
     extraGroups = [ "adbusers" ];
   };

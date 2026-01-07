@@ -1,4 +1,4 @@
-{ pkgs, custom, config, ... }:
+{ pkgs, config, ... }:
 {
   # It might be necessary to run `sudo virsh net-autostart default` once
   # or `sudo virsh net-start default` on system startup
@@ -9,15 +9,6 @@
       package = pkgs.qemu_kvm;
       runAsRoot = true;
       swtpm.enable = true;
-      ovmf = {
-        enable = true;
-        packages = [
-          (custom.unstable.OVMF.override {
-            secureBoot = true;
-            tpmSupport = true;
-          }).fd
-        ];
-      };
     };
   };
 

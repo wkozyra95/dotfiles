@@ -12,19 +12,16 @@ in
   config = {
     programs.git = {
       enable = true;
-      userEmail = cfg.email;
-      userName = "Wojciech Kozyra";
-      diff-so-fancy = {
-        enable = true;
-        markEmptyLines = false;
-        pagerOpts = [ "--tabs=4" "-RF" ];
-      };
       ignores = [
         "compile_commands.json"
         "**/.cache/clangd/**"
         ".git"
       ];
-      extraConfig = {
+      settings = {
+        user = {
+          email = cfg.email;
+          name = "Wojciech Kozyra";
+        };
         core.editor = "nvim";
         status.submoduleSummary = true;
         init.defaultBranch = "main";
@@ -37,6 +34,14 @@ in
         key = cfg.git.signingKey;
         signByDefault = true;
       };
+    };
+    programs.diff-so-fancy = {
+      enable = true;
+      enableGitIntegration = true;
+      settings = {
+        markEmptyLines = false;
+      };
+      pagerOpts = [ "--tabs=4" "-RF" ];
     };
   };
 }

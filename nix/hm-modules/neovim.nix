@@ -50,7 +50,6 @@
       gruvbox-nvim
 
       pkgs.vimPlugins.nvim-treesitter.withAllGrammars
-      playground
       nvim-treesitter-context
     ];
     extraLuaPackages = pkgs: [

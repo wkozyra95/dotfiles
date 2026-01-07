@@ -94,11 +94,11 @@ in
     # LSP
     nodejs
     nil
-    sumneko-lua-language-server
+    lua-language-server
     nodePackages.typescript-language-server
     vscode-langservers-extracted
     efm-langserver
-    elixir_ls
+    elixir-ls
     nixpkgs-fmt
     ltex-ls
     yaml-language-server
