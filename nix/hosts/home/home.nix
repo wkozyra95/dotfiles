@@ -17,6 +17,8 @@ systemModules:
       obs-studio
       prusa-slicer
       ueberzugpp
+      lutris
+      wine
     ];
 
     myconfig = {

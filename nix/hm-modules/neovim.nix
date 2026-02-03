@@ -51,6 +51,8 @@
 
       pkgs.vimPlugins.nvim-treesitter.withAllGrammars
       nvim-treesitter-context
+
+      amp-nvim
     ];
     extraLuaPackages = pkgs: [
       pkgs.lua-curl

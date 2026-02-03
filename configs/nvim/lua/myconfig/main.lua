@@ -22,5 +22,6 @@ require("myconfig.workspaces").apply(
         require("myconfig.noice").apply()
         require("myconfig.db").apply()
         require("myconfig.rest").apply()
+        require("myconfig.amp").apply()
     end
 )
