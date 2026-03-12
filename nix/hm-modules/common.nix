@@ -66,6 +66,10 @@ in
       "${config.home.homeDirectory}/.dotfiles-private/notes";
   };
 
+  home.sessionPath = [
+    "$HOME/.local/bin"
+  ];
+
   programs.neovim.enable = true;
 
   home.sessionVariables = {
