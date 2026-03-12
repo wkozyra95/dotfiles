@@ -53,6 +53,8 @@
       nvim-treesitter-context
 
       amp-nvim
+      claudecode-nvim
+      snacks-nvim
     ];
     extraLuaPackages = pkgs: [
       pkgs.lua-curl

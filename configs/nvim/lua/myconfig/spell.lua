@@ -65,7 +65,7 @@ function module.lsp_config()
                 dictionary = {["en-US"] = dictionary},
                 enabled = {
                     "bibtex", "gitcommit", "markdown", "org", "tex", "restructuredtext", "rsweave",
-                    "latex", "quarto", "rmd", "context", "html", "xhtml"}
+                    "latex", "quarto", "rmd", "context", "xhtml"}
             },
         },
     }

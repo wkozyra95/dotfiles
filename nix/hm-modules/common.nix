@@ -93,6 +93,9 @@ in
 
     # LSP
     nodejs
+    pnpm
+    rustc
+    cargo
     nil
     lua-language-server
     nodePackages.typescript-language-server
