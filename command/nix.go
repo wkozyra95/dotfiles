@@ -23,9 +23,10 @@ func RegisterNixCmds(rootCmd *cobra.Command) {
 		"devops",
 		"elixir",
 		"rust",
+		"nodejs",
 	}
 
-	templates := []string{"rust"}
+	templates := []string{"rust", "nodejs"}
 
 	nixShell := &cobra.Command{
 		Use:   "shell",

@@ -86,6 +86,10 @@
           path = ./nix/templates/rust;
           description = "Basic setup for Rust setup";
         };
+        nodejs = {
+          path = ./nix/templates/nodejs;
+          description = "Basic setup for Node.js project";
+        };
       };
     };
 }
