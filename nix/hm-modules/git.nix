@@ -16,6 +16,7 @@ in
         "compile_commands.json"
         "**/.cache/clangd/**"
         ".git"
+        ".claude/settings.local.json"
       ];
       settings = {
         user = {
