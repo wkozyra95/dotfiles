@@ -111,6 +111,10 @@ in
     yaml-language-server
     clang-tools
     rust-analyzer
+    # python
+    basedpyright
+    ty
+    ruff
 
     # Custom
     (pkgs.callPackage ../packages/lua-code-format.nix { })

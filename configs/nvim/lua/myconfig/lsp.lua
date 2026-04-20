@@ -156,6 +156,8 @@ function module.apply()
             }
         }
     })
+    module.lsp_setup("ty", {})
+    module.lsp_setup("ruff", {})
 
     local cmake = require("myconfig.lang.cmake")
     module.lsp_setup("cmake", cmake.cmake_config())
