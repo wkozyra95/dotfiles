@@ -48,10 +48,9 @@ var Config = env.EnvironmentConfig{
 	Init: []env.InitAction{
 		{Args: []string{"google-chrome-stable", "--proxy-pac-url=http://localhost:2000/proxy.pac"}},
 		{Args: []string{"slack"}},
-		{Args: []string{"alacritty", "--class", "workspace2"}},
-		{Args: []string{"alacritty", "--class", "workspace6"}},
 		{Args: []string{"mycli", "api", "--simple", "backup:zsh_history"}},
 		{Args: []string{"mycli", "tool", "sway-listen"}},
+		{Args: []string{"mycli", "launch", "--job", "smelter"}},
 	},
 	SwayWorkspacePairs: []env.SwayWorkspacePair{
 		{
