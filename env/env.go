@@ -86,13 +86,27 @@ type DockerEnvSpec struct {
 	ContainerName  string `json:"container-name-prefix"`
 }
 
+type SwayWorkspaceBinding struct {
+	Workspace string
+	Output    string
+}
+
+// SwayWorkspacePair defines two workspaces (each pinned to its own output)
+// that should be focused together. When the user switches to either side,
+// the listener will switch the other side's output to the paired workspace.
+type SwayWorkspacePair struct {
+	A SwayWorkspaceBinding
+	B SwayWorkspaceBinding
+}
+
 type EnvironmentConfig struct {
-	Workspaces        []Workspace
-	Actions           []LauncherAction
-	Backup            BackupConfig
-	Init              []InitAction
-	CustomSetupAction func(Context) error
-	DockerEnvsSpec    []DockerEnvSpec
+	Workspaces         []Workspace
+	Actions            []LauncherAction
+	Backup             BackupConfig
+	Init               []InitAction
+	CustomSetupAction  func(Context) error
+	DockerEnvsSpec     []DockerEnvSpec
+	SwayWorkspacePairs []SwayWorkspacePair
 }
 
 type LazyValue[T any] (func() T)

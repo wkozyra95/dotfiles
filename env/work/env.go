@@ -51,6 +51,17 @@ var Config = env.EnvironmentConfig{
 		{Args: []string{"alacritty", "--class", "workspace2"}},
 		{Args: []string{"alacritty", "--class", "workspace6"}},
 		{Args: []string{"mycli", "api", "--simple", "backup:zsh_history"}},
+		{Args: []string{"mycli", "tool", "sway-listen"}},
+	},
+	SwayWorkspacePairs: []env.SwayWorkspacePair{
+		{
+			A: env.SwayWorkspaceBinding{Workspace: "2", Output: "DP-2"},
+			B: env.SwayWorkspaceBinding{Workspace: "6", Output: "DP-3"},
+		},
+		{
+			A: env.SwayWorkspaceBinding{Workspace: "3", Output: "DP-2"},
+			B: env.SwayWorkspaceBinding{Workspace: "7", Output: "DP-3"},
+		},
 	},
 	DockerEnvsSpec: []env.DockerEnvSpec{
 		{
