@@ -9,9 +9,10 @@ import (
 )
 
 var (
-	homeDir            = os.Getenv("HOME")
-	expoConfig         = common.ExpoConfig
-	expoLauncherConfig = common.ExpoLauncherConfig(path.Join(homeDir, "expo"))
+	homeDir               = os.Getenv("HOME")
+	expoConfig            = common.ExpoConfig
+	expoLauncherConfig    = common.ExpoLauncherConfig(path.Join(homeDir, "expo"))
+	smelterLauncherConfig = common.SmelterLauncherConfig(path.Join(homeDir, "smelter"))
 )
 
 var Config = env.EnvironmentConfig{
@@ -42,6 +43,7 @@ var Config = env.EnvironmentConfig{
 		expoLauncherConfig.UniverseWWWUnit,
 		expoLauncherConfig.UniverseWebsite,
 		expoLauncherConfig.UniverseWebsiteInternal,
+		smelterLauncherConfig.Smelter,
 	},
 	Init: []env.InitAction{
 		{Args: []string{"google-chrome-stable", "--proxy-pac-url=http://localhost:2000/proxy.pac"}},

@@ -133,7 +133,7 @@ func (r *Redirects) Cleanup() {
 }
 
 func RedirectStdioToFile(filename string) (*Redirects, error) {
-	file, openErr := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	file, openErr := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0o666)
 	if openErr != nil {
 		return nil, openErr
 	}
