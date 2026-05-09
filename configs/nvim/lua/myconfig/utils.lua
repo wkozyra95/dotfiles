@@ -4,29 +4,6 @@ local Job = require("plenary.job")
 local Path = require("plenary.path")
 local base64 = require("myconfig.base64")
 
-local function do_apply_keymap(schema, prefix, default_options)
-    if schema[1] and (type(schema[1]) == "string" or type(schema[1]) == "function") then
-        vim.keymap.set(
-            schema[2] or "", prefix, schema[1],
-            vim.tbl_extend("force", default_options, schema[3] or {})
-        )
-    elseif schema.__is_ref then
-        schema.module[schema.field] = prefix
-    else
-        for key, subschema in pairs(schema) do
-            if type(key) == "number" then
-                do_apply_keymap(subschema, prefix, default_options)
-            else
-                do_apply_keymap(subschema, prefix .. key, default_options)
-            end
-        end
-    end
-end
-
-function module.ref(mod, field) return {module = mod, field = field, __is_ref = true} end
-
-function module.apply_keymap(schema, default_options) do_apply_keymap(schema, "", default_options) end
-
 function module.run(input)
     local args = {}
     for _, v in ipairs(input) do
