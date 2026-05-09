@@ -18,19 +18,19 @@ var Config = env.EnvironmentConfig{
 			VimConfig: env.VimConfig{
 				Actions: []env.VimAction{
 					{
-						Id:   "cargo_build",
+						ID:   "cargo_build",
 						Name: "[workspace] cargo build",
 						Args: []string{"cargo", "build"},
 						Cwd:  path.Join(homeDir, "drive/MyProjects/npm-cache"),
 					},
 					{
-						Id:   "cargo_watch",
+						ID:   "cargo_watch",
 						Name: "[workspace] cargo watch (new terminal)",
 						Args: []string{"mycli", "launch", "--job", "npm-cache"},
 						Cwd:  path.Join(homeDir, "drive/MyProjects/npm-cache"),
 					},
 					{
-						Id:   "cargo_watch_run",
+						ID:   "cargo_watch_run",
 						Name: "[workspace] cargo run (new terminal)",
 						Args: []string{"mycli", "launch", "--job", "npm-cache-run"},
 						Cwd:  path.Join(homeDir, "drive/MyProjects/npm-cache"),
@@ -43,7 +43,7 @@ var Config = env.EnvironmentConfig{
 			VimConfig: env.VimConfig{
 				Actions: []env.VimAction{
 					{
-						Id:   "dactyl_build",
+						ID:   "dactyl_build",
 						Name: "[workspace] build",
 						Args: []string{"lein", "run", "src/dactyl_keyboard/dactyl.clj"},
 						Cwd:  path.Join(homeDir, "/drive/MyProjects/dactyl/dactyl-keyboard"),
@@ -87,24 +87,24 @@ var Config = env.EnvironmentConfig{
 	},
 	Actions: []env.LauncherAction{
 		{
-			Id: "debug",
+			ID: "debug",
 			Tasks: []env.LauncherTask{
 				{
-					Id:           "debug",
+					ID:           "debug",
 					Cwd:          path.Join(homeDir, "playground"),
 					Args:         []string{"zsh", "-c", "sleep 10 && exit 1"},
 					RunAsService: true,
 					WorkspaceID:  env.Workspace3,
 				},
 				{
-					Id:           "debug1",
+					ID:           "debug1",
 					Cwd:          path.Join(homeDir, "playground"),
 					Args:         []string{"zsh", "-c", "lskadjfsld;j"},
 					RunAsService: true,
 					WorkspaceID:  env.Workspace4,
 				},
 				{
-					Id:           "debug2",
+					ID:           "debug2",
 					Cwd:          path.Join(homeDir, "playground"),
 					Args:         []string{"htop"},
 					RunAsService: true,
@@ -113,10 +113,10 @@ var Config = env.EnvironmentConfig{
 			},
 		},
 		{
-			Id: "npm-cache-run",
+			ID: "npm-cache-run",
 			Tasks: []env.LauncherTask{
 				{
-					Id:           "npm-watch-run-cargo",
+					ID:           "npm-watch-run-cargo",
 					Args:         []string{"cargo", "watch", "-x", "run"},
 					Cwd:          path.Join(homeDir, "drive/MyProjects/npm-cache"),
 					RunAsService: true,
@@ -124,10 +124,10 @@ var Config = env.EnvironmentConfig{
 			},
 		},
 		{
-			Id: "npm-cache",
+			ID: "npm-cache",
 			Tasks: []env.LauncherTask{
 				{
-					Id:           "npm-watch-cargo",
+					ID:           "npm-watch-cargo",
 					Args:         []string{"cargo", "watch"},
 					Cwd:          path.Join(homeDir, "drive/MyProjects/npm-cache"),
 					RunAsService: true,

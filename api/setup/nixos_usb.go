@@ -51,7 +51,7 @@ func ProvisionUsbNixInstaller(ctx context.Context) error {
 	isoPath := path.Join(isoDir, isoFiles[0].Name())
 
 	if !prompt.ConfirmPrompt(fmt.Sprintf("Do you want to copy iso firl %s to %s device", isoPath, target)) {
-		return fmt.Errorf("Aborting ...")
+		return fmt.Errorf("aborting")
 	}
 	return exec.Command().WithStdio().Args(
 		"dd",

@@ -34,7 +34,7 @@ func selectInstallTargetDrive(message string) (installTarget, error) {
 		},
 	)
 	if !isSelected {
-		return target, fmt.Errorf("No value was selected")
+		return target, fmt.Errorf("no value was selected")
 	}
 	target.device = device.DevicePath
 	target.efiPartition = drive.GetPartitionPath(target.device, 2)
@@ -57,7 +57,7 @@ func ProvisionArchChroot() error {
 	if luksEnabled {
 		rootPartition = "/dev/mapper/root"
 	}
-	maybeLuksUuid := ""
+	maybeLuksUUID := ""
 	actions := a.List{
 		a.ShellCommand("timedatectl", "set-ntp", "true"),
 		a.ShellCommand("sgdisk", "-Z", target.device),
@@ -164,7 +164,7 @@ func ProvisionArchChroot() error {
 				if err != nil {
 					return a.Err(err)
 				}
-				maybeLuksUuid = strings.Trim(stdout.String(), " \n")
+				maybeLuksUUID = strings.Trim(stdout.String(), " \n")
 				return a.List{
 					a.ShellCommand(
 						"dd",
@@ -186,7 +186,7 @@ func ProvisionArchChroot() error {
 						"/mnt/btrfs-current/etc/default/grub",
 						fmt.Sprintf(
 							"GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=%s:root  cryptkey=rootfs:/root/cryptlvm.keyfile\"",
-							maybeLuksUuid,
+							maybeLuksUUID,
 						),
 						regexp.MustCompile(".*GRUB_CMDLINE_LINUX=.*"),
 					),
@@ -228,7 +228,7 @@ func ProvisionArchChrootForCompanionSystem() error {
 	}
 	envName := prompt.TextPrompt("Environment name")
 	if envName == "" {
-		return fmt.Errorf("Empty value is not allowed")
+		return fmt.Errorf("empty value is not allowed")
 	}
 	volumePath := fmt.Sprintf("/run/btrfs-root/__%s", envName)
 	luksEnabled := true

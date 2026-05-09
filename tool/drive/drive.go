@@ -47,7 +47,7 @@ type SfdiskPartition struct {
 	PartitionPath string `json:"node"`
 	Sectors       int    `json:"size"`
 	Type          string `json:"type"`
-	Uuid          string `json:"uuid"`
+	UUID          string `json:"uuid"`
 }
 
 type SfdiskDeviceInfo struct {

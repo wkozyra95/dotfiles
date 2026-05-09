@@ -21,7 +21,7 @@ var (
 
 func YarnBuild(p string) env.VimAction {
 	return env.VimAction{
-		Id:   "yarn build",
+		ID:   "yarn build",
 		Name: "[workspace] yarn build",
 		Args: []string{"bash", "-c", "yarn && yarn build"},
 		Cwd:  p,
@@ -30,7 +30,7 @@ func YarnBuild(p string) env.VimAction {
 
 func YarnLint(p string) env.VimAction {
 	return env.VimAction{
-		Id:   "yarn lint",
+		ID:   "yarn lint",
 		Name: "[workspace] yarn lint",
 		Args: []string{"bash", "-c", "yarn && yarn lint"},
 		Cwd:  p,
@@ -137,7 +137,7 @@ var ExpoConfig = ExpoWorkspacesConfig{
 			},
 			Actions: []env.VimAction{
 				{
-					Id:   "expo-gl-build-cpp",
+					ID:   "expo-gl-build-cpp",
 					Name: "[workspace] build cpp",
 					Args: []string{"./gradlew", ":expo-gl:buildCMakeDebug"},
 					Cwd:  path.Join(p, "../../android"),

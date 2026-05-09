@@ -33,7 +33,7 @@ func mainArchStage(ctx desktopSetupContext) a.Object {
 		a.Scope("Prompt for hostname:", func() a.Object {
 			response := prompt.TextPrompt("/etc/hostname")
 			if response == "" {
-				return a.Err(fmt.Errorf("Empty value is not allowed"))
+				return a.Err(fmt.Errorf("empty value is not allowed"))
 			}
 			return a.ShellCommand("bash", "-c", fmt.Sprintf("echo \"%s\" > /etc/hostname", response))
 		}),
@@ -161,7 +161,7 @@ func ProvisionArchDesktop(stage string) error {
 	} else {
 		stageAction, hasStage := archDesktopStages[stage]
 		if !hasStage {
-			return fmt.Errorf("Stage %s does not exists", stage)
+			return fmt.Errorf("stage %s does not exists", stage)
 		}
 		return a.RunActions(stageAction(ctx), false)
 	}

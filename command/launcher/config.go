@@ -8,18 +8,18 @@ import (
 
 func getTask(action env.LauncherAction, taskID string) (env.LauncherTask, error) {
 	for _, task := range action.Tasks {
-		if task.Id == taskID {
+		if task.ID == taskID {
 			return task, nil
 		}
 	}
-	return env.LauncherTask{}, fmt.Errorf("No action named %s", taskID)
+	return env.LauncherTask{}, fmt.Errorf("no action named %s", taskID)
 }
 
 func getAction(actions []env.LauncherAction, actionID string) (env.LauncherAction, error) {
 	for _, action := range actions {
-		if action.Id == actionID {
+		if action.ID == actionID {
 			return action, nil
 		}
 	}
-	return env.LauncherAction{}, fmt.Errorf("No action named %s", actionID)
+	return env.LauncherAction{}, fmt.Errorf("no action named %s", actionID)
 }

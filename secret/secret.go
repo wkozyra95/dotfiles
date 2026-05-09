@@ -11,7 +11,7 @@ import (
 	"github.com/wkozyra95/dotfiles/utils/prompt"
 )
 
-const GIT_CRYPT_MAGIC_STRING = "\x00GITCRYPT"
+const GitCryptMagicString = "\x00GITCRYPT"
 
 var log = logger.NamedLogger("exec")
 
@@ -39,7 +39,7 @@ func ReadSecret(homedir string) (Secrets, error) {
 	if readErr != nil {
 		return Secrets{}, readErr
 	}
-	isEncrypted := strings.HasPrefix(string(file), GIT_CRYPT_MAGIC_STRING)
+	isEncrypted := strings.HasPrefix(string(file), GitCryptMagicString)
 	if isEncrypted {
 		return Secrets{}, fileEncryptedError("File is encrypted")
 	}

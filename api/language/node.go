@@ -112,13 +112,13 @@ func isGlobalNpmPackageInstalled(pkg string) (bool, error) {
 		Args("npm", "list", "-g", "--json").Run(); err != nil {
 		return false, err
 	}
-	var parsedJson struct {
+	var parsedJSON struct {
 		Dependencies map[string]interface{} `json:"dependencies"`
 	}
-	if err := json.Unmarshal(stdout.Bytes(), &parsedJson); err != nil {
+	if err := json.Unmarshal(stdout.Bytes(), &parsedJSON); err != nil {
 		return false, err
 	}
-	for key := range parsedJson.Dependencies {
+	for key := range parsedJSON.Dependencies {
 		if key == pkg {
 			return true, nil
 		}
@@ -139,11 +139,11 @@ func NodePlaygroundCreate(playgroundPath string) error {
 	if err := exec.Command().WithCwd(playgroundPath).Args("npm", "init", "-y").Run(); err != nil {
 		return err
 	}
-	rawTsconfigJson, marshalErr := json.Marshal(tsconfig)
+	rawTsconfigJSON, marshalErr := json.Marshal(tsconfig)
 	if marshalErr != nil {
 		return marshalErr
 	}
-	if err := os.WriteFile(path.Join(playgroundPath, "tsconfig.json"), rawTsconfigJson, 0o644); err != nil {
+	if err := os.WriteFile(path.Join(playgroundPath, "tsconfig.json"), rawTsconfigJSON, 0o644); err != nil {
 		return err
 	}
 	yarnErr := exec.Command().

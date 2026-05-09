@@ -23,11 +23,11 @@ func AlacrittyCall(params AlacrittyConfig) error {
 		"cwd":          params.Cwd,
 		"should_retry": params.ShouldRetry,
 	}
-	rawJson, jsonMarshalErr := json.Marshal(config)
+	rawJSON, jsonMarshalErr := json.Marshal(config)
 	if jsonMarshalErr != nil {
 		return jsonMarshalErr
 	}
-	baseEncodedString := base64.StdEncoding.EncodeToString(rawJson)
+	baseEncodedString := base64.StdEncoding.EncodeToString(rawJSON)
 	_, err := exec.Command().Args("alacritty", "-e", "mycli", "api", baseEncodedString).Start()
 	return err
 }

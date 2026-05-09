@@ -22,14 +22,14 @@ var MembraneConfig = MembraneWorkspacesConfig{
 						IndentSize: 4,
 					},
 				},
-				JsonlsSchemas: []env.JsonSchema{
+				JsonlsSchemas: []env.JSONSchema{
 					{
 						FileMatch: []string{"*.scene.json"},
-						Url:       "file://" + path.Join(p, "schemas/scene.schema.json"),
+						URL:       "file://" + path.Join(p, "schemas/scene.schema.json"),
 					},
 					{
 						FileMatch: []string{"*.register.json"},
-						Url:       "file://" + path.Join(p, "schemas/register.schema.json"),
+						URL:       "file://" + path.Join(p, "schemas/register.schema.json"),
 					},
 				},
 			},

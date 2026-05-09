@@ -153,13 +153,13 @@ func (d *dockerInstance) buildImage() error {
 	var logBuf bytes.Buffer
 	logBuf.WriteString("Docker output\n")
 	rawJsons := strings.Split(string(output), "\n")
-	for _, rawJson := range rawJsons {
-		if rawJson == "" {
+	for _, rawJSON := range rawJsons {
+		if rawJSON == "" {
 			continue
 		}
 		var parsed map[string]interface{}
-		if err := json.Unmarshal([]byte(rawJson), &parsed); err != nil {
-			log.Errorf("Parsing of docker output failed %v", rawJson)
+		if err := json.Unmarshal([]byte(rawJSON), &parsed); err != nil {
+			log.Errorf("Parsing of docker output failed %v", rawJSON)
 			return err
 		}
 		if stream, ok := parsed["stream"].(string); ok {

@@ -13,7 +13,7 @@ type SmelterLauncherConfigType struct {
 func SmelterLauncherConfig(p string) SmelterLauncherConfigType {
 	shell := func(id string, dir string, workspaceID int) env.LauncherTask {
 		return env.LauncherTask{
-			Id:           id,
+			ID:           id,
 			Cwd:          path.Join(p, dir),
 			Args:         []string{"zsh"},
 			RunAsService: true,
@@ -22,7 +22,7 @@ func SmelterLauncherConfig(p string) SmelterLauncherConfigType {
 	}
 	pnpmDev := func(id string, dir string, workspaceID int) env.LauncherTask {
 		return env.LauncherTask{
-			Id:           id,
+			ID:           id,
 			Cwd:          path.Join(p, dir),
 			Args:         []string{"pnpm", "dev"},
 			RunAsService: true,
@@ -32,7 +32,7 @@ func SmelterLauncherConfig(p string) SmelterLauncherConfigType {
 
 	return SmelterLauncherConfigType{
 		Smelter: env.LauncherAction{
-			Id: "smelter",
+			ID: "smelter",
 			Tasks: []env.LauncherTask{
 				shell("smelter-shell-ws2", "smelter", env.Workspace2),
 				shell("smelter-2-shell-ws3", "smelter-2", env.Workspace3),

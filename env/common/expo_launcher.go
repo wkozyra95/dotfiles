@@ -21,38 +21,38 @@ type ExpoLauncherConfigType struct {
 
 func ExpoLauncherConfig(p string) ExpoLauncherConfigType {
 	universeWWWDockerUp := env.LauncherTask{
-		Id:   "www-docker-up",
+		ID:   "www-docker-up",
 		Cwd:  path.Join(p, "universe/server/www"),
 		Args: []string{"yarn", "docker-up"},
 	}
 	universeWWWYarn := env.LauncherTask{
-		Id:   "www-docker-yarn",
+		ID:   "www-docker-yarn",
 		Cwd:  path.Join(p, "universe/server/www"),
 		Args: []string{"yarn"},
 	}
 	universeWWWStart := env.LauncherTask{
-		Id:           "www-docker-start",
+		ID:           "www-docker-start",
 		Cwd:          path.Join(p, "universe/server/www"),
 		Args:         []string{"yarn", "start:docker"},
 		RunAsService: true,
 		WorkspaceID:  env.Workspace6,
 	}
 	easBuildLibsWatch := env.LauncherTask{
-		Id:           "eas-build-watch",
+		ID:           "eas-build-watch",
 		Cwd:          path.Join(p, "eas-build"),
 		Args:         []string{"yarn", "watch"},
 		RunAsService: true,
 		WorkspaceID:  env.Workspace6,
 	}
 	turtleDockerUp := env.LauncherTask{
-		Id:   "turtle-docker-up",
+		ID:   "turtle-docker-up",
 		Cwd:  path.Join(p, "turtle-v2"),
 		Args: []string{"yarn", "docker:up"},
 	}
 
 	return ExpoLauncherConfigType{
 		UniverseWWW: env.LauncherAction{
-			Id: "www",
+			ID: "www",
 			Tasks: []env.LauncherTask{
 				universeWWWYarn,
 				universeWWWDockerUp,
@@ -60,28 +60,28 @@ func ExpoLauncherConfig(p string) ExpoLauncherConfigType {
 			},
 		},
 		UniverseWWWUnit: env.LauncherAction{
-			Id: "www-unit",
+			ID: "www-unit",
 			Tasks: []env.LauncherTask{
 				{
-					Id:   "www-unit",
+					ID:   "www-unit",
 					Cwd:  path.Join(p, "universe/server/www"),
 					Args: []string{"yarn", "jest-unit"},
 				},
 			},
 		},
 		UniverseWebsite: env.LauncherAction{
-			Id: "website",
+			ID: "website",
 			Tasks: []env.LauncherTask{
 				universeWWWYarn,
 				universeWWWDockerUp,
 				universeWWWStart,
 				{
-					Id:   "website-yarn",
+					ID:   "website-yarn",
 					Cwd:  path.Join(p, "universe/server/website"),
 					Args: []string{"yarn"},
 				},
 				{
-					Id:           "website-start",
+					ID:           "website-start",
 					Cwd:          path.Join(p, "universe/server/website"),
 					Args:         []string{"direnv", "exec", ".", "yarn", "start:local"},
 					RunAsService: true,
@@ -90,18 +90,18 @@ func ExpoLauncherConfig(p string) ExpoLauncherConfigType {
 			},
 		},
 		UniverseWebsiteInternal: env.LauncherAction{
-			Id: "website",
+			ID: "website",
 			Tasks: []env.LauncherTask{
 				universeWWWYarn,
 				universeWWWDockerUp,
 				{
-					Id:   "website-yarn",
+					ID:   "website-yarn",
 					Cwd:  path.Join(p, "universe/server/internal"),
 					Args: []string{"yarn"},
 				},
 				universeWWWStart,
 				{
-					Id:          "website-start",
+					ID:          "website-start",
 					Cwd:         path.Join(p, "universe/server/internal"),
 					Args:        []string{"yarn", "dev"},
 					WorkspaceID: env.Workspace6,
@@ -109,10 +109,10 @@ func ExpoLauncherConfig(p string) ExpoLauncherConfigType {
 			},
 		},
 		EasCli: env.LauncherAction{
-			Id: "cli",
+			ID: "cli",
 			Tasks: []env.LauncherTask{
 				{
-					Id:           "eas-cli-watch",
+					ID:           "eas-cli-watch",
 					Cwd:          path.Join(p, "eas-cli"),
 					Args:         []string{"yarn", "watch"},
 					RunAsService: true,
@@ -122,40 +122,40 @@ func ExpoLauncherConfig(p string) ExpoLauncherConfigType {
 			},
 		},
 		Turtle: env.LauncherAction{
-			Id: "turtle",
+			ID: "turtle",
 			Tasks: []env.LauncherTask{
 				turtleDockerUp,
 				easBuildLibsWatch,
 				{
-					Id:           "turtle-libs-watch",
+					ID:           "turtle-libs-watch",
 					Cwd:          path.Join(p, "turtle-v2"),
 					Args:         []string{"yarn", "watch:libs"},
 					RunAsService: true,
 					WorkspaceID:  env.Workspace7,
 				},
 				{
-					Id:           "turtle-start-api",
+					ID:           "turtle-start-api",
 					Cwd:          path.Join(p, "turtle-v2/src/services/turtle-api"),
 					Args:         []string{"yarn", "start"},
 					RunAsService: true,
 					WorkspaceID:  env.Workspace7,
 				},
 				{
-					Id:           "turtle-start-scheduler",
+					ID:           "turtle-start-scheduler",
 					Cwd:          path.Join(p, "turtle-v2/src/services/scheduler"),
 					Args:         []string{"yarn", "start"},
 					RunAsService: true,
 					WorkspaceID:  env.Workspace7,
 				},
 				{
-					Id:           "turtle-start-launcher",
+					ID:           "turtle-start-launcher",
 					Cwd:          path.Join(p, "turtle-v2/src/services/launcher"),
 					Args:         []string{"yarn", "start"},
 					RunAsService: true,
 					WorkspaceID:  env.Workspace7,
 				},
 				{
-					Id:           "turtle-start-synchronizer",
+					ID:           "turtle-start-synchronizer",
 					Cwd:          path.Join(p, "turtle-v2/src/services/synchronizer"),
 					Args:         []string{"yarn", "start"},
 					RunAsService: true,
@@ -164,19 +164,19 @@ func ExpoLauncherConfig(p string) ExpoLauncherConfigType {
 			},
 		},
 		Submit: env.LauncherAction{
-			Id: "submit",
+			ID: "submit",
 			Tasks: []env.LauncherTask{
 				easBuildLibsWatch,
 				turtleDockerUp,
 				{
-					Id:           "turtle-libs-watch",
+					ID:           "turtle-libs-watch",
 					Cwd:          path.Join(p, "turtle-v2"),
 					Args:         []string{"yarn", "watch:libs"},
 					RunAsService: true,
 					WorkspaceID:  env.Workspace7,
 				},
 				{
-					Id:           "turtle-start-submit",
+					ID:           "turtle-start-submit",
 					Cwd:          path.Join(p, "turtle-v2/src/services/submission-service"),
 					Args:         []string{"yarn", "start"},
 					RunAsService: true,
@@ -185,30 +185,30 @@ func ExpoLauncherConfig(p string) ExpoLauncherConfigType {
 			},
 		},
 		ExpoCliRebuild: env.LauncherAction{
-			Id: "expo-cli-rebuild",
+			ID: "expo-cli-rebuild",
 			Tasks: []env.LauncherTask{
 				{
-					Id:   "expo-cli-rebuild-config-types",
+					ID:   "expo-cli-rebuild-config-types",
 					Cwd:  path.Join(p, "expo/packages/@expo/config-types"),
 					Args: []string{"yarn", "build"},
 				},
 				{
-					Id:   "expo-cli-rebuild-config-plugins",
+					ID:   "expo-cli-rebuild-config-plugins",
 					Cwd:  path.Join(p, "expo/packages/@expo/config-plugins"),
 					Args: []string{"yarn", "build"},
 				},
 				{
-					Id:   "expo-cli-rebuild-config",
+					ID:   "expo-cli-rebuild-config",
 					Cwd:  path.Join(p, "expo/packages/@expo/config"),
 					Args: []string{"yarn", "build"},
 				},
 			},
 		},
 		ExpoDocs: env.LauncherAction{
-			Id: "docs",
+			ID: "docs",
 			Tasks: []env.LauncherTask{
 				{
-					Id:           "expo-docs",
+					ID:           "expo-docs",
 					Cwd:          path.Join(p, "expo/docs"),
 					Args:         []string{"yarn", "dev"},
 					RunAsService: true,
@@ -216,15 +216,15 @@ func ExpoLauncherConfig(p string) ExpoLauncherConfigType {
 			},
 		},
 		ExpoGL: env.LauncherAction{
-			Id: "gl",
+			ID: "gl",
 			Tasks: []env.LauncherTask{
 				{
-					Id:   "expo-gl-js-build",
+					ID:   "expo-gl-js-build",
 					Cwd:  path.Join(p, "expo/packages/expo-gl"),
 					Args: []string{"yarn", "build"},
 				},
 				{
-					Id:   "expo-gl-cpp",
+					ID:   "expo-gl-cpp",
 					Cwd:  path.Join(p, "expo/android"),
 					Args: []string{"gradlew", ":expo-gl:buildCMakeDebug"},
 				},

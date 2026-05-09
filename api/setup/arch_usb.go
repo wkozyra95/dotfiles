@@ -33,7 +33,7 @@ func selectPortableInstallMedia() (string, error) {
 		},
 	)
 	if !isSelected {
-		return "", fmt.Errorf("No value was selected")
+		return "", fmt.Errorf("no value was selected")
 	}
 
 	return device.DevicePath, nil
@@ -86,7 +86,7 @@ func ProvisionUsbArchInstaller(ctx context.Context) error {
 			outputIso := path.Join(workingdir, "out", files[0].Name())
 
 			if !prompt.ConfirmPrompt(fmt.Sprintf("Do you want to copy files to %s device", target)) {
-				return fmt.Errorf("Aborting ...")
+				return fmt.Errorf("aborting")
 			}
 			return exec.Command().WithStdio().Args(
 				"dd",

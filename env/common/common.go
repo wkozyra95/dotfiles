@@ -22,7 +22,7 @@ var DotfilesWorkspace = env.Workspace{
 		},
 		Actions: []env.VimAction{
 			{
-				Id:   "dotfiles_go_build",
+				ID:   "dotfiles_go_build",
 				Name: "[workspace] build",
 				Args: []string{"make"},
 				Cwd:  path.Join(homeDir, ".dotfiles"),

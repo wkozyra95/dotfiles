@@ -15,7 +15,7 @@ import (
 
 type RepoInstallOptions struct {
 	Path       string
-	RepoUrl    string
+	RepoURL    string
 	Name       string
 	CommitHash string
 }
@@ -33,7 +33,7 @@ func RepoInstallAction(ctx context.Context, options RepoInstallOptions, installA
 			If: action.Not(action.PathExists(options.Path)),
 			Then: action.List{
 				action.ShellCommand("mkdir", "-p", path.Dir(options.Path)),
-				action.ShellCommand("git", "clone", options.RepoUrl, options.Path),
+				action.ShellCommand("git", "clone", options.RepoURL, options.Path),
 			},
 		},
 		action.WithCondition{
@@ -140,7 +140,7 @@ func InstallFromRepo(ctx context.Context, options RepoInstallOptions, installFn 
 	if !file.Exists(options.Path) {
 		err := exec.RunAll(
 			cmd().Args("mkdir", "-p", path.Dir(options.Path)),
-			cmd().Args("git", "clone", options.RepoUrl, options.Path),
+			cmd().Args("git", "clone", options.RepoURL, options.Path),
 		)
 		if err != nil {
 			return err

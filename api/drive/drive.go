@@ -42,7 +42,7 @@ func Mount(ctx context.Context) error {
 		},
 	)
 	if !didSelect {
-		return errors.New("No drive selected")
+		return errors.New("no drive selected")
 	}
 
 	return selected.Mount()
@@ -76,7 +76,7 @@ func Umount(ctx context.Context) error {
 		},
 	)
 	if !didSelect {
-		return errors.New("No drive selected")
+		return errors.New("no drive selected")
 	}
 
 	if err := selected.Umount(); err != nil {

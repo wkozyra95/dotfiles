@@ -30,7 +30,7 @@ func parseVolumeList(stdout string) ([]Volume, error) {
 	for _, line := range lines {
 		match := rg.FindStringSubmatch(line)
 		if len(match) == 0 {
-			return nil, fmt.Errorf("No match for line '%s'", line)
+			return nil, fmt.Errorf("no match for line '%s'", line)
 		}
 		snapshots = append(snapshots, Volume{
 			Name:       match[5],
@@ -43,7 +43,7 @@ func parseVolumeList(stdout string) ([]Volume, error) {
 	return snapshots, nil
 }
 
-func getSubvolumeId(path string) (string, error) {
+func getSubvolumeID(path string) (string, error) {
 	var stdout bytes.Buffer
 	cmdErr := exec.Command().
 		WithBufout(&stdout, &bytes.Buffer{}).
@@ -112,7 +112,7 @@ func SelectSnapshot() (Volume, error) {
 		func(s Volume) string { return s.Name },
 	)
 	if !isSelected {
-		return snapshot, fmt.Errorf("No snapshots were selected")
+		return snapshot, fmt.Errorf("no snapshots were selected")
 	}
 	return snapshot, nil
 }
@@ -142,11 +142,11 @@ func RestoreRootSnapshot() error {
 			rootPartition,
 		),
 		a.Func("copy subvolume children", func() error {
-			tmpRootId, tmpRootIdErr := getSubvolumeId(rootPartitionBackup)
-			if tmpRootIdErr != nil {
-				return tmpRootIdErr
+			tmpRootID, tmpRootIDErr := getSubvolumeID(rootPartitionBackup)
+			if tmpRootIDErr != nil {
+				return tmpRootIDErr
 			}
-			childVolumes, childVolumesErr := getSubvolumeChildren(tmpRootId)
+			childVolumes, childVolumesErr := getSubvolumeChildren(tmpRootID)
 			if childVolumesErr != nil {
 				return childVolumesErr
 			}

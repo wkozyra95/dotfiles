@@ -25,32 +25,32 @@ type VimConfig struct {
 	GoEfm          map[string]any               `json:"go_efm,omitempty"`
 	CmakeEfm       map[string]any               `json:"cmake_efm,omitempty"`
 	FiletypeConfig map[string]VimFiletypeConfig `json:"filetype_config,omitempty"`
-	JsonlsSchemas  []JsonSchema                 `json:"json_schemas,omitempty"`
-	YamllsSchemas  []JsonSchema                 `json:"yml_schemas,omitempty"`
+	JsonlsSchemas  []JSONSchema                 `json:"json_schemas,omitempty"`
+	YamllsSchemas  []JSONSchema                 `json:"yml_schemas,omitempty"`
 	Eslint         *bool                        `json:"eslint,omitempty"`
 	Databases      LazyValue[map[string]string] `json:"databases,omitempty"`
 	Actions        []VimAction                  `json:"actions,omitempty"`
 }
 
 type VimAction struct {
-	Id   string   `json:"id"`
+	ID   string   `json:"id"`
 	Name string   `json:"name"`
 	Args []string `json:"args"`
 	Cwd  string   `json:"cwd"`
 }
 
-type JsonSchema struct {
+type JSONSchema struct {
 	FileMatch []string `json:"fileMatch"`
-	Url       string   `json:"url"`
+	URL       string   `json:"url"`
 }
 
 type LauncherAction struct {
-	Id    string         `json:"id"`
+	ID    string         `json:"id"`
 	Tasks []LauncherTask `json:"tasks"`
 }
 
 type LauncherTask struct {
-	Id           string   `json:"string"`
+	ID           string   `json:"string"`
 	Args         []string `json:"args"`
 	Cwd          string   `json:"cwd"`
 	RunAsService bool     `json:"run_as_service"`

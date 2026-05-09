@@ -21,7 +21,7 @@ func InstallNvimFromSource(ctx context.Context, commitHash string) error {
 		Path:       cloneDir,
 		Name:       "nvim",
 		CommitHash: commitHash,
-		RepoUrl:    "https://github.com/neovim/neovim.git",
+		RepoURL:    "https://github.com/neovim/neovim.git",
 	}, func(ctx context.Context) error {
 		return exec.RunAll(
 			cmd().WithCwd(cloneDir).Args(
@@ -41,7 +41,7 @@ func InstallElixirLSP(ctx context.Context, reinstall bool) error {
 		installer.DownloadInstallOptions{
 			Path:        ctx.FromHome(".cache/nvim/myconfig/elixirls"),
 			ArchivePath: ctx.FromHome(".cache/nvim/myconfig/elixirls.zip"),
-			Url:         "https://github.com/elixir-lsp/elixir-ls/releases/download/v0.15.0/elixir-ls-v0.15.0.zip",
+			URL:         "https://github.com/elixir-lsp/elixir-ls/releases/download/v0.15.0/elixir-ls-v0.15.0.zip",
 			Reinstall:   reinstall,
 		},
 	)
@@ -58,7 +58,7 @@ func InstallLuaLSP(ctx context.Context, commitHash string) error {
 		Path:       cloneDir,
 		Name:       "lua_lsp",
 		CommitHash: commitHash,
-		RepoUrl:    "https://github.com/LuaLS/lua-language-server",
+		RepoURL:    "https://github.com/LuaLS/lua-language-server",
 	}, func(ctx context.Context) error {
 		return exec.RunAll(
 			cmd().WithCwd(cloneDir).Args(

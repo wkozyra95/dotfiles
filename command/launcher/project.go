@@ -41,7 +41,7 @@ func (l *launcher) launchJob(params launchJobParams) error {
 	}
 	for _, task := range action.Tasks {
 		if err := l.launchTask(task, params.jobID, params.restart); err != nil {
-			log.Errorf("Task %s failed with error %s", task.Id, err.Error())
+			log.Errorf("Task %s failed with error %s", task.ID, err.Error())
 			return err
 		}
 	}
@@ -95,7 +95,7 @@ func (l *launcher) launchInternalTask(params launchTaskParams) {
 					err.Error(),
 				)
 			})
-			log.Errorf("Task %s failed with error %v", task.Id, err)
+			log.Errorf("Task %s failed with error %v", task.ID, err)
 			if managerErr != nil {
 				log.Errorf("Failed to register an error %v", managerErr)
 			}
@@ -105,16 +105,16 @@ func (l *launcher) launchInternalTask(params launchTaskParams) {
 }
 
 func (l *launcher) launchTaskAsService(task env.LauncherTask, jobID string, restart bool) error {
-	log.Debugf("Launching service %s", task.Id)
+	log.Debugf("Launching service %s", task.ID)
 	return l.manager.RunGuarded(func(s *state.State) error {
-		isTaskSupervisorRunning, isTaskRunningErr := s.IsSupervisorRunning(task.Id)
+		isTaskSupervisorRunning, isTaskRunningErr := s.IsSupervisorRunning(task.ID)
 		if isTaskRunningErr != nil {
 			return isTaskRunningErr
 		}
 		if !isTaskSupervisorRunning || restart {
 			if isTaskSupervisorRunning && restart {
 				log.Debug("Supervisor for this task is already running, killing existing process")
-				if err := s.KillTask(task.Id); err != nil {
+				if err := s.KillTask(task.ID); err != nil {
 					return err
 				}
 			}
@@ -125,7 +125,7 @@ func (l *launcher) launchTaskAsService(task env.LauncherTask, jobID string, rest
 			cmdStr = append(
 				cmdStr, "--command", "mycli", "launch:internal",
 				"--job", jobID,
-				"--task", task.Id,
+				"--task", task.ID,
 			)
 
 			_, cmdErr := exec.Command().Args(cmdStr...).Start()
@@ -142,10 +142,10 @@ func (l *launcher) launchTask(task env.LauncherTask, jobID string, restart bool)
 	if task.RunAsService {
 		return l.launchTaskAsService(task, jobID, restart)
 	}
-	log.Debugf("Launching task %s", task.Id)
+	log.Debugf("Launching task %s", task.ID)
 	err := exec.Command().WithStdio().WithCwd(task.Cwd).Args(task.Args...).Run()
 	if err != nil {
-		log.Errorf("Task %s failed with error %s", task.Id, err.Error())
+		log.Errorf("Task %s failed with error %s", task.ID, err.Error())
 		return err
 	}
 	return nil
@@ -153,7 +153,7 @@ func (l *launcher) launchTask(task env.LauncherTask, jobID string, restart bool)
 
 func (l *launcher) doLaunchInternalTask(task env.LauncherTask, restart bool) error {
 	var cmd *goexec.Cmd
-	log.Infof("Starting task %s", task.Id)
+	log.Infof("Starting task %s", task.ID)
 	startErr := l.manager.RunGuarded(func(s *state.State) error {
 		// If there are other supervisors kill
 		cmdInProgress, cmdErr := exec.
@@ -164,7 +164,7 @@ func (l *launcher) doLaunchInternalTask(task env.LauncherTask, restart bool) err
 			return cmdErr
 		}
 		cmd = cmdInProgress
-		return s.RegisterTask(task.Id, cmd.Process.Pid)
+		return s.RegisterTask(task.ID, cmd.Process.Pid)
 	})
 	if startErr != nil {
 		return startErr
@@ -175,9 +175,9 @@ func (l *launcher) doLaunchInternalTask(task env.LauncherTask, restart bool) err
 
 	log.Info("Waiting for job to finish")
 	if err := cmd.Wait(); err != nil {
-		log.Errorf("Task %s failed with error %s", task.Id, err.Error())
+		log.Errorf("Task %s failed with error %s", task.ID, err.Error())
 		err := l.manager.RunGuarded(func(s *state.State) error {
-			return s.RegisterError(task.Id, err.Error())
+			return s.RegisterError(task.ID, err.Error())
 		})
 		if err != nil {
 			log.Error(err)

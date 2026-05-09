@@ -92,8 +92,8 @@ type SimpleCondition struct {
 	Label string
 }
 
-func (s SimpleCondition) check(ctx internalCtx) (bool, error) {
-	return s.Check()
+func (a SimpleCondition) check(ctx internalCtx) (bool, error) {
+	return a.Check()
 }
 
 func (a SimpleCondition) string() string {

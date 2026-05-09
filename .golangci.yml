@@ -1,0 +1,29 @@
+version: "2"
+
+linters:
+  settings:
+    errcheck:
+      # Common stdlib functions whose error returns are conventionally ignored.
+      exclude-functions:
+        - os.Setenv
+        - fmt.Scanln
+        - fmt.Fprintln
+        - (io.Closer).Close
+        - (io.Writer).Write
+        - (*os.File).Close
+        - (*os.File).Write
+    staticcheck:
+      # Reproduce staticcheck's default exclusions (style checks that are too
+      # noisy to enforce on existing code) and additionally drop the QF*
+      # quickfix family — purely stylistic suggestions.
+      checks:
+        - all
+        - -ST1000 # missing package comment
+        - -ST1020 # comment on exported function
+        - -ST1021 # comment on exported type
+        - -ST1022 # comment on exported var
+        - -ST1023 # redundant type
+        - -QF1003 # could use tagged switch
+        - -QF1004 # could use strings.ReplaceAll
+        - -QF1008 # could remove embedded field selector
+        - -QF1012 # Fprintf vs WriteString+Sprintf

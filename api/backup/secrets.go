@@ -28,12 +28,12 @@ func backupGpgKeyring(rootDir string) error {
 	gpgPath := path.Join(rootDir, "gpg")
 	publicKeysPath := path.Join(gpgPath, "gpg_public_keys.asc")
 	privateKeysPath := path.Join(gpgPath, "gpg_private_keys.asc")
-	trustDbPath := path.Join(gpgPath, "gpg_trustdb.txt")
+	trustDBPath := path.Join(gpgPath, "gpg_trustdb.txt")
 	return exec.RunAll(
 		cmd().Args("mkdir", "-p", gpgPath),
 		cmd().Args("bash", "-c", fmt.Sprintf("gpg --armor --export > %s", publicKeysPath)),
 		cmd().Args("bash", "-c", fmt.Sprintf("gpg --armor --export-secret-keys > %s", privateKeysPath)),
-		cmd().Args("bash", "-c", fmt.Sprintf("gpg --export-ownertrust > %s", trustDbPath)),
+		cmd().Args("bash", "-c", fmt.Sprintf("gpg --export-ownertrust > %s", trustDBPath)),
 	)
 }
 
@@ -41,7 +41,7 @@ func restoreGpgKeyring(rootDir string) error {
 	gpgPath := path.Join(rootDir, "gpg")
 	publicKeysPath := path.Join(gpgPath, "gpg_public_keys.asc")
 	privateKeysPath := path.Join(gpgPath, "gpg_private_keys.asc")
-	trustDbPath := path.Join(gpgPath, "gpg_trustdb.txt")
+	trustDBPath := path.Join(gpgPath, "gpg_trustdb.txt")
 
 	if err := cmd().Args("mkdir", "-p", gpgPath).Run(); err != nil {
 		return err
@@ -61,10 +61,10 @@ func restoreGpgKeyring(rootDir string) error {
 			cmd().Args("bash", "-c", fmt.Sprintf("gpg --import %s", privateKeysPath)),
 		)
 	}
-	if file.Exists(trustDbPath) {
+	if file.Exists(trustDBPath) {
 		cmds = append(
 			cmds,
-			cmd().Args("bash", "-c", fmt.Sprintf("gpg --import-ownertrust %s", trustDbPath)),
+			cmd().Args("bash", "-c", fmt.Sprintf("gpg --import-ownertrust %s", trustDBPath)),
 		)
 	}
 	return exec.RunAll(cmds...)
