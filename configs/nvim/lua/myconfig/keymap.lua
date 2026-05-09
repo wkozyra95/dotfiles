@@ -11,7 +11,6 @@ local neogit = require("neogit")
 local git = require("myconfig.git")
 local surround = require("myconfig.surround")
 
-local ref = utils.ref
 local remap = {noremap = false}
 
 -- # Modes:
@@ -77,12 +76,10 @@ local mapping = {
         ["n>"] = {"<cmd>tab split<cr>"},
         ["p>"] = {actions.actions.find_files.fn},
         ["s>"] = {
-            {"viw", "n"},
-            ref(tree, "selection_init"),
-            ref(tree, "selection_inc"),            -- active after selection init
+            {tree.start_selection, "n"},
+            {tree.expand_node,     "x"},
         },
-        ["a>"] = ref(tree, "selection_inc_scope"), -- active after selection init
-        ["x>"] = ref(tree, "selection_dec"),       -- active after selection init
+        ["x>"] = {tree.shrink_node, "x"},
         ["h>"] = {lsp.onHover},
     },
     ["<bs>"] = {"<C-^>", "n"}, -- switch alternative buffer
@@ -93,8 +90,6 @@ local mapping = {
     Q = {"<nop>", "", remap},
     g = {
         -- g = {} - already used,
-        b = {{ref(tree, "comment_block")}, b = {ref(tree, "comment_toggle_block")}},
-        c = {{ref(tree, "comment_line")}, c = {ref(tree, "comment_toggle_line")}},
         d = {lsp.goToDefinition},
         D = {lsp.goToDeclaration},
         t = {lsp.goToTypeDefinition},

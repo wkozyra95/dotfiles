@@ -48,7 +48,8 @@ func RepoInstallAction(ctx context.Context, options RepoInstallOptions, installA
 						return false, readErr
 					}
 					return strings.Trim(string(file), "\n ") != options.CommitHash, nil
-				}),
+				},
+			),
 			Then: action.List{
 				action.ShellCommand("mkdir", "-p", installPrefix),
 				action.Execute(withCwd(options.Path), "git", "fetch", "origin"),

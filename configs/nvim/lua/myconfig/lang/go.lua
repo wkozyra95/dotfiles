@@ -1,7 +1,6 @@
 local module = {}
 
 local workspaces = require("myconfig.workspaces")
-local parsers = require("nvim-treesitter.parsers")
 
 function module.gopls_config()
     if workspaces.current.vim.go_efm then
@@ -39,7 +38,7 @@ function module.attach_efm(config)
             "force", config.settings.languages, {go = {workspaces.current.vim.go_efm}}
         )
         config.filetypes = vim.list_extend(config.filetypes, {"go"})
-        config.root_dir_patterns = vim.list_extend(config.root_dir_patterns, {"go.sum", "go.mod"});
+        config.root_markers = vim.list_extend(config.root_markers, {"go.sum", "go.mod"});
     end
 end
 
@@ -75,7 +74,7 @@ local function get_last_non_comment(last_node)
 end
 
 function module.format(original_format)
-    local tree = parsers.get_parser(0):parse()[1]
+    local tree = vim.treesitter.get_parser(0, "go"):parse()[1]
     local query = vim.treesitter.query.get("go", "trailing_commas")
     if not query then
         vim.notify("Treesitter query \"trailing_commas\" not found for \"go\" filetype.")

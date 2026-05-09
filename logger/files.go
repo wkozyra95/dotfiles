@@ -37,7 +37,8 @@ func LogDirectoryListing(destination string, maxEntries int) {
 	fileListing.WriteString(fmt.Sprintf("Content of %s directory: \n", destination))
 	for _, file := range files {
 		fileListing.WriteString(
-			fmt.Sprintf("\t%s %6d KB %s\n",
+			fmt.Sprintf(
+				"\t%s %6d KB %s\n",
 				file.Mode(), file.Size()/1024, file.Name(),
 			),
 		)
@@ -54,7 +55,8 @@ func LogDirectoryListing(destination string, maxEntries int) {
 			}
 			for _, file := range files {
 				fileListing.WriteString(
-					fmt.Sprintf("\t\t%s %6d KB %s\n",
+					fmt.Sprintf(
+						"\t\t%s %6d KB %s\n",
 						file.Mode(), file.Size()/1024, file.Name(),
 					),
 				)

@@ -20,7 +20,7 @@ function module.attach_efm(config)
             "force", config.settings.languages, {cmake = {workspaces.current.vim.cmake_efm}}
         )
         config.filetypes = vim.list_extend(config.filetypes, {"cmake"})
-        config.root_dir_patterns = vim.list_extend(config.root_dir_patterns, {"CMakeLists.txt"});
+        config.root_markers = vim.list_extend(config.root_markers, {"CMakeLists.txt"});
     end
 end
 

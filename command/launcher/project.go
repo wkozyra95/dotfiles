@@ -122,7 +122,8 @@ func (l *launcher) launchTaskAsService(task env.LauncherTask, jobID string, rest
 			if task.WorkspaceID != 0 {
 				cmdStr = append(cmdStr, "--class", fmt.Sprintf("workspace%d", task.WorkspaceID))
 			}
-			cmdStr = append(cmdStr, "--command", "mycli", "launch:internal",
+			cmdStr = append(
+				cmdStr, "--command", "mycli", "launch:internal",
 				"--job", jobID,
 				"--task", task.Id,
 			)

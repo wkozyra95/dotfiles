@@ -162,7 +162,7 @@ func RegisterCmds(rootCmd *cobra.Command) {
 				if input == nil || input["name"] == nil {
 					panic(fmt.Errorf("missing endpoint name"))
 				}
-				name, inputNameIsString := (input["name"]).(string)
+				name, inputNameIsString := input["name"].(string)
 				if !inputNameIsString {
 					panic(fmt.Errorf("\"name\" has to be a string"))
 				}

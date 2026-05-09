@@ -49,7 +49,7 @@
 
       gruvbox-nvim
 
-      pkgs.vimPlugins.nvim-treesitter.withAllGrammars
+      nvim-treesitter.withAllGrammars
       nvim-treesitter-context
 
       amp-nvim

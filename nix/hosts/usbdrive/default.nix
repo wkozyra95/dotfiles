@@ -40,9 +40,9 @@ nixpkgs.lib.nixosSystem {
         );
       };
 
-      networking.firewall.allowedTCPPorts= [ 8002 ];
+      networking.firewall.allowedTCPPorts = [ 8002 ];
       networking.firewall.enable = false;
-     # hardware.decklink.enable= true;
+      # hardware.decklink.enable= true;
       environment.systemPackages = [
         pkgs.usbutils
         pkgs.pciutils

@@ -1,7 +1,6 @@
 local module = {}
 
 local lspkind = require("lspkind")
-local lsp_config = require("lspconfig")
 local cmp = require("cmp.init")
 local tel = require("telescope.builtin")
 local _ = require("myconfig.utils")
@@ -20,7 +19,7 @@ local function lsp(opts)
         -- if client does not support capability
         if opts.required_method then
             for _, client in pairs(vim.lsp.get_clients()) do
-                if client.supports_method(opts.required_method) then
+                if client:supports_method(opts.required_method) then
                     lsp_fn = opts.lsp_func
                     break
                 end
@@ -115,7 +114,7 @@ function module.apply()
         end,
         settings = {languages = {}},
         filetypes = {},
-        root_dir_patterns = {".git"},
+        root_markers = {".git"},
     }
 
     local go = require("myconfig.lang.go")
@@ -163,8 +162,6 @@ function module.apply()
     module.lsp_setup("cmake", cmake.cmake_config())
     cmake.attach_efm(efm_config)
 
-    efm_config.root_dir = lsp_config.util.root_pattern(unpack(efm_config.root_dir_patterns or {}))
-    efm_config.root_dir_patterns = nil
     module.lsp_setup("efm", efm_config)
 
     lspkind.init()

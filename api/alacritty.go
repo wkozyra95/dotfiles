@@ -49,7 +49,7 @@ func AlacrittyRun(params map[string]interface{}) error {
 		if err := cmd.Run(); err != nil {
 			fmt.Println(err.Error())
 		}
-		if shouldRetry, isBool := (params["should_retry"]).(bool); isBool && !shouldRetry {
+		if shouldRetry, isBool := params["should_retry"].(bool); isBool && !shouldRetry {
 			return nil
 		}
 		fmt.Println("Press the Enter Key to continue")

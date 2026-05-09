@@ -50,17 +50,20 @@ func restoreGpgKeyring(rootDir string) error {
 		cmd().Args("mkdir", "-p", gpgPath),
 	}
 	if file.Exists(publicKeysPath) {
-		cmds = append(cmds,
+		cmds = append(
+			cmds,
 			cmd().Args("bash", "-c", fmt.Sprintf("gpg --import %s", publicKeysPath)),
 		)
 	}
 	if file.Exists(privateKeysPath) {
-		cmds = append(cmds,
+		cmds = append(
+			cmds,
 			cmd().Args("bash", "-c", fmt.Sprintf("gpg --import %s", privateKeysPath)),
 		)
 	}
 	if file.Exists(trustDbPath) {
-		cmds = append(cmds,
+		cmds = append(
+			cmds,
 			cmd().Args("bash", "-c", fmt.Sprintf("gpg --import-ownertrust %s", trustDbPath)),
 		)
 	}

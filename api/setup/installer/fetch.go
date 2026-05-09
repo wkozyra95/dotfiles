@@ -40,7 +40,8 @@ func InstallFromZip(
 		return nil
 	}
 	if err := exec.Command().WithStdio().Args(
-		"rm", "-rf", options.Path, options.ArchivePath).Run(); err != nil {
+		"rm", "-rf", options.Path, options.ArchivePath,
+	).Run(); err != nil {
 		return err
 	}
 	if err := http.DownloadFile(options.Url, options.ArchivePath); err != nil {

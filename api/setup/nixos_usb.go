@@ -53,7 +53,8 @@ func ProvisionUsbNixInstaller(ctx context.Context) error {
 	if !prompt.ConfirmPrompt(fmt.Sprintf("Do you want to copy iso firl %s to %s device", isoPath, target)) {
 		return fmt.Errorf("Aborting ...")
 	}
-	return exec.Command().WithStdio().Args("dd",
+	return exec.Command().WithStdio().Args(
+		"dd",
 		fmt.Sprintf("if=%s", isoPath),
 		fmt.Sprintf("of=%s", target),
 		fmt.Sprintf("bs=%dK", 4*1024),
