@@ -2,29 +2,89 @@ package sway
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
-	"fmt"
 	"os/exec"
 	"sync"
 	"time"
 
-	"github.com/wkozyra95/dotfiles/env"
 	swayexec "github.com/wkozyra95/dotfiles/utils/exec"
 )
 
-type workspaceEvent struct {
-	Change  string `json:"change"`
-	Current struct {
-		Name   string `json:"name"`
-		Output string `json:"output"`
-	} `json:"current"`
+// Event is the parsed sum type passed to the user-supplied handler.
+type Event interface{ isSwayEvent() }
+
+type WorkspaceFocusEvent struct {
+	Output    string
+	Workspace string
+	// Prev is the previously visible workspace on Output, or "" if unknown.
+	Prev string
+	// OutputChanged is true when Output's visible workspace actually
+	// changed; false for plain focus shifts between outputs (sway emits
+	// change=focus for those too).
+	OutputChanged bool
 }
 
-// muteWindow drops any workspace focus events received within a short
-// window after we issue a programmatic switch. Sway emits several
-// intermediate focus events for a chained `focus output ..., workspace ...,
-// focus output ...` command (including one for the source workspace when
-// focus returns), and reacting to them would cause an infinite loop.
+type WindowNewEvent struct {
+	ConID int64
+	AppID string
+	Class string
+	Title string
+}
+
+type WindowFocusEvent struct {
+	ConID int64
+	AppID string
+	Class string
+}
+
+func (WorkspaceFocusEvent) isSwayEvent() {}
+func (WindowNewEvent) isSwayEvent()      {}
+func (WindowFocusEvent) isSwayEvent()    {}
+
+type outputInfo struct {
+	transform string
+}
+
+// Listener owns shared state (visible workspace per output, output
+// transforms, the mute window) and exposes the helpers handlers need.
+type Listener struct {
+	mu      sync.Mutex
+	visible map[string]string
+	outputs map[string]outputInfo
+	mute    *muteWindow
+}
+
+func (l *Listener) VisibleWorkspace(output string) string {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	return l.visible[output]
+}
+
+func (l *Listener) IsPortrait(output string) bool {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	t := l.outputs[output].transform
+	return t == "90" || t == "270"
+}
+
+// ArmMute starts the suppression window. Subsequent workspace-focus
+// events are reported with no special flag, but handlers can call
+// IsMuted to decide whether to skip reacting (used to avoid feedback
+// loops from programmatic workspace switches).
+func (l *Listener) ArmMute() { l.mute.arm() }
+
+func (l *Listener) IsMuted() bool { return l.mute.muted() }
+
+// Run executes a swaymsg command string (e.g. "move container to workspace 6").
+func (l *Listener) Run(command string) error {
+	return swayexec.Command().Args("swaymsg", command).Run()
+}
+
+// muteWindow drops events received within a short window after a
+// programmatic switch. Sway emits several intermediate focus events
+// for chained `focus output ..., workspace ..., focus output ...`
+// commands and reacting to them would cause an infinite loop.
 type muteWindow struct {
 	mu       sync.Mutex
 	deadline time.Time
@@ -47,22 +107,66 @@ func (m *muteWindow) muted() bool {
 	return time.Now().Before(m.deadline)
 }
 
-// ListenWorkspacePairs subscribes to sway's workspace events and keeps the
-// configured workspace pairs in sync across outputs. The function blocks
-// until the subscribe process exits.
-func ListenWorkspacePairs(pairs []env.SwayWorkspacePair) error {
-	if len(pairs) == 0 {
-		log.Info("No sway workspace pairs configured, nothing to do")
-		return nil
+type rawWorkspaceEvent struct {
+	Change  string `json:"change"`
+	Current struct {
+		Name   string `json:"name"`
+		Output string `json:"output"`
+	} `json:"current"`
+}
+
+type rawWindowEvent struct {
+	Change    string `json:"change"`
+	Container struct {
+		ID               int64  `json:"id"`
+		AppID            string `json:"app_id"`
+		Name             string `json:"name"`
+		WindowProperties struct {
+			Class string `json:"class"`
+		} `json:"window_properties"`
+	} `json:"container"`
+}
+
+type rawOutput struct {
+	Name      string `json:"name"`
+	Transform string `json:"transform"`
+}
+
+func loadOutputs() (map[string]outputInfo, error) {
+	var stdout, stderr bytes.Buffer
+	err := swayexec.Command().
+		WithBufout(&stdout, &stderr).
+		Args("swaymsg", "-t", "get_outputs", "-r").Run()
+	if err != nil {
+		return nil, err
+	}
+	var raw []rawOutput
+	if err := json.Unmarshal(stdout.Bytes(), &raw); err != nil {
+		return nil, err
+	}
+	out := make(map[string]outputInfo, len(raw))
+	for _, r := range raw {
+		out[r.Name] = outputInfo{transform: r.Transform}
+	}
+	return out, nil
+}
+
+// Listen subscribes to sway workspace and window events, parses them
+// into Event values, and invokes handle for each. Blocks until the
+// subscribe process exits.
+func Listen(handle func(*Listener, Event)) error {
+	outputs, err := loadOutputs()
+	if err != nil {
+		log.Errorf("Failed to load sway outputs: %v", err)
+		outputs = map[string]outputInfo{}
+	}
+	l := &Listener{
+		visible: map[string]string{},
+		outputs: outputs,
+		mute:    newMuteWindow(200 * time.Millisecond),
 	}
 
-	mute := newMuteWindow(200 * time.Millisecond)
-	// visible[output] = workspace currently shown on that output. Used to
-	// distinguish a real workspace change from a plain focus shift across
-	// outputs (sway fires change=focus for both).
-	visible := map[string]string{}
-
-	cmd := exec.Command("swaymsg", "-t", "subscribe", "-m", `["workspace"]`)
+	cmd := exec.Command("swaymsg", "-t", "subscribe", "-m", `["workspace","window"]`)
 	stdout, pipeErr := cmd.StdoutPipe()
 	if pipeErr != nil {
 		return pipeErr
@@ -78,65 +182,64 @@ func ListenWorkspacePairs(pairs []env.SwayWorkspacePair) error {
 	scanner := bufio.NewScanner(stdout)
 	scanner.Buffer(make([]byte, 64*1024), 1024*1024)
 	for scanner.Scan() {
-		var ev workspaceEvent
-		if err := json.Unmarshal(scanner.Bytes(), &ev); err != nil {
-			log.Debugf("Failed to decode sway event: %v", err)
+		line := scanner.Bytes()
+		if ev, ok := parseWorkspace(line); ok {
+			l.mu.Lock()
+			prev, seen := l.visible[ev.Output]
+			l.visible[ev.Output] = ev.Workspace
+			l.mu.Unlock()
+			ev.Prev = prev
+			ev.OutputChanged = !seen || prev != ev.Workspace
+			handle(l, ev)
 			continue
 		}
-		if ev.Change != "focus" {
+		if ev, ok := parseWindow(line); ok {
+			handle(l, ev)
 			continue
-		}
-		output := ev.Current.Output
-		workspace := ev.Current.Name
-		prev, seen := visible[output]
-		visible[output] = workspace
-		if seen && prev == workspace {
-			// Output's visible workspace didn't change — this is just a
-			// focus shift between outputs, not a workspace switch.
-			continue
-		}
-		if mute.muted() {
-			log.Debugf("Muted: ignoring switch on %s/%s", output, workspace)
-			continue
-		}
-		match, target, ok := findPairTarget(pairs, workspace, output)
-		if !ok {
-			continue
-		}
-		log.Infof("Pair switch: %s/%s -> %s/%s",
-			match.Output, match.Workspace, target.Output, target.Workspace)
-		mute.arm()
-		visible[target.Output] = target.Workspace
-		if err := switchPairedWorkspace(match, target); err != nil {
-			log.Errorf("Failed to switch paired workspace: %v", err)
 		}
 	}
 	return scanner.Err()
 }
 
-// findPairTarget returns the binding the user just focused (match) and the
-// binding on the other monitor that should follow (target).
-func findPairTarget(
-	pairs []env.SwayWorkspacePair, workspace, output string,
-) (env.SwayWorkspaceBinding, env.SwayWorkspaceBinding, bool) {
-	for _, p := range pairs {
-		if p.A.Workspace == workspace && p.A.Output == output {
-			return p.A, p.B, true
-		}
-		if p.B.Workspace == workspace && p.B.Output == output {
-			return p.B, p.A, true
-		}
+func parseWorkspace(line []byte) (WorkspaceFocusEvent, bool) {
+	var raw rawWorkspaceEvent
+	if err := json.Unmarshal(line, &raw); err != nil || raw.Change == "" {
+		return WorkspaceFocusEvent{}, false
 	}
-	return env.SwayWorkspaceBinding{}, env.SwayWorkspaceBinding{}, false
+	if raw.Current.Name == "" || raw.Current.Output == "" {
+		return WorkspaceFocusEvent{}, false
+	}
+	if raw.Change != "focus" {
+		return WorkspaceFocusEvent{}, false
+	}
+	return WorkspaceFocusEvent{
+		Output:    raw.Current.Output,
+		Workspace: raw.Current.Name,
+	}, true
 }
 
-// switchPairedWorkspace focuses the target output, switches its workspace,
-// and returns focus to the originating output so the user does not lose
-// their place.
-func switchPairedWorkspace(source, target env.SwayWorkspaceBinding) error {
-	command := fmt.Sprintf(
-		"focus output %s; workspace --no-auto-back-and-forth %s; focus output %s",
-		target.Output, target.Workspace, source.Output,
-	)
-	return swayexec.Command().Args("swaymsg", command).Run()
+func parseWindow(line []byte) (Event, bool) {
+	var raw rawWindowEvent
+	if err := json.Unmarshal(line, &raw); err != nil || raw.Change == "" {
+		return nil, false
+	}
+	if raw.Container.ID == 0 {
+		return nil, false
+	}
+	switch raw.Change {
+	case "new":
+		return WindowNewEvent{
+			ConID: raw.Container.ID,
+			AppID: raw.Container.AppID,
+			Class: raw.Container.WindowProperties.Class,
+			Title: raw.Container.Name,
+		}, true
+	case "focus":
+		return WindowFocusEvent{
+			ConID: raw.Container.ID,
+			AppID: raw.Container.AppID,
+			Class: raw.Container.WindowProperties.Class,
+		}, true
+	}
+	return nil, false
 }

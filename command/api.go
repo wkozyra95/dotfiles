@@ -1,4 +1,4 @@
-package api
+package command
 
 import (
 	"encoding/base64"
@@ -18,7 +18,9 @@ import (
 	"github.com/wkozyra95/dotfiles/api/language"
 	"github.com/wkozyra95/dotfiles/api/setup/nvim"
 	"github.com/wkozyra95/dotfiles/api/sway"
+	swayterminal "github.com/wkozyra95/dotfiles/api/sway/terminal"
 	"github.com/wkozyra95/dotfiles/api/tool"
+	"github.com/wkozyra95/dotfiles/utils/exec"
 	"github.com/wkozyra95/dotfiles/utils/notify"
 	"github.com/wkozyra95/dotfiles/utils/term"
 )
@@ -114,13 +116,30 @@ var endpoints = map[string]endpoint{
 	"terminal:new": {
 		name: "terminal:new",
 		handler: func(ctx context.Context, input object) (any, error) {
-			return nil, sway.OpenTerminal(ctx)
+			return nil, swayterminal.Open(ctx)
 		},
 	},
 	"backup:zsh_history": {
 		name: "backup:zsh_history",
 		handler: func(ctx context.Context, input object) (any, error) {
 			return nil, backup.BackupZSHHistory(ctx)
+		},
+	},
+	"session::init": {
+		name:             "session::init",
+		interactiveShell: true,
+		handler: func(ctx context.Context, input object) (any, error) {
+			time.Sleep(time.Second * 2)
+			for _, initCmd := range ctx.EnvironmentConfig.Init {
+				if _, err := exec.Command().WithCwd(initCmd.Cwd).Args(initCmd.Args...).Start(); err != nil {
+					notify.Notify("Init command failed", err.Error())
+				}
+			}
+			if len(ctx.EnvironmentConfig.SwayHandlers) == 0 {
+				return nil, nil
+			}
+			handler := sway.ChainHandlers(ctx.EnvironmentConfig.SwayHandlers...)
+			return nil, sway.Listen(handler)
 		},
 	},
 }
@@ -138,7 +157,7 @@ func getStringField(o object, field string) string {
 }
 
 // RegisterCmds ...
-func RegisterCmds(rootCmd *cobra.Command) {
+func RegisterAPICmds(rootCmd *cobra.Command) {
 	simple := false
 	apiCmd := &cobra.Command{
 		Use:   "api",

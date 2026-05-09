@@ -8,6 +8,7 @@ import (
 )
 
 type TreeNode struct {
+	ID      int64      `json:"id"`
 	Type    string     `json:"type"`
 	Name    string     `json:"name"`
 	PID     int        `json:"pid"`
@@ -15,6 +16,33 @@ type TreeNode struct {
 	Visible bool       `json:"visible"`
 	AppID   string     `json:"app_id"`
 	Nodes   []TreeNode `json:"nodes"`
+}
+
+// OutputForCon walks the sway tree and returns the name of the output
+// that contains the given con_id, or "" if not found.
+func OutputForCon(conID int64) string {
+	tree, err := GetTree()
+	if err != nil {
+		return ""
+	}
+	for _, output := range tree.Nodes {
+		if output.Type == "output" && containsCon(output, conID) {
+			return output.Name
+		}
+	}
+	return ""
+}
+
+func containsCon(node TreeNode, conID int64) bool {
+	if node.ID == conID {
+		return true
+	}
+	for _, child := range node.Nodes {
+		if containsCon(child, conID) {
+			return true
+		}
+	}
+	return false
 }
 
 func FindContainer(tree TreeNode, matchFn func(TreeNode) bool) *TreeNode {

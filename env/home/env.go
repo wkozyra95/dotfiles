@@ -4,11 +4,15 @@ import (
 	"os"
 	"path"
 
+	"github.com/wkozyra95/dotfiles/api/sway"
 	"github.com/wkozyra95/dotfiles/env"
 	"github.com/wkozyra95/dotfiles/env/common"
 )
 
-var homeDir = os.Getenv("HOME")
+var (
+	homeDir             = os.Getenv("HOME")
+	eslintConfigEnabled = true
+)
 
 var Config = env.EnvironmentConfig{
 	Workspaces: []env.Workspace{
@@ -53,8 +57,8 @@ var Config = env.EnvironmentConfig{
 		},
 		common.HomeWorkspace,
 		{Name: "test", Path: path.Join(homeDir, "playground/vimtest"), VimConfig: env.VimConfig{
-			Eslint: common.EslintConfig.Eslint,
-			CmakeEfm: map[string]interface{}{
+			Eslint: &eslintConfigEnabled,
+			CmakeEfm: map[string]any{
 				"formatCommand": "cmake-format --tab-size 4 ${INPUT}",
 				"formatStdin":   false,
 			},
@@ -63,27 +67,14 @@ var Config = env.EnvironmentConfig{
 			Name: "cache",
 			Path: path.Join(homeDir, "drive/MyProjects/eas-build-cache"),
 			VimConfig: env.VimConfig{
-				GoEfm: map[string]interface{}{
+				GoEfm: map[string]any{
 					"formatCommand": "gofumpt",
 					"formatStdin":   true,
 				},
 			},
 		},
-		{
-			Name: "expo-rust",
-			Path: path.Join(homeDir, "drive/MyProjects/expo-rust"),
-			VimConfig: env.VimConfig{
-				Eslint: common.EslintConfig.Eslint,
-			},
-		},
-		{
-			Name: "expo-myapp",
-			Path: path.Join(homeDir, "drive/MyProjects/myapp"),
-			VimConfig: env.VimConfig{
-				Eslint: common.EslintConfig.Eslint,
-			},
-		},
-		common.MembraneConfig.VideoCompositor(path.Join(homeDir, "playground/video_compositor")),
+		common.SmelterConfig.Smelter(path.Join(homeDir, "smelter/smelter")),
+		common.SmelterConfig.SmelterTypescript(path.Join(homeDir, "smelter/smelter/ts")),
 	},
 	Actions: []env.LauncherAction{
 		{
@@ -140,6 +131,10 @@ var Config = env.EnvironmentConfig{
 		{Args: []string{"firefox"}},
 		{Args: []string{"mycli", "api", "--simple", "backup:zsh_history"}},
 	},
+	SwayHandlers: []sway.Handler{
+		sway.MoveAppToVisibleWorkspaceHandler("ffplay", []string{"6", "7"}),
+		sway.PortraitSplitvHandler(),
+	},
 	Backup: env.BackupConfig{
 		GpgKeyring: true,
 		Secrets: map[string]string{
@@ -167,10 +162,10 @@ var Config = env.EnvironmentConfig{
 			ContainerName:  "expo-sdk",
 		},
 		{
-			Name:           "compositor",
-			ImageName:      "mycli-compositor",
-			DockerfilePath: path.Join(homeDir, ".dotfiles/configs/dockerfiles/compositor.Dockerfile"),
-			ContainerName:  "live-compositor",
+			Name:           "smelter",
+			ImageName:      "mycli-smelter",
+			DockerfilePath: path.Join(homeDir, ".dotfiles/configs/dockerfiles/smelter.Dockerfile"),
+			ContainerName:  "smelter",
 		},
 	},
 	CustomSetupAction: func(ctx env.Context) error {

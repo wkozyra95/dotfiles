@@ -6,29 +6,12 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/wkozyra95/dotfiles/api/context"
 	"github.com/wkozyra95/dotfiles/logger"
-	"github.com/wkozyra95/dotfiles/utils/exec"
 )
 
 var log = logger.NamedLogger("launcher")
 
 // RegisterCmds ...
 func RegisterCmds(rootCmd *cobra.Command) {
-	startupCmd := &cobra.Command{
-		Use:    "launch:startup",
-		Hidden: true,
-		Short:  "Init commands on sway startup",
-		Run: func(cmd *cobra.Command, args []string) {
-			ctx := context.CreateContext()
-			time.Sleep(time.Second * 2)
-			for _, cmd := range ctx.EnvironmentConfig.Init {
-				_, initJobErr := exec.Command().WithCwd(cmd.Cwd).Args(cmd.Args...).Start()
-				if initJobErr != nil {
-					log.Error(initJobErr.Error())
-				}
-			}
-		},
-	}
-
 	launcherCmdParams := launchJobParams{}
 	launcherCmd := &cobra.Command{
 		Use:   "launch",
@@ -95,7 +78,6 @@ func RegisterCmds(rootCmd *cobra.Command) {
 	}
 
 	rootCmd.AddCommand(launcherCmd)
-	rootCmd.AddCommand(startupCmd)
 	rootCmd.AddCommand(internalLauncherCmd)
 	rootCmd.AddCommand(launcherStateCmd)
 }

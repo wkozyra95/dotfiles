@@ -4,70 +4,54 @@ import (
 	"os"
 	"path"
 
+	"github.com/wkozyra95/dotfiles/api/sway"
 	"github.com/wkozyra95/dotfiles/env"
 	"github.com/wkozyra95/dotfiles/env/common"
 )
 
 var (
 	homeDir               = os.Getenv("HOME")
-	expoConfig            = common.ExpoConfig
-	expoLauncherConfig    = common.ExpoLauncherConfig(path.Join(homeDir, "expo"))
 	smelterLauncherConfig = common.SmelterLauncherConfig(path.Join(homeDir, "smelter"))
 )
 
 var Config = env.EnvironmentConfig{
 	Workspaces: []env.Workspace{
-		expoConfig.LegacyExpoCli(path.Join(homeDir, "expo/expo-cli")),
-		expoConfig.EasCli(path.Join(homeDir, "expo/eas-cli")),
-		expoConfig.EasBuild(path.Join(homeDir, "expo/eas-build")),
-		expoConfig.Turtle(path.Join(homeDir, "expo/turtle-v2")),
-		expoConfig.UniverseWWW(path.Join(homeDir, "expo/universe/server/www")),
-		expoConfig.UniverseWebsite(path.Join(homeDir, "expo/universe/server/website")),
-		expoConfig.TurtleClassic(path.Join(homeDir, "expo/turtle")),
-		expoConfig.ExpoSdk(path.Join(homeDir, "expo/expo")),
-		expoConfig.ExpoSdkGl(path.Join(homeDir, "expo/expo/packages/expo-gl")),
-		expoConfig.EASBuildCache(path.Join(homeDir, "expo/eas-build-cache")),
 		common.DotfilesWorkspace,
 		common.HomeWorkspace,
-		common.MembraneConfig.VideoCompositor(path.Join(homeDir, "membrane/live_compositor")),
-		common.MembraneConfig.VideoCompositorTypescript(path.Join(homeDir, "membrane/live_compositor/ts")),
+		common.SmelterConfig.Smelter(path.Join(homeDir, "smelter/smelter")),
+		common.SmelterConfig.SmelterTypescript(path.Join(homeDir, "smelter/smelter/ts")),
+		common.SmelterConfig.Smelter(path.Join(homeDir, "smelter/smelter-2")),
+		common.SmelterConfig.SmelterTypescript(path.Join(homeDir, "smelter/smelter-2/ts")),
 	},
 	Actions: []env.LauncherAction{
-		expoLauncherConfig.EasCli,
-		expoLauncherConfig.ExpoCliRebuild,
-		expoLauncherConfig.ExpoDocs,
-		expoLauncherConfig.Submit,
-		expoLauncherConfig.Turtle,
-		expoLauncherConfig.Submit,
-		expoLauncherConfig.UniverseWWW,
-		expoLauncherConfig.UniverseWWWUnit,
-		expoLauncherConfig.UniverseWebsite,
-		expoLauncherConfig.UniverseWebsiteInternal,
 		smelterLauncherConfig.Smelter,
 	},
 	Init: []env.InitAction{
 		{Args: []string{"google-chrome-stable", "--proxy-pac-url=http://localhost:2000/proxy.pac"}},
 		{Args: []string{"slack"}},
 		{Args: []string{"mycli", "api", "--simple", "backup:zsh_history"}},
-		{Args: []string{"mycli", "tool", "sway-listen"}},
 		{Args: []string{"mycli", "launch", "--job", "smelter"}},
 	},
-	SwayWorkspacePairs: []env.SwayWorkspacePair{
-		{
-			A: env.SwayWorkspaceBinding{Workspace: "2", Output: "DP-2"},
-			B: env.SwayWorkspaceBinding{Workspace: "6", Output: "DP-3"},
-		},
-		{
-			A: env.SwayWorkspaceBinding{Workspace: "3", Output: "DP-2"},
-			B: env.SwayWorkspaceBinding{Workspace: "7", Output: "DP-3"},
-		},
+	SwayHandlers: []sway.Handler{
+		sway.WorkspaceSyncHandler([]sway.WorkspacePair{
+			{
+				A: sway.WorkspaceBinding{Workspace: "2", Output: "DP-2"},
+				B: sway.WorkspaceBinding{Workspace: "6", Output: "DP-3"},
+			},
+			{
+				A: sway.WorkspaceBinding{Workspace: "3", Output: "DP-2"},
+				B: sway.WorkspaceBinding{Workspace: "7", Output: "DP-3"},
+			},
+		}),
+		sway.MoveAppToVisibleWorkspaceHandler("ffplay", []string{"6", "7"}),
+		sway.PortraitSplitvHandler(),
 	},
 	DockerEnvsSpec: []env.DockerEnvSpec{
 		{
-			Name:           "compositor",
-			ImageName:      "mycli-compositor",
-			DockerfilePath: path.Join(homeDir, ".dotfiles/configs/dockerfiles/compositor.Dockerfile"),
-			ContainerName:  "live-compositor",
+			Name:           "smelter",
+			ImageName:      "mycli-smelter",
+			DockerfilePath: path.Join(homeDir, ".dotfiles/configs/dockerfiles/smelter.Dockerfile"),
+			ContainerName:  "smelter",
 		},
 	},
 	Backup: env.BackupConfig{

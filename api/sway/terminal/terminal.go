@@ -1,4 +1,4 @@
-package sway
+package swayterminal
 
 import (
 	"bytes"
@@ -11,6 +11,7 @@ import (
 
 	"github.com/wkozyra95/dotfiles/api"
 	"github.com/wkozyra95/dotfiles/api/context"
+	"github.com/wkozyra95/dotfiles/api/sway"
 	"github.com/wkozyra95/dotfiles/logger"
 	"github.com/wkozyra95/dotfiles/utils/exec"
 	"github.com/wkozyra95/dotfiles/utils/fn"
@@ -19,15 +20,15 @@ import (
 )
 
 var (
-	log         = logger.NamedLogger("sway")
+	log         = logger.NamedLogger("sway-terminal")
 	workspaceRg = regexp.MustCompile(`workspace\d+`)
 )
 
-// OpenTerminal opens terminal in the same directory as a
-// shell in currently opened window. If current window does
-// not run a shell, it should fallback to home directory.
-func OpenTerminal(ctx context.Context) error {
-	err := maybeOpenTerminalInTheSameDirectory()
+// Open opens a terminal in the same directory as the shell in the
+// currently focused window. If that window does not run a shell it
+// falls back to the home directory.
+func Open(ctx context.Context) error {
+	err := openInSameDirectory()
 	if err != nil {
 		log.Error(err.Error())
 		return api.AlacrittyCall(
@@ -37,12 +38,12 @@ func OpenTerminal(ctx context.Context) error {
 	return nil
 }
 
-func maybeOpenTerminalInTheSameDirectory() error {
-	tree, err := GetTree()
+func openInSameDirectory() error {
+	tree, err := sway.GetTree()
 	if err != nil {
 		return err
 	}
-	node := FindContainer(tree, func(tn TreeNode) bool {
+	node := sway.FindContainer(tree, func(tn sway.TreeNode) bool {
 		return tn.Focused && (tn.AppID == "Alacritty" || workspaceRg.Match([]byte(tn.AppID))) && tn.Visible &&
 			tn.Type == "con"
 	})
@@ -102,7 +103,7 @@ func getPidOfLastDescendantRunningZsh(pid int) int {
 			log.Error(readErr.Error())
 			continue
 		}
-		// /proc/pid/cmdline is using byte 0 a separator, so we need to remove it
+		// /proc/pid/cmdline uses byte 0 as a separator
 		trimed := strings.Replace(string(cmdline), string([]byte{0}), "", -1)
 		if trimed == "zsh" || trimed == "zsh--login" {
 			return pid

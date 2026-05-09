@@ -55,4 +55,4 @@ font pango:SourceCodePro Medium 10
 client.background       #ffffff
 include /etc/sway/config.d/*
 
-exec mycli launch:startup
+exec mycli api --simple session::init

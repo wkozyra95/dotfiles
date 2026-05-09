@@ -5,12 +5,9 @@ import (
 	"path"
 
 	"github.com/wkozyra95/dotfiles/env"
-	"github.com/wkozyra95/dotfiles/logger"
 )
 
 var homeDir = os.Getenv("HOME")
-
-var log = logger.NamedLogger("common")
 
 var DotfilesWorkspace = env.Workspace{
 	Name: "dotfiles",

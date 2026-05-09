@@ -6,15 +6,15 @@ import (
 	"github.com/wkozyra95/dotfiles/env"
 )
 
-type MembraneWorkspacesConfig struct {
-	VideoCompositor           func(p string) env.Workspace
-	VideoCompositorTypescript func(p string) env.Workspace
+type SmelterWorkspacesConfig struct {
+	Smelter           func(p string) env.Workspace
+	SmelterTypescript func(p string) env.Workspace
 }
 
-var MembraneConfig = MembraneWorkspacesConfig{
-	VideoCompositor: func(p string) env.Workspace {
+var SmelterConfig = SmelterWorkspacesConfig{
+	Smelter: func(p string) env.Workspace {
 		return env.Workspace{
-			Name: "live_compositor",
+			Name: "smelter",
 			Path: p,
 			VimConfig: env.VimConfig{
 				FiletypeConfig: map[string]env.VimFiletypeConfig{
@@ -35,9 +35,9 @@ var MembraneConfig = MembraneWorkspacesConfig{
 			},
 		}
 	},
-	VideoCompositorTypescript: func(p string) env.Workspace {
+	SmelterTypescript: func(p string) env.Workspace {
 		return env.Workspace{
-			Name: "live_compositor",
+			Name: "smelter",
 			Path: p,
 			VimConfig: env.VimConfig{
 				FiletypeConfig: map[string]env.VimFiletypeConfig{

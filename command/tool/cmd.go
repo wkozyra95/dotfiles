@@ -17,6 +17,5 @@ func RegisterCmds(rootCmd *cobra.Command) {
 	toolCmd.AddCommand(registerWifiCommands())
 	toolCmd.AddCommand(registerPlaygroundCommands())
 	toolCmd.AddCommand(registerDebugCommand())
-	toolCmd.AddCommand(registerSwayListenCommand())
 	rootCmd.AddCommand(toolCmd)
 }
