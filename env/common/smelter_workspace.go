@@ -25,11 +25,11 @@ var SmelterConfig = SmelterWorkspacesConfig{
 				JsonlsSchemas: []env.JSONSchema{
 					{
 						FileMatch: []string{"*.scene.json"},
-						URL:       "file://" + path.Join(p, "schemas/scene.schema.json"),
+						URL:       "file://" + path.Join(p, "tools/schemas/scene.schema.json"),
 					},
 					{
 						FileMatch: []string{"*.register.json"},
-						URL:       "file://" + path.Join(p, "schemas/register.schema.json"),
+						URL:       "file://" + path.Join(p, "tools/schemas/register.schema.json"),
 					},
 				},
 			},
