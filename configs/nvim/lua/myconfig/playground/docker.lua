@@ -48,6 +48,15 @@ local function playground_shell()
     end
 end
 
+local function playground_zsh_shell()
+    local buffer = vim.api.nvim_get_current_buf()
+    local playground_path = playground_buffers[buffer] and playground_buffers[buffer].path
+    if playground_path then
+        _.rpc_start({name = "docker:playground:zsh-shell", path = playground_path}, function()
+        end)
+    end
+end
+
 local function playground_complete()
     local files = _.rpc_run({name = "directory:preview", path = path.cache() .. "/docker/playground"})
     local names = {}
@@ -60,6 +69,8 @@ end
 module.ensure_commands = _.once(
     function()
         vim.api.nvim_create_user_command("DockerPlaygroundShell", playground_shell, {nargs = 0})
+        vim.api
+            .nvim_create_user_command("DockerPlaygroundZshShell", playground_zsh_shell, {nargs = 0})
     end
 )
 

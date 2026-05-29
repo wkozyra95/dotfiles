@@ -107,6 +107,13 @@ var endpoints = map[string]endpoint{
 			return nil, tool.DockerPlaygroundShell(getStringField(input, "path"))
 		},
 	},
+	"docker:playground:zsh-shell": {
+		name:             "docker:playground:zsh-shell",
+		interactiveShell: true,
+		handler: func(ctx context.Context, input object) (any, error) {
+			return nil, tool.DockerPlaygroundZshShell(getStringField(input, "path"))
+		},
+	},
 	"elixir:lsp:install": {
 		name: "elixir:lsp:install",
 		handler: func(ctx context.Context, input object) (any, error) {

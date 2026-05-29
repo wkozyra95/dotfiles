@@ -24,6 +24,7 @@ func RegisterNixCmds(rootCmd *cobra.Command) {
 		"elixir",
 		"rust",
 		"nodejs",
+		"smelter",
 	}
 
 	templates := []string{"rust", "nodejs"}

@@ -18,4 +18,5 @@
   membrane = import ./membrane.nix args;
   rust = import ./rust.nix args;
   nodejs = import ./nodejs.nix args;
+  smelter = import ./smelter.nix args;
 }

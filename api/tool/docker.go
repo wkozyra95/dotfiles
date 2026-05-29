@@ -33,3 +33,9 @@ func DockerPlaygroundShell(playgroundPath string) error {
 		},
 	)
 }
+
+func DockerPlaygroundZshShell(playgroundPath string) error {
+	return api.AlacrittyCall(
+		api.AlacrittyConfig{Command: "zsh", Cwd: playgroundPath, ShouldRetry: false},
+	)
+}
