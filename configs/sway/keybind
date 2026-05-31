@@ -7,7 +7,9 @@ set $up k
 set $right l
 
 set $term alacritty
-set $menu j4-dmenu-desktop --term='alacritty' --dmenu='bemenu --fn $uifont -b -p "▶" --tf "$prompt" --hf "$highlight" --sf "$highlight" --scf "$highlight"' | xargs swaymsg exec --
+# fuzzel's default mode is an application launcher (reads .desktop files, themed
+# via ~/.config/fuzzel/fuzzel.ini).
+set $menu fuzzel
 
 #
 # Basics:

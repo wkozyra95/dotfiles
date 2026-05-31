@@ -100,16 +100,6 @@ func stashName(session string, num int) string {
 	return fmt.Sprintf("%s:%d", session, num)
 }
 
-// activeName returns the live project name tracked for the group, or "".
-func (g workspaceGroup) activeName() string {
-	state, err := getStateManager().GetState()
-	if err != nil {
-		return ""
-	}
-	state = ensureDefault(state)
-	return state.Active[g.key()]
-}
-
 // doStashGroup hides a group's windows: each populated workspace is renamed to
 // "<name>:N" and parked on the headless output. Returns what was stashed.
 func doStashGroup(name string, u workspaceGroup) []StashedWorkspace {
@@ -250,9 +240,9 @@ func pickTemplate(ctx context.Context, u workspaceGroup) (env.SessionTemplate, e
 	}
 	label := strconv.Itoa(u.primary)
 	if !u.standalone() {
-		label = fmt.Sprintf("%d+%d", u.primary, u.partner)
+		label = fmt.Sprintf("%d,%d", u.primary, u.partner)
 	}
-	choice, picked := menu.Select(fmt.Sprintf("template -> ws %s", label), names)
+	choice, picked := menu.Select(fmt.Sprintf("Launch session -> workspace %s:", label), names)
 	if !picked {
 		return env.SessionTemplate{}, ErrCanceled
 	}
@@ -298,22 +288,28 @@ func nameIsFree(name string) bool {
 	return !exists
 }
 
-// stashCurrentGroup stashes the current occupant of the group (only called when
-// the group has windows). The project name is taken from the tracked live name
-// for the group (set at creation/restore); unlabeled (pre-existing) content is
-// prompted for. Returns ErrCanceled if the user dismisses the prompt.
-func stashCurrentGroup(u workspaceGroup) error {
-	name := u.activeName()
-	if name == "" {
-		typed, ok := menu.Prompt("name to stash current project")
-		if !ok || typed == "" {
-			return ErrCanceled
-		}
-		name = typed
+// stashNameFor resolves the name to stash the group under: its tracked live
+// name if it has one, otherwise it prompts. Returns ErrCanceled if the prompt is
+// dismissed, or an error if the chosen name is already taken. Resolving the name
+// has no side effects, so callers can do it up front (before other prompts) and
+// only commit the stash later.
+func stashNameFor(u workspaceGroup) (string, error) {
+	if name := u.activeName(); name != "" {
+		return name, nil
 	}
-	if !nameIsFree(name) {
-		return fmt.Errorf("a stashed project named %q already exists", name)
+	typed, ok := menu.Prompt("Project name (stashed): ")
+	if !ok || typed == "" {
+		return "", ErrCanceled
 	}
+	if !nameIsFree(typed) {
+		return "", fmt.Errorf("a stashed project named %q already exists", typed)
+	}
+	return typed, nil
+}
+
+// stashCurrentGroup hides the current occupant of the group under name (only
+// called when the group has windows; name comes from stashNameFor).
+func stashCurrentGroup(u workspaceGroup, name string) error {
 	stashed := doStashGroup(name, u)
 	if err := getStateManager().RunGuarded(func(s *SessionState) error {
 		s.Sessions[name] = StashedSession{Name: name, Workspaces: stashed}
@@ -339,11 +335,24 @@ func New(ctx context.Context) error {
 	u := groupOf(ws.Num)
 	primaryOut, partnerOut := u.outputs(ws.Num, ws.Output)
 
+	// If the current unit must be stashed, settle its name first — so an unnamed
+	// project is named up front, before choosing/naming the new one. Resolving
+	// has no side effects, so a later cancel still leaves the current windows
+	// untouched.
+	oldName := ""
+	if u.windowCount() > 0 {
+		resolved, nameErr := stashNameFor(u)
+		if nameErr != nil {
+			return nameErr
+		}
+		oldName = resolved
+	}
+
 	tpl, err := pickTemplate(ctx, u)
 	if err != nil {
 		return err
 	}
-	name, ok := menu.Prompt("project name")
+	name, ok := menu.Prompt("Project name: ")
 	if !ok || name == "" {
 		return ErrCanceled
 	}
@@ -358,9 +367,9 @@ func New(ctx context.Context) error {
 		cwd = prepared
 	}
 
-	// Committed: free the group, lay it out and launch.
-	if u.windowCount() > 0 {
-		if err := stashCurrentGroup(u); err != nil {
+	// Committed: free the group (under the name resolved above), lay it out, launch.
+	if oldName != "" {
+		if err := stashCurrentGroup(u, oldName); err != nil {
 			return err
 		}
 	}
@@ -401,7 +410,7 @@ func Switch() error {
 		}
 		refreshBar()
 	} else if target.activeName() == "" {
-		typed, ok := menu.Prompt("name current project")
+		typed, ok := menu.Prompt("Project name (stashed): ")
 		if !ok || typed == "" {
 			return ErrCanceled
 		}
@@ -435,12 +444,16 @@ func Switch() error {
 	if len(candidates) == 0 {
 		return errors.New("no stashed sessions and nothing to stash")
 	}
-	choice, ok := menu.Select("switch to session", candidates)
+	choice, ok := menu.Select("Switch to session:", candidates)
 	if !ok {
 		return ErrCanceled
 	}
 	if choice == stashCurrentLabel {
-		if err := stashCurrentGroup(target); err != nil {
+		name, err := stashNameFor(target)
+		if err != nil {
+			return err
+		}
+		if err := stashCurrentGroup(target, name); err != nil {
 			return err
 		}
 		prepareGroupLayout(target, primaryOut, partnerOut)
@@ -453,7 +466,11 @@ func Switch() error {
 
 	// Free the focused (target) group before restoring into it.
 	if target.windowCount() > 0 {
-		if err := stashCurrentGroup(target); err != nil {
+		name, err := stashNameFor(target)
+		if err != nil {
+			return err
+		}
+		if err := stashCurrentGroup(target, name); err != nil {
 			return err
 		}
 	}
@@ -537,7 +554,7 @@ func Close(name string) error {
 		if len(candidates) == 0 {
 			return errors.New("no stashed sessions to close")
 		}
-		chosen, ok := menu.Select("close session", candidates)
+		chosen, ok := menu.Select("Close session:", candidates)
 		if !ok {
 			return ErrCanceled
 		}
@@ -587,8 +604,6 @@ func CurrentName() string {
 	return groupOf(ws.Num).activeName()
 }
 
-// Current prints the current session name to stdout (for the `session current`
-// CLI command).
 func Current() {
 	fmt.Print(CurrentName())
 }

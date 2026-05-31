@@ -24,6 +24,7 @@ in
     j4-dmenu-desktop
     # alacritty
     bemenu
+    fuzzel
     waybar
     pavucontrol
     grim

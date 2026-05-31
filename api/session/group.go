@@ -40,6 +40,16 @@ func (g workspaceGroup) workspaces() []int {
 // key identifies the group (by its primary workspace) in the Active map.
 func (g workspaceGroup) key() string { return strconv.Itoa(g.primary) }
 
+// activeName returns the live project name tracked for the group, or "".
+func (g workspaceGroup) activeName() string {
+	state, err := getStateManager().GetState()
+	if err != nil {
+		return ""
+	}
+	state = ensureDefault(state)
+	return state.Active[g.key()]
+}
+
 // windowCount sums the windows currently living on the group's workspaces.
 func (g workspaceGroup) windowCount() int {
 	total := 0
