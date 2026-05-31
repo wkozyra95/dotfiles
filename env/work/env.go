@@ -9,10 +9,7 @@ import (
 	"github.com/wkozyra95/dotfiles/env/common"
 )
 
-var (
-	homeDir               = os.Getenv("HOME")
-	smelterLauncherConfig = common.SmelterLauncherConfig(path.Join(homeDir, "smelter"))
-)
+var homeDir = os.Getenv("HOME")
 
 var Config = env.EnvironmentConfig{
 	Workspaces: []env.Workspace{
@@ -23,14 +20,15 @@ var Config = env.EnvironmentConfig{
 		common.SmelterConfig.Smelter(path.Join(homeDir, "smelter/smelter-2")),
 		common.SmelterConfig.SmelterTypescript(path.Join(homeDir, "smelter/smelter-2/ts")),
 	},
-	Actions: []env.LauncherAction{
-		smelterLauncherConfig.Smelter,
+	SessionTemplates: func() []env.SessionTemplate {
+		templates := []env.SessionTemplate{common.DotfilesSessionTemplate}
+		templates = append(templates, common.SmelterSessionTemplates(path.Join(homeDir, "smelter"))...)
+		return append(templates, common.SkillsSessionTemplate)
 	},
 	Init: []env.InitAction{
 		{Args: []string{"google-chrome-stable", "--proxy-pac-url=http://localhost:2000/proxy.pac"}},
 		{Args: []string{"slack"}},
 		{Args: []string{"mycli", "api", "--simple", "backup:zsh_history"}},
-		{Args: []string{"mycli", "launch", "--job", "smelter"}},
 	},
 	SwayHandlers: []sway.Handler{
 		sway.WorkspaceSyncHandler([]sway.WorkspacePair{

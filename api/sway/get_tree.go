@@ -8,14 +8,16 @@ import (
 )
 
 type TreeNode struct {
-	ID      int64      `json:"id"`
-	Type    string     `json:"type"`
-	Name    string     `json:"name"`
-	PID     int        `json:"pid"`
-	Focused bool       `json:"focused"`
-	Visible bool       `json:"visible"`
-	AppID   string     `json:"app_id"`
-	Nodes   []TreeNode `json:"nodes"`
+	ID            int64      `json:"id"`
+	Type          string     `json:"type"`
+	Name          string     `json:"name"`
+	Num           int        `json:"num"`
+	PID           int        `json:"pid"`
+	Focused       bool       `json:"focused"`
+	Visible       bool       `json:"visible"`
+	AppID         string     `json:"app_id"`
+	Nodes         []TreeNode `json:"nodes"`
+	FloatingNodes []TreeNode `json:"floating_nodes"`
 }
 
 // OutputForCon walks the sway tree and returns the name of the output

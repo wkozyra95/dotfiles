@@ -58,6 +58,7 @@ in
     ".docker".source = dotfilesSymlink "configs/docker";
 
     ".config/sway".source = dotfilesSymlink "configs/sway";
+    ".config/waybar".source = dotfilesSymlink "configs/waybar";
     ".config/i3".source = dotfilesSymlink "configs/i3";
     ".config/alacritty.yml".source = dotfilesSymlink "configs/alacritty.yml";
     ".config/alacritty.toml".source = dotfilesSymlink "configs/alacritty.toml";

@@ -18,29 +18,10 @@ include $CURRENT_ENV.config
 #
 # Status Bar:
 #
-# Read `man 5 sway-bar` for more information about this section.
+# Use waybar instead of the built-in swaybar (configured in
+# ~/.config/waybar). sway manages its lifecycle via swaybar_command.
 bar {
-    position top
-
-    bindsym button1 nop
-    # diable vertical scrolling
-    bindsym button4 nop
-    bindsym button5 nop
-    # diable horizontal scrolling
-    bindsym button6 nop
-    bindsym button7 nop
-
-    # When the status_command prints a new line to stdout, swaybar updates.
-    # The default just shows the current date and time.
-    status_command while date +'%a %d-%m %H:%M:%S %p'; do sleep 1; done
-
-    colors {
-        statusline #ffffff
-        background #323232
-        inactive_workspace #285577 #285577 #ffffff
-        active_workspace #52e2ff #52e2ff #5c5c5c
-        focused_workspace #52e2ff #52e2ff #5c5c5c
-    }
+    swaybar_command waybar
 }
 
 # class                 border   backgr.  text     indicator  child_border
@@ -55,4 +36,4 @@ font pango:SourceCodePro Medium 10
 client.background       #ffffff
 include /etc/sway/config.d/*
 
-exec mycli api --simple session::init
+exec mycli api --simple system::startup

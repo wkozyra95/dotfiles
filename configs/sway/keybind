@@ -19,6 +19,10 @@ bindsym $mod+Ctrl+q exec swaymsg exit
 bindsym $mod+p exec $menu
 bindsym $mod+Ctrl+r reload
 
+# Session manager
+bindsym $mod+o exec mycli session new
+bindsym $mod+grave exec mycli session switch
+
 floating_modifier $mod normal
 
 bindsym Print exec grim -g "$(slurp)"

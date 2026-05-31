@@ -6,19 +6,6 @@ import (
 	"github.com/wkozyra95/dotfiles/api/sway"
 )
 
-const (
-	Workspace1  int = 1
-	Workspace2  int = 2
-	Workspace3  int = 3
-	Workspace4  int = 4
-	Workspace5  int = 5
-	Workspace6  int = 6
-	Workspace7  int = 7
-	Workspace8  int = 8
-	Workspace9  int = 9
-	Workspace10 int = 10
-)
-
 type VimFiletypeConfig struct {
 	IndentSize int `json:"indent_size"`
 }
@@ -46,17 +33,26 @@ type JSONSchema struct {
 	URL       string   `json:"url"`
 }
 
-type LauncherAction struct {
-	ID    string         `json:"id"`
-	Tasks []LauncherTask `json:"tasks"`
+// SessionTask is a single terminal launched by a SessionTemplate.
+type SessionTask struct {
+	ID   string   `json:"id"`
+	Args []string `json:"args"`
+	Cwd  string   `json:"cwd"`
+	// Slot selects the target workspace within the unit: 0 = primary (focused),
+	// 1 = partner.
+	Slot int `json:"slot"`
 }
 
-type LauncherTask struct {
-	ID           string   `json:"string"`
-	Args         []string `json:"args"`
-	Cwd          string   `json:"cwd"`
-	RunAsService bool     `json:"run_as_service"`
-	WorkspaceID  int      `json:"workspace_id"`
+// SessionTemplate is a project blueprint launched into the current workspace
+// pair by the session manager.
+type SessionTemplate struct {
+	ID    string        `json:"id"`
+	Name  string        `json:"name"`
+	Tasks []SessionTask `json:"tasks"`
+	// Prepare, when set, runs at launch with the prompted project name and
+	// returns the working directory the tasks should run in (overriding each
+	// task's Cwd). Used e.g. to create a git worktree for the project.
+	Prepare func(projectName string) (string, error) `json:"-"`
 }
 
 type Workspace struct {
@@ -89,8 +85,11 @@ type DockerEnvSpec struct {
 }
 
 type EnvironmentConfig struct {
-	Workspaces        []Workspace
-	Actions           []LauncherAction
+	Workspaces []Workspace
+	// SessionTemplates is resolved lazily (only when the session picker opens),
+	// so dynamic templates can run git/IO without paying for it on every
+	// mycli invocation. May be nil.
+	SessionTemplates  func() []SessionTemplate
 	Backup            BackupConfig
 	Init              []InitAction
 	CustomSetupAction func(Context) error

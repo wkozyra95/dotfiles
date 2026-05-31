@@ -27,18 +27,6 @@ var Config = env.EnvironmentConfig{
 						Args: []string{"cargo", "build"},
 						Cwd:  path.Join(homeDir, "drive/MyProjects/npm-cache"),
 					},
-					{
-						ID:   "cargo_watch",
-						Name: "[workspace] cargo watch (new terminal)",
-						Args: []string{"mycli", "launch", "--job", "npm-cache"},
-						Cwd:  path.Join(homeDir, "drive/MyProjects/npm-cache"),
-					},
-					{
-						ID:   "cargo_watch_run",
-						Name: "[workspace] cargo run (new terminal)",
-						Args: []string{"mycli", "launch", "--job", "npm-cache-run"},
-						Cwd:  path.Join(homeDir, "drive/MyProjects/npm-cache"),
-					},
 				},
 			},
 		},
@@ -76,58 +64,12 @@ var Config = env.EnvironmentConfig{
 		common.SmelterConfig.Smelter(path.Join(homeDir, "smelter/smelter")),
 		common.SmelterConfig.SmelterTypescript(path.Join(homeDir, "smelter/smelter/ts")),
 	},
-	Actions: []env.LauncherAction{
-		{
-			ID: "debug",
-			Tasks: []env.LauncherTask{
-				{
-					ID:           "debug",
-					Cwd:          path.Join(homeDir, "playground"),
-					Args:         []string{"zsh", "-c", "sleep 10 && exit 1"},
-					RunAsService: true,
-					WorkspaceID:  env.Workspace3,
-				},
-				{
-					ID:           "debug1",
-					Cwd:          path.Join(homeDir, "playground"),
-					Args:         []string{"zsh", "-c", "lskadjfsld;j"},
-					RunAsService: true,
-					WorkspaceID:  env.Workspace4,
-				},
-				{
-					ID:           "debug2",
-					Cwd:          path.Join(homeDir, "playground"),
-					Args:         []string{"htop"},
-					RunAsService: true,
-					WorkspaceID:  env.Workspace5,
-				},
-			},
-		},
-		{
-			ID: "npm-cache-run",
-			Tasks: []env.LauncherTask{
-				{
-					ID:           "npm-watch-run-cargo",
-					Args:         []string{"cargo", "watch", "-x", "run"},
-					Cwd:          path.Join(homeDir, "drive/MyProjects/npm-cache"),
-					RunAsService: true,
-				},
-			},
-		},
-		{
-			ID: "npm-cache",
-			Tasks: []env.LauncherTask{
-				{
-					ID:           "npm-watch-cargo",
-					Args:         []string{"cargo", "watch"},
-					Cwd:          path.Join(homeDir, "drive/MyProjects/npm-cache"),
-					RunAsService: true,
-				},
-			},
-		},
+	SessionTemplates: func() []env.SessionTemplate {
+		templates := []env.SessionTemplate{common.DotfilesSessionTemplate}
+		templates = append(templates, common.SmelterSessionTemplates(path.Join(homeDir, "smelter"))...)
+		return append(templates, common.SkillsSessionTemplate)
 	},
 	Init: []env.InitAction{
-		{Args: []string{"alacritty", "--class", "workspace6"}},
 		{Args: []string{"firefox"}},
 		{Args: []string{"mycli", "api", "--simple", "backup:zsh_history"}},
 	},
@@ -177,7 +119,6 @@ var NasConfig = env.EnvironmentConfig{
 	Workspaces: []env.Workspace{
 		common.DotfilesWorkspace,
 	},
-	Actions:        []env.LauncherAction{},
 	Init:           []env.InitAction{},
 	Backup:         env.BackupConfig{},
 	DockerEnvsSpec: []env.DockerEnvSpec{},

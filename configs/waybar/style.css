@@ -1,0 +1,43 @@
+* {
+    font-family: "Source Code Pro", monospace;
+    font-size: 13px;
+    min-height: 0;
+    border: none;
+    border-radius: 0;
+}
+
+window#waybar {
+    background: #323232;
+    color: #ffffff;
+}
+
+#workspaces button {
+    background: #285577;
+    color: #ffffff;
+    padding: 0 6px;
+    margin: 0;
+    min-width: 0;
+}
+
+#workspaces button.focused,
+#workspaces button.visible {
+    background: #52e2ff;
+    color: #5c5c5c;
+}
+
+#workspaces button.urgent {
+    background: #900000;
+    color: #ffffff;
+}
+
+/* Session name, immediately after the workspaces on the left. */
+#custom-session {
+    background: #323232;
+    color: #52e2ff;
+    font-weight: bold;
+    padding: 0 12px;
+}
+
+#clock {
+    padding: 0 12px;
+}

@@ -1,0 +1,26 @@
+{
+    "layer": "top",
+    "position": "top",
+    "modules-left": ["sway/workspaces", "custom/session"],
+    "modules-center": [],
+    "modules-right": ["clock"],
+
+    "sway/workspaces": {
+        "disable-scroll": true,
+        "all-outputs": false,
+        "format": "{name}"
+    },
+
+    "custom/session": {
+        "exec": "mycli api --simple session::current | jq -r '. // \"\"'",
+        "interval": "once",
+        "signal": 8,
+        "format": "{}",
+        "tooltip": false
+    },
+
+    "clock": {
+        "interval": 1,
+        "format": "{:%a %d-%m %H:%M:%S %p}"
+    }
+}

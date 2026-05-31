@@ -28,14 +28,12 @@ func GetConfig() env.EnvironmentConfig {
 	case "usbdrive":
 		return env.EnvironmentConfig{
 			Workspaces: []env.Workspace{},
-			Actions:    []env.LauncherAction{},
 			Init:       []env.InitAction{},
 		}
 	default:
 		log.Warn("Missing or invalid CURRENT_ENV")
 		return env.EnvironmentConfig{
 			Workspaces: []env.Workspace{},
-			Actions:    []env.LauncherAction{},
 			Init:       []env.InitAction{},
 		}
 	}

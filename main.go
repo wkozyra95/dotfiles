@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/spf13/cobra"
 	"github.com/wkozyra95/dotfiles/command"
-	"github.com/wkozyra95/dotfiles/command/launcher"
 	"github.com/wkozyra95/dotfiles/command/tool"
 	"github.com/wkozyra95/dotfiles/logger"
 )
@@ -19,7 +18,7 @@ func main() {
 	log.Debug("main()")
 
 	command.RegisterDriveCmds(rootCmd)
-	launcher.RegisterCmds(rootCmd)
+	command.RegisterSessionCmds(rootCmd)
 	tool.RegisterCmds(rootCmd)
 	command.RegisterAPICmds(rootCmd)
 	command.RegisterGitCmds(rootCmd)

@@ -16,6 +16,7 @@ import (
 	"github.com/wkozyra95/dotfiles/api/context"
 	"github.com/wkozyra95/dotfiles/api/helper"
 	"github.com/wkozyra95/dotfiles/api/language"
+	"github.com/wkozyra95/dotfiles/api/session"
 	"github.com/wkozyra95/dotfiles/api/setup/nvim"
 	"github.com/wkozyra95/dotfiles/api/sway"
 	swayterminal "github.com/wkozyra95/dotfiles/api/sway/terminal"
@@ -132,21 +133,27 @@ var endpoints = map[string]endpoint{
 			return nil, backup.BackupZSHHistory(ctx)
 		},
 	},
-	"session::init": {
-		name:             "session::init",
+	"session::current": {
+		name: "session::current",
+		handler: func(ctx context.Context, input object) (any, error) {
+			return session.CurrentName(), nil
+		},
+	},
+	"system::startup": {
+		name:             "system::startup",
 		interactiveShell: true,
 		handler: func(ctx context.Context, input object) (any, error) {
 			time.Sleep(time.Second * 2)
+			session.Reset()
 			for _, initCmd := range ctx.EnvironmentConfig.Init {
 				if _, err := exec.Command().WithCwd(initCmd.Cwd).Args(initCmd.Args...).Start(); err != nil {
 					notify.Notify("Init command failed", err.Error())
 				}
 			}
-			if len(ctx.EnvironmentConfig.SwayHandlers) == 0 {
-				return nil, nil
-			}
-			handler := sway.ChainHandlers(ctx.EnvironmentConfig.SwayHandlers...)
-			return nil, sway.Listen(handler)
+			// Always run the session listener (clears empty units' active tags
+			// and refreshes the bar), plus the environment's own handlers.
+			handlers := append([]sway.Handler{session.ListenerHandler()}, ctx.EnvironmentConfig.SwayHandlers...)
+			return nil, sway.Listen(sway.ChainHandlers(handlers...))
 		},
 	},
 }

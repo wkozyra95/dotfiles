@@ -24,6 +24,7 @@ in
     j4-dmenu-desktop
     # alacritty
     bemenu
+    waybar
     pavucontrol
     grim
     slurp

@@ -38,9 +38,16 @@ type WindowFocusEvent struct {
 	Class string
 }
 
+type WindowCloseEvent struct {
+	ConID int64
+	AppID string
+	Class string
+}
+
 func (WorkspaceFocusEvent) isSwayEvent() {}
 func (WindowNewEvent) isSwayEvent()      {}
 func (WindowFocusEvent) isSwayEvent()    {}
+func (WindowCloseEvent) isSwayEvent()    {}
 
 type outputInfo struct {
 	transform string
@@ -236,6 +243,12 @@ func parseWindow(line []byte) (Event, bool) {
 		}, true
 	case "focus":
 		return WindowFocusEvent{
+			ConID: raw.Container.ID,
+			AppID: raw.Container.AppID,
+			Class: raw.Container.WindowProperties.Class,
+		}, true
+	case "close":
+		return WindowCloseEvent{
 			ConID: raw.Container.ID,
 			AppID: raw.Container.AppID,
 			Class: raw.Container.WindowProperties.Class,
