@@ -17,6 +17,7 @@ in
     config = {
       whitelist.prefix = [
         "${config.home.homeDirectory}/.dotfiles"
+        "${config.home.homeDirectory}/smelter"
       ];
     };
   };
