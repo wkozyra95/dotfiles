@@ -19,9 +19,12 @@
 // navigation working and the bar uncluttered.
 //
 // While a project is stashed, each of its workspaces is renamed to
-// "<project>:<num>" (e.g. "smelter:3"). Because the name no longer starts with
-// a digit sway assigns it num -1: it leaves the numeric namespace, so
-// `workspace number 3` can't reach it and it won't collide with a fresh ws 3.
+// "<project>:<slot>" (0 = primary/main, 1 = partner/secondary; e.g.
+// "smelter:0"). The number it was stashed from is irrelevant — restore is
+// slot-relative to the focused group — so only the slot is encoded. Because the
+// name no longer starts with a digit sway assigns it num -1: it leaves the
+// numeric namespace, so `workspace number N` can't reach it and it won't collide
+// with a fresh numbered workspace.
 //
 // Two reserved name patterns appear transiently:
 //   - "__evict:<num>" — an empty, auto-created workspace squatting on a number
@@ -41,20 +44,20 @@
 //
 // # Stash (doStashGroup)
 //
-// For each populated workspace N of the group: rename "N" -> "<project>:N"
-// (preserving its full split/tab layout) and move it to the park output. The
-// original (num, output) of each is recorded so it can be put back. Empty
-// workspaces are skipped.
+// For each populated workspace N of the group: rename "N" -> "<project>:<slot>"
+// (preserving its full split/tab layout) and move it to the park output. Only
+// the slot is recorded; that is all a restore needs. Empty workspaces are
+// skipped.
 //
 // # Restore (doRestore)
 //
 // Restore is relative to the FOCUSED group, not the project's original
 // workspaces — restoring while focused on 2+6 lands the project on 2 and 6 even
 // if it was stashed from 3+7. Each stashed workspace maps onto the target group
-// by its slot (primary->primary, partner->partner; slot derived from the
-// original number via slotOf), so a partner-only stash still lands on the
-// partner. For each target the parked "<project>:N" is renamed back to the
-// plain target number (reclaiming the number, layout intact) after evicting any
+// by its stored slot (primary->primary, partner->partner), so a partner-only
+// stash still lands on the partner. For each target the parked "<project>:<slot>"
+// is renamed back to the plain target number (reclaiming the number, layout
+// intact) after evicting any
 // empty squatter; if several stashed workspaces map to one target (a pair
 // restored into a standalone group) the extras are merged in with
 // `move container to workspace number`. Primary goes to the focused output,
@@ -97,15 +100,15 @@ const closeCurrentLabel = "▸ close current"
 // command layer treats it as a silent no-op (no notification).
 var ErrCanceled = errors.New("canceled")
 
-// stashName is the workspace name a numbered workspace is renamed to while its
-// project is hidden, e.g. ("smelter", 3) -> "smelter:3" (a name prefix, so it
-// drops out of the numeric namespace).
-func stashName(session string, num int) string {
-	return fmt.Sprintf("%s:%d", session, num)
+// stashName is the workspace name a workspace is renamed to while its project is
+// hidden, e.g. ("smelter", 0) -> "smelter:0" (slot 0 = main, 1 = secondary). The
+// name is a prefix, so it drops out of sway's numeric namespace.
+func stashName(session string, slot int) string {
+	return fmt.Sprintf("%s:%d", session, slot)
 }
 
 // doStashGroup hides a group's windows: each populated workspace is renamed to
-// "<name>:N" and parked on the headless output. Returns what was stashed.
+// "<name>:<slot>" and parked on the headless output. Returns what was stashed.
 func doStashGroup(name string, u workspaceGroup) []StashedWorkspace {
 	park, parkErr := sway.EnsureParkOutput()
 	if parkErr != nil {
@@ -127,13 +130,14 @@ func doStashGroup(name string, u workspaceGroup) []StashedWorkspace {
 		if !ok {
 			continue
 		}
-		target := stashName(name, n)
+		slot := slotOf(n)
+		target := stashName(name, slot)
 		// cur.Name is the live name, possibly labelled ("2:smelter").
 		if err := sway.RenameWorkspace(cur.Name, target); err != nil {
 			log.Errorf("Failed to rename %s: %v", cur.Name, err)
 			continue
 		}
-		stashed = append(stashed, StashedWorkspace{Num: n, Output: cur.Output})
+		stashed = append(stashed, StashedWorkspace{Slot: slot})
 		if err := sway.MoveWorkspaceToOutput(target, park); err != nil {
 			log.Errorf("Failed to park %s: %v", target, err)
 		}
@@ -165,23 +169,23 @@ func evictNumber(num int) {
 
 // doRestore places a stashed session into the target group (relative to the
 // focused group, not the original workspaces). The stashed workspaces, ordered
-// by number, map onto the target group's workspaces: primary->primary,
+// by slot, map onto the target group's workspaces: primary->primary,
 // partner->partner. If the target group is standalone (or has fewer workspaces),
 // the surplus stashed workspaces are merged into the last target workspace.
 func doRestore(sess StashedSession, target workspaceGroup, primaryOut, partnerOut string) {
 	targets := target.workspaces()
 
 	stashed := append([]StashedWorkspace{}, sess.Workspaces...)
-	sort.Slice(stashed, func(i, j int) bool { return stashed[i].Num < stashed[j].Num })
+	sort.Slice(stashed, func(i, j int) bool { return stashed[i].Slot < stashed[j].Slot })
 
 	claimed := map[int]bool{}
 	for _, sw := range stashed {
-		// Map by the workspace's original slot (primary vs partner), not its
-		// position in the list, so a partner workspace whose primary was empty
-		// still restores to the target partner rather than the primary.
-		j := min(slotOf(sw.Num), len(targets)-1)
+		// Map by the workspace's slot (primary vs partner), not its position in
+		// the list, so a partner workspace whose primary was empty still restores
+		// to the target partner rather than the primary.
+		j := min(sw.Slot, len(targets)-1)
 		ti := targets[j]
-		name := stashName(sess.Name, sw.Num)
+		name := stashName(sess.Name, sw.Slot)
 		if !claimed[ti] {
 			// Claim the target number by renaming the parked workspace, which
 			// preserves its layout. Place primary on the focused output and the
@@ -606,7 +610,7 @@ func Close(name string) error {
 	}
 
 	for _, ws := range sess.Workspaces {
-		sway.KillWorkspaceWindows(stashName(name, ws.Num))
+		sway.KillWorkspaceWindows(stashName(name, ws.Slot))
 	}
 
 	if err := manager.RunGuarded(func(s *SessionState) error {

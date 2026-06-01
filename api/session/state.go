@@ -12,10 +12,11 @@ var log = logger.NamedLogger("session")
 const statePath = "/tmp/mycli-session.json"
 
 // StashedWorkspace records a single workspace that was renamed away and parked
-// off-screen, so it can be restored to its original output and number.
+// off-screen. Only its slot (0 = primary/main, 1 = partner/secondary) is kept:
+// restore is relative to the focused group, so the original workspace number and
+// output don't matter.
 type StashedWorkspace struct {
-	Num    int    `json:"num"`
-	Output string `json:"output"`
+	Slot int `json:"slot"`
 }
 
 // StashedSession is a hidden project occupying a unit (a workspace pair such as
