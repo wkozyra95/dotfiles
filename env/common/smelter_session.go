@@ -21,6 +21,16 @@ func SmelterSessionTemplates(p string) []env.SessionTemplate {
 	pnpmDev := func(id, dir string, slot int) env.SessionTask {
 		return env.SessionTask{ID: id, Cwd: path.Join(p, dir), Args: []string{"pnpm", "dev"}, Slot: slot}
 	}
+	// Submodule-populate command for a fresh worktree. When the primary
+	// checkout's object store is present, source the snapshot submodule's
+	// ~470MB from it (--reference) and copy them in (--dissociate) so the clone
+	// is a standalone full clone fetched off local disk rather than re-downloaded;
+	// otherwise fall back to a plain network clone.
+	submoduleUpdate := []string{"git", "submodule", "update", "--init", "--checkout"}
+	if ref := path.Join(p, "smelter", ".git", "modules", "snapshots"); file.Exists(ref) {
+		submoduleUpdate = append(submoduleUpdate, "--reference", ref, "--dissociate")
+	}
+	submoduleUpdate = append(submoduleUpdate, "integration-tests/snapshots")
 	templates := []env.SessionTemplate{
 		{ID: "smelter", Name: "smelter (core)", Tasks: []env.SessionTask{
 			shell("shell", "smelter", 0),
@@ -35,6 +45,9 @@ func SmelterSessionTemplates(p string) []env.SessionTemplate {
 			Tasks: []env.SessionTask{
 				{ID: "shell", Args: []string{"zsh"}, Slot: 0},
 				{ID: "shell-partner", Args: []string{"zsh"}, Slot: 1},
+				// Populate the snapshot submodule in its own terminal on the
+				// partner workspace; Cwd is the worktree, filled in by Prepare.
+				{ID: "submodules", Slot: 1, Args: submoduleUpdate},
 			},
 		},
 		{ID: "smelter-website", Name: "smelter website", Tasks: []env.SessionTask{
@@ -80,6 +93,8 @@ func smelterWorktreeTemplates(root string) []env.SessionTemplate {
 // listSmelterWorktrees returns the working-tree paths registered for the repo.
 func listSmelterWorktrees(repo string) []string {
 	var stdout, stderr bytes.Buffer
+	_ = exec.Command().WithBufout(&stdout, &stderr).WithCwd(repo).
+		Args("git", "worktree", "prune").Run()
 	if err := exec.Command().WithBufout(&stdout, &stderr).WithCwd(repo).
 		Args("git", "worktree", "list", "--porcelain").Run(); err != nil {
 		return nil
@@ -122,11 +137,6 @@ func smelterWorktreePrepare(root string) func(string) (string, error) {
 				return "", fmt.Errorf("git worktree add %s: %w", branch, err)
 			}
 		}
-		// Make sure the worktree's submodules are present.
-		if err := exec.Command().WithCwd(worktree).
-			Args("git", "submodule", "update", "--init", "--checkout").Run(); err != nil {
-			return "", fmt.Errorf("git submodule update in %s: %w", worktree, err)
-		}
 		return worktree, nil
 	}
 }
@@ -142,6 +152,8 @@ func branchExists(repo, branch string) bool {
 // given branch checked out, or "" if none.
 func worktreeForBranch(repo, branch string) string {
 	var stdout, stderr bytes.Buffer
+	_ = exec.Command().WithBufout(&stdout, &stderr).WithCwd(repo).
+		Args("git", "worktree", "prune").Run()
 	if err := exec.Command().WithBufout(&stdout, &stderr).WithCwd(repo).
 		Args("git", "worktree", "list", "--porcelain").Run(); err != nil {
 		return ""
