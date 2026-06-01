@@ -89,6 +89,10 @@ import (
 // current group without restoring another session.
 const stashCurrentLabel = "▸ stash current"
 
+// closeCurrentLabel is the synthetic entry in the switch picker that closes the
+// current group's windows (discarding them) without restoring another session.
+const closeCurrentLabel = "▸ close current"
+
 // ErrCanceled is returned when the user dismisses an interactive prompt. The
 // command layer treats it as a silent no-op (no notification).
 var ErrCanceled = errors.New("canceled")
@@ -136,6 +140,15 @@ func doStashGroup(name string, u workspaceGroup) []StashedWorkspace {
 	}
 	sway.SweepParkOutput()
 	return stashed
+}
+
+// closeGroupWindows kills every window on the group's workspaces, discarding the
+// group rather than stashing it. Used when the user opts to close the current
+// session instead of naming/stashing it.
+func closeGroupWindows(u workspaceGroup) {
+	for _, n := range u.workspaces() {
+		sway.KillWorkspaceWindowsByNum(n)
+	}
 }
 
 // evictNumber renames an existing (empty, auto-created) workspace occupying the
@@ -297,8 +310,8 @@ func stashNameFor(u workspaceGroup) (string, error) {
 	if name := u.activeName(); name != "" {
 		return name, nil
 	}
-	typed, ok := menu.Prompt("Project name (stashed): ")
-	if !ok || typed == "" {
+	typed := menu.PromptSimple("Project name (stashed): ")
+	if typed == "" {
 		return "", ErrCanceled
 	}
 	if !nameIsFree(typed) {
@@ -352,8 +365,8 @@ func New(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	name, ok := menu.Prompt("Project name: ")
-	if !ok || name == "" {
+	name := menu.PromptSimple("Project name: ")
+	if name == "" {
 		return ErrCanceled
 	}
 	// A template may prepare a working directory from the project name (e.g.
@@ -400,8 +413,10 @@ func Switch() error {
 
 	// Settle the focused group's tag before switching away from it: an empty group
 	// drops its (now stale) tag; an occupied but unnamed group is named now so it
-	// can be stashed/tracked.
-	if target.windowCount() == 0 {
+	// can be stashed/tracked — unless the name is left blank, which closes its
+	// windows (discarding them) instead of stashing them.
+	hasWindows := target.windowCount() > 0
+	if !hasWindows {
 		if err := getStateManager().RunGuarded(func(s *SessionState) error {
 			delete(s.Active, target.key())
 			return nil
@@ -410,20 +425,33 @@ func Switch() error {
 		}
 		refreshBar()
 	} else if target.activeName() == "" {
-		typed, ok := menu.Prompt("Project name (stashed): ")
-		if !ok || typed == "" {
+		typed, ok := menu.Prompt("Project name (blank closes): ")
+		if !ok {
 			return ErrCanceled
 		}
-		if !nameIsFree(typed) {
-			return fmt.Errorf("a stashed project named %q already exists", typed)
+		if typed == "" {
+			// Blank submission: discard this group's windows rather than stash.
+			closeGroupWindows(target)
+			hasWindows = false
+			if err := getStateManager().RunGuarded(func(s *SessionState) error {
+				delete(s.Active, target.key())
+				return nil
+			}); err != nil {
+				log.Errorf("Failed to clear active session name: %v", err)
+			}
+			refreshBar()
+		} else {
+			if !nameIsFree(typed) {
+				return fmt.Errorf("a stashed project named %q already exists", typed)
+			}
+			if err := getStateManager().RunGuarded(func(s *SessionState) error {
+				s.Active[target.key()] = typed
+				return nil
+			}); err != nil {
+				log.Errorf("Failed to record active session name: %v", err)
+			}
+			refreshBar()
 		}
-		if err := getStateManager().RunGuarded(func(s *SessionState) error {
-			s.Active[target.key()] = typed
-			return nil
-		}); err != nil {
-			log.Errorf("Failed to record active session name: %v", err)
-		}
-		refreshBar()
 	}
 
 	state, stateErr := getStateManager().GetState()
@@ -435,11 +463,11 @@ func Switch() error {
 	for name := range state.Sessions {
 		candidates = append(candidates, name)
 	}
-	// Offer to stash the current group (without restoring anything) when it has
-	// windows, so you can free it even with no stashed sessions to switch to.
-	// Listed last so the stashed sessions stay at the top.
-	if target.windowCount() > 0 {
-		candidates = append(candidates, stashCurrentLabel)
+	// Offer to stash or close the current group (without restoring anything) when
+	// it has windows, so you can free it even with no stashed sessions to switch
+	// to. Listed last so the stashed sessions stay at the top.
+	if hasWindows {
+		candidates = append(candidates, stashCurrentLabel, closeCurrentLabel)
 	}
 	if len(candidates) == 0 {
 		return errors.New("no stashed sessions and nothing to stash")
@@ -448,7 +476,8 @@ func Switch() error {
 	if !ok {
 		return ErrCanceled
 	}
-	if choice == stashCurrentLabel {
+	switch choice {
+	case stashCurrentLabel:
 		name, err := stashNameFor(target)
 		if err != nil {
 			return err
@@ -458,6 +487,17 @@ func Switch() error {
 		}
 		prepareGroupLayout(target, primaryOut, partnerOut)
 		return nil
+	case closeCurrentLabel:
+		closeGroupWindows(target)
+		if err := getStateManager().RunGuarded(func(s *SessionState) error {
+			delete(s.Active, target.key())
+			return nil
+		}); err != nil {
+			log.Errorf("Failed to clear active session name: %v", err)
+		}
+		refreshBar()
+		prepareGroupLayout(target, primaryOut, partnerOut)
+		return nil
 	}
 	sess, ok := state.Sessions[choice]
 	if !ok || len(sess.Workspaces) == 0 {
@@ -465,7 +505,7 @@ func Switch() error {
 	}
 
 	// Free the focused (target) group before restoring into it.
-	if target.windowCount() > 0 {
+	if hasWindows {
 		name, err := stashNameFor(target)
 		if err != nil {
 			return err
@@ -566,10 +606,7 @@ func Close(name string) error {
 	}
 
 	for _, ws := range sess.Workspaces {
-		wsName := stashName(name, ws.Num)
-		if err := sway.Command(fmt.Sprintf("[workspace=%q] kill", wsName)); err != nil {
-			log.Errorf("Failed to kill windows on %s: %v", wsName, err)
-		}
+		sway.KillWorkspaceWindows(stashName(name, ws.Num))
 	}
 
 	if err := manager.RunGuarded(func(s *SessionState) error {

@@ -12,10 +12,9 @@ import (
 
 var log = logger.NamedLogger("menu")
 
+// run shows fuzzel and returns the selection, with false only on cancel — an
+// empty submission still returns ("", true).
 func run(prompt string, items []string, extraArgs ...string) (string, bool) {
-	// fuzzel --dmenu reads newline-separated entries from stdin and prints the
-	// selection; with no matching entry it prints the raw input (used by Prompt
-	// for free-text such as a new session name). Matching is case-insensitive.
 	args := append([]string{"--dmenu", "--prompt", prompt + " "}, extraArgs...)
 	cmd := exec.Command("fuzzel", args...)
 	if len(items) > 0 {
@@ -29,22 +28,27 @@ func run(prompt string, items []string, extraArgs ...string) (string, bool) {
 		log.Debugf("fuzzel cancelled or failed: %v", err)
 		return "", false
 	}
-	result := strings.TrimRight(string(out), "\n")
-	if result == "" {
+	return strings.TrimRight(string(out), "\n"), true
+}
+
+// Select picks one of items; the second return is false when nothing was chosen.
+func Select(prompt string, items []string) (string, bool) {
+	result, ok := run(prompt, items)
+	if !ok || result == "" {
 		return "", false
 	}
 	return result, true
 }
 
-// Select shows the given items in fuzzel and returns the chosen one. The second
-// return value is false when the user cancelled.
-func Select(prompt string, items []string) (string, bool) {
-	return run(prompt, items)
-}
-
-// Prompt shows fuzzel as a single-line text input (no result list) and returns
-// whatever text the user typed (used for free-text input such as a new session
-// name). --lines=0 collapses the list area so it doesn't render tall and empty.
+// Prompt reads a line of free text; the second return is false only on cancel,
+// so an empty line returns ("", true).
 func Prompt(prompt string) (string, bool) {
 	return run(prompt, nil, "--lines=0")
+}
+
+// PromptSimple reads a line of free text, returning "" for both an empty line
+// and a cancel.
+func PromptSimple(prompt string) string {
+	result, _ := run(prompt, nil, "--lines=0")
+	return result
 }

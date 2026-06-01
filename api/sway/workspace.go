@@ -86,6 +86,59 @@ func WorkspaceWindowCountByNum(num int) int {
 	return countWindows(*node)
 }
 
+// KillWorkspaceWindowsByNum closes every window on the workspace with the given
+// number. See killWorkspaceWindows for why con_id targeting is used.
+func KillWorkspaceWindowsByNum(num int) {
+	killWorkspaceWindows(func(n TreeNode) bool {
+		return n.Type == "workspace" && n.Num == num
+	})
+}
+
+// KillWorkspaceWindows closes every window on the workspace with the exact given
+// name. See killWorkspaceWindows for why con_id targeting is used.
+func KillWorkspaceWindows(name string) {
+	killWorkspaceWindows(func(n TreeNode) bool {
+		return n.Type == "workspace" && n.Name == name
+	})
+}
+
+// killWorkspaceWindows kills each window on the first workspace matching match,
+// targeting them by their exact con_id rather than a [workspace="..."] criteria
+// — sway matches criteria as a regex, so e.g. "2" would also hit a parked
+// "smelter:2", and "smelter:2" would also hit "my-smelter:2".
+func killWorkspaceWindows(match func(TreeNode) bool) {
+	tree, err := GetTree()
+	if err != nil {
+		log.Errorf("Failed to read tree: %v", err)
+		return
+	}
+	node := FindContainer(tree, match)
+	if node == nil {
+		return
+	}
+	for _, id := range windowConIDs(*node) {
+		if err := Command(fmt.Sprintf("[con_id=%d] kill", id)); err != nil {
+			log.Errorf("Failed to kill con %d: %v", id, err)
+		}
+	}
+}
+
+// windowConIDs returns the con_ids of the actual windows (leaf containers) under
+// node.
+func windowConIDs(node TreeNode) []int64 {
+	ids := []int64{}
+	for _, child := range append(append([]TreeNode{}, node.Nodes...), node.FloatingNodes...) {
+		if len(child.Nodes) == 0 && len(child.FloatingNodes) == 0 {
+			if child.Type == "con" || child.Type == "floating_con" {
+				ids = append(ids, child.ID)
+			}
+		} else {
+			ids = append(ids, windowConIDs(child)...)
+		}
+	}
+	return ids
+}
+
 func countWindows(node TreeNode) int {
 	count := 0
 	for _, child := range append(append([]TreeNode{}, node.Nodes...), node.FloatingNodes...) {

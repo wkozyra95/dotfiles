@@ -21,6 +21,11 @@ func SmelterSessionTemplates(p string) []env.SessionTemplate {
 	pnpmDev := func(id, dir string, slot int) env.SessionTask {
 		return env.SessionTask{ID: id, Cwd: path.Join(p, dir), Args: []string{"pnpm", "dev"}, Slot: slot}
 	}
+	// A terminal running `claude --ide` on the partner workspace (slot 1, the
+	// secondary output) so each smelter session comes up with Claude attached.
+	claudeIde := func(dir string) env.SessionTask {
+		return env.SessionTask{ID: "claude", Cwd: path.Join(p, dir), Args: []string{"claude", "--ide"}, Slot: 1}
+	}
 	// Submodule-populate command for a fresh worktree. When the primary
 	// checkout's object store is present, source the snapshot submodule's
 	// ~470MB from it (--reference) and copy them in (--dissociate) so the clone
@@ -35,6 +40,7 @@ func SmelterSessionTemplates(p string) []env.SessionTemplate {
 		{ID: "smelter", Name: "smelter (core)", Tasks: []env.SessionTask{
 			shell("shell", "smelter", 0),
 			shell("shell-partner", "smelter", 1),
+			claudeIde("smelter"),
 		}},
 		{
 			// Like "smelter (core)" but in a fresh worktree of the smelter repo
@@ -45,6 +51,9 @@ func SmelterSessionTemplates(p string) []env.SessionTemplate {
 			Tasks: []env.SessionTask{
 				{ID: "shell", Args: []string{"zsh"}, Slot: 0},
 				{ID: "shell-partner", Args: []string{"zsh"}, Slot: 1},
+				// `claude --ide` on the partner workspace (secondary output); Cwd
+				// is the worktree, filled in by Prepare/overrideCwd.
+				{ID: "claude", Slot: 1, Args: []string{"claude", "--ide"}},
 				// Populate the snapshot submodule in its own terminal on the
 				// partner workspace; Cwd is the worktree, filled in by Prepare.
 				{ID: "submodules", Slot: 1, Args: submoduleUpdate},
@@ -53,13 +62,16 @@ func SmelterSessionTemplates(p string) []env.SessionTemplate {
 		{ID: "smelter-website", Name: "smelter website", Tasks: []env.SessionTask{
 			shell("shell", "smelter-website", 0),
 			pnpmDev("dev", "smelter-website", 1),
+			claudeIde("smelter-website"),
 		}},
 		{ID: "smelter-tools", Name: "smelter tools", Tasks: []env.SessionTask{
 			shell("shell", "tools", 0),
 			pnpmDev("dev", "tools", 1),
+			claudeIde("tools"),
 		}},
 		{ID: "smelter-skills", Name: "smelter skills", Tasks: []env.SessionTask{
 			shell("shell", "skills", 0),
+			claudeIde("skills"),
 		}},
 	}
 	// One template per existing worktree of the smelter repo (resolved
@@ -84,6 +96,7 @@ func smelterWorktreeTemplates(root string) []env.SessionTemplate {
 			Tasks: []env.SessionTask{
 				{ID: "shell", Cwd: wt, Args: []string{"zsh"}, Slot: 0},
 				{ID: "shell-partner", Cwd: wt, Args: []string{"zsh"}, Slot: 1},
+				{ID: "claude", Cwd: wt, Args: []string{"claude", "--ide"}, Slot: 1},
 			},
 		})
 	}
