@@ -22,8 +22,8 @@ bindsym $mod+p exec $menu
 bindsym $mod+Ctrl+r reload
 
 # Session manager
-bindsym $mod+o exec mycli session new
-bindsym $mod+grave exec mycli session switch
+bindsym $mod+o exec mycli session switch
+bindsym $mod+grave exec mycli session new
 
 floating_modifier $mod normal
 
