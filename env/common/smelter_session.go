@@ -73,6 +73,10 @@ func SmelterSessionTemplates(p string) []env.SessionTemplate {
 			shell("shell", "skills", 0),
 			claudeIde("skills"),
 		}},
+		{ID: "smelter-examples", Name: "smelter examples", Tasks: []env.SessionTask{
+			shell("shell", "examples", 0),
+			claudeIde("examples"),
+		}},
 	}
 	// One template per existing worktree of the smelter repo (resolved
 	// dynamically), behaving like "smelter (core)" but in that worktree.

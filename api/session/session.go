@@ -314,7 +314,7 @@ func stashNameFor(u workspaceGroup) (string, error) {
 	if name := u.activeName(); name != "" {
 		return name, nil
 	}
-	typed := menu.PromptSimple("Project name (stashed): ")
+	typed := menu.Prompt("Project name (stashed): ")
 	if typed == "" {
 		return "", ErrCanceled
 	}
@@ -369,7 +369,7 @@ func New(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	name := menu.PromptSimple("Project name: ")
+	name := menu.Prompt("Project name: ")
 	if name == "" {
 		return ErrCanceled
 	}
@@ -416,9 +416,10 @@ func Switch() error {
 	primaryOut, partnerOut := target.outputs(ws.Num, ws.Output)
 
 	// Settle the focused group's tag before switching away from it: an empty group
-	// drops its (now stale) tag; an occupied but unnamed group is named now so it
-	// can be stashed/tracked — unless the name is left blank, which closes its
-	// windows (discarding them) instead of stashing them.
+	// drops its (now stale) tag. An occupied group keeps its windows until the
+	// picker choice commits; if it is unnamed its name is resolved at stash time
+	// by stashNameFor (or it is discarded via the "close current" entry), so a
+	// cancel here leaves the current windows untouched.
 	hasWindows := target.windowCount() > 0
 	if !hasWindows {
 		if err := getStateManager().RunGuarded(func(s *SessionState) error {
@@ -428,34 +429,6 @@ func Switch() error {
 			log.Errorf("Failed to clear active session name: %v", err)
 		}
 		refreshBar()
-	} else if target.activeName() == "" {
-		typed, ok := menu.Prompt("Project name (blank closes): ")
-		if !ok {
-			return ErrCanceled
-		}
-		if typed == "" {
-			// Blank submission: discard this group's windows rather than stash.
-			closeGroupWindows(target)
-			hasWindows = false
-			if err := getStateManager().RunGuarded(func(s *SessionState) error {
-				delete(s.Active, target.key())
-				return nil
-			}); err != nil {
-				log.Errorf("Failed to clear active session name: %v", err)
-			}
-			refreshBar()
-		} else {
-			if !nameIsFree(typed) {
-				return fmt.Errorf("a stashed project named %q already exists", typed)
-			}
-			if err := getStateManager().RunGuarded(func(s *SessionState) error {
-				s.Active[target.key()] = typed
-				return nil
-			}); err != nil {
-				log.Errorf("Failed to record active session name: %v", err)
-			}
-			refreshBar()
-		}
 	}
 
 	state, stateErr := getStateManager().GetState()

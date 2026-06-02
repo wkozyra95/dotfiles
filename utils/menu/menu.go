@@ -12,8 +12,10 @@ import (
 
 var log = logger.NamedLogger("menu")
 
-// run shows fuzzel and returns the selection, with false only on cancel — an
-// empty submission still returns ("", true).
+// run shows fuzzel and returns the selection. The second return is false on
+// cancel; since fuzzel treats Enter on empty input as a cancel (non-zero exit),
+// an empty submission is indistinguishable from cancel and also returns
+// ("", false) — there is no way to submit an empty string.
 func run(prompt string, items []string, extraArgs ...string) (string, bool) {
 	args := append([]string{"--dmenu", "--prompt", prompt + " "}, extraArgs...)
 	cmd := exec.Command("fuzzel", args...)
@@ -40,15 +42,9 @@ func Select(prompt string, items []string) (string, bool) {
 	return result, true
 }
 
-// Prompt reads a line of free text; the second return is false only on cancel,
-// so an empty line returns ("", true).
-func Prompt(prompt string) (string, bool) {
-	return run(prompt, nil, "--lines=0")
-}
-
-// PromptSimple reads a line of free text, returning "" for both an empty line
-// and a cancel.
-func PromptSimple(prompt string) string {
+// Prompt reads a line of free text, returning "" on cancel. An empty line
+// cannot be submitted (Enter on empty input cancels), so "" always means cancel.
+func Prompt(prompt string) string {
 	result, _ := run(prompt, nil, "--lines=0")
 	return result
 }
