@@ -17,8 +17,6 @@ var Config = env.EnvironmentConfig{
 		common.HomeWorkspace,
 		common.SmelterConfig.Smelter(path.Join(homeDir, "smelter/smelter")),
 		common.SmelterConfig.SmelterTypescript(path.Join(homeDir, "smelter/smelter/ts")),
-		common.SmelterConfig.Smelter(path.Join(homeDir, "smelter/smelter-2")),
-		common.SmelterConfig.SmelterTypescript(path.Join(homeDir, "smelter/smelter-2/ts")),
 	},
 	SessionTemplates: func() []env.SessionTemplate {
 		return append(

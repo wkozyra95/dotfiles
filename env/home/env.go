@@ -9,10 +9,7 @@ import (
 	"github.com/wkozyra95/dotfiles/env/common"
 )
 
-var (
-	homeDir             = os.Getenv("HOME")
-	eslintConfigEnabled = true
-)
+var homeDir = os.Getenv("HOME")
 
 var Config = env.EnvironmentConfig{
 	Workspaces: []env.Workspace{
@@ -44,23 +41,6 @@ var Config = env.EnvironmentConfig{
 			},
 		},
 		common.HomeWorkspace,
-		{Name: "test", Path: path.Join(homeDir, "playground/vimtest"), VimConfig: env.VimConfig{
-			Eslint: &eslintConfigEnabled,
-			CmakeEfm: map[string]any{
-				"formatCommand": "cmake-format --tab-size 4 ${INPUT}",
-				"formatStdin":   false,
-			},
-		}},
-		{
-			Name: "cache",
-			Path: path.Join(homeDir, "drive/MyProjects/eas-build-cache"),
-			VimConfig: env.VimConfig{
-				GoEfm: map[string]any{
-					"formatCommand": "gofumpt",
-					"formatStdin":   true,
-				},
-			},
-		},
 		common.SmelterConfig.Smelter(path.Join(homeDir, "smelter/smelter")),
 		common.SmelterConfig.SmelterTypescript(path.Join(homeDir, "smelter/smelter/ts")),
 	},
