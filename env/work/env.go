@@ -21,9 +21,11 @@ var Config = env.EnvironmentConfig{
 		common.SmelterConfig.SmelterTypescript(path.Join(homeDir, "smelter/smelter-2/ts")),
 	},
 	SessionTemplates: func() []env.SessionTemplate {
-		templates := []env.SessionTemplate{common.DotfilesSessionTemplate}
-		templates = append(templates, common.SmelterSessionTemplates(path.Join(homeDir, "smelter"))...)
-		return append(templates, common.SkillsSessionTemplate)
+		return append(
+			common.SmelterSessionTemplates(path.Join(homeDir, "smelter")),
+			common.DotfilesSessionTemplate,
+			common.SkillsSessionTemplate,
+		)
 	},
 	Init: []env.InitAction{
 		{Args: []string{"google-chrome-stable", "--proxy-pac-url=http://localhost:2000/proxy.pac"}},

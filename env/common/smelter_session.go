@@ -37,13 +37,13 @@ func SmelterSessionTemplates(p string) []env.SessionTemplate {
 	}
 	submoduleUpdate = append(submoduleUpdate, "integration-tests/snapshots")
 	templates := []env.SessionTemplate{
-		{ID: "smelter", Name: "smelter (core)", Tasks: []env.SessionTask{
+		{ID: "smelter", Name: "smelter", Tasks: []env.SessionTask{
 			shell("shell", "smelter", 0),
 			shell("shell-partner", "smelter", 1),
 			claudeIde("smelter"),
 		}},
 		{
-			// Like "smelter (core)" but in a fresh worktree of the smelter repo
+			// Like "smelter" but in a fresh worktree of the smelter repo
 			// on branch @wkozyra95/<project-name>, created from the prompted name.
 			ID:      "smelter-worktree",
 			Name:    "smelter worktree",
