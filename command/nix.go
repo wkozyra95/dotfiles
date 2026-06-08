@@ -19,12 +19,12 @@ func RegisterNixCmds(rootCmd *cobra.Command) {
 	}
 
 	shells := []string{
+		"smelter",
 		"membrane",
 		"devops",
 		"elixir",
 		"rust",
 		"nodejs",
-		"smelter",
 	}
 
 	templates := []string{"rust", "nodejs"}
@@ -43,7 +43,15 @@ func RegisterNixCmds(rootCmd *cobra.Command) {
 			if didSelect {
 				runErr := exec.Command().
 					WithStdio().
-					Args("nix", "develop", fmt.Sprintf("%s#%s", dotfilesDir, selectedShell)).
+					// nix develop sets PATH dev-shell-first, but it doesn't carry
+					// the nix profile guard, so any shell started inside (e.g. zsh)
+					// re-sources /etc/zsh/zshrc -> nix-daemon.sh and re-prepends
+					// ~/.nix-profile/bin, shadowing the dev shell. Pre-set the guard
+					// so that re-prepend is skipped and dev-shell tools win.
+					WithEnv("__ETC_PROFILE_NIX_SOURCED=1").
+					// Launch straight into zsh instead of the default bash. The
+					// guard above keeps the dev shell ahead of ~/.nix-profile here.
+					Args("nix", "develop", fmt.Sprintf("%s#%s", dotfilesDir, selectedShell), "--command", "zsh").
 					Run()
 				if runErr != nil {
 					log.Error(runErr)

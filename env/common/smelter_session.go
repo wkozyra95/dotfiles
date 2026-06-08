@@ -37,7 +37,7 @@ func SmelterSessionTemplates(p string) []env.SessionTemplate {
 	}
 	submoduleUpdate = append(submoduleUpdate, "integration-tests/snapshots")
 	templates := []env.SessionTemplate{
-		{ID: "smelter", Name: "smelter (core)", Tasks: []env.SessionTask{
+		{ID: "smelter", Name: "smelter", Tasks: []env.SessionTask{
 			shell("shell", "smelter", 0),
 			shell("shell-partner", "smelter", 1),
 			claudeIde("smelter"),

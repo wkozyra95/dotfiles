@@ -21,8 +21,8 @@ var Config = env.EnvironmentConfig{
 		common.SmelterConfig.SmelterTypescript(path.Join(homeDir, "smelter/smelter-2/ts")),
 	},
 	SessionTemplates: func() []env.SessionTemplate {
-		templates := []env.SessionTemplate{common.DotfilesSessionTemplate}
-		templates = append(templates, common.SmelterSessionTemplates(path.Join(homeDir, "smelter"))...)
+		templates := common.SmelterSessionTemplates(path.Join(homeDir, "smelter"))
+		templates = append(templates, common.DotfilesSessionTemplate)
 		return append(templates, common.SkillsSessionTemplate)
 	},
 	Init: []env.InitAction{
