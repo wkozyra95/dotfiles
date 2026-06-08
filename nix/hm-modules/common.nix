@@ -27,6 +27,11 @@ in
       save = 1000000;
       size = 1000000;
       share = true;
+      # SHARE_HISTORY relies on per-entry timestamps to re-find its read
+      # position after the file is rewritten by a sibling shell. Without
+      # EXTENDED_HISTORY, concurrently-launched session shells lose the spot
+      # and come up with a stale/empty history. Keep this on whenever share is.
+      extended = true;
     };
     shellAliases = {
       g = "git";
@@ -84,6 +89,7 @@ in
     file
     lsof
     git-crypt
+    docker-credential-helpers # provides docker-credential-secretservice; keeps registry tokens out of ~/.docker/config.json
     wget
     curl
     unzip

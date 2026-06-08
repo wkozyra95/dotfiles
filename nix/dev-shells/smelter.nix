@@ -68,5 +68,11 @@ pkgs.mkShell {
 
   shellHook = ''
     export LD_LIBRARY_PATH=${lib.makeLibraryPath smelterRuntimeLibs}:$LD_LIBRARY_PATH
+    # vulkan-loader ships libvulkan.so but no driver (ICD). Without a driver the
+    # loader enumerates zero devices and smelter falls back to the GL backend.
+    # It can't use the host driver either: the dev-shell XDG_DATA_DIRS doesn't
+    # include /usr/share, so /usr/share/vulkan/icd.d is never scanned. Point the
+    # loader at mesa's ICDs (RADV for AMD, ANV for Intel) so a real GPU is found.
+    export XDG_DATA_DIRS=${pkgs.mesa}/share''${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}
   '';
 }
