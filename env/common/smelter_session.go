@@ -37,7 +37,7 @@ func SmelterSessionTemplates(p string) []env.SessionTemplate {
 	}
 	submoduleUpdate = append(submoduleUpdate, "integration-tests/snapshots")
 	templates := []env.SessionTemplate{
-		{ID: "smelter", Name: "smelter", Tasks: []env.SessionTask{
+		{ID: "smelter", Name: "smelter", DefaultName: "smelter", Tasks: []env.SessionTask{
 			shell("shell", "smelter", 0),
 			shell("shell-partner", "smelter", 1),
 			claudeIde("smelter"),
@@ -59,28 +59,28 @@ func SmelterSessionTemplates(p string) []env.SessionTemplate {
 				{ID: "submodules", Slot: 1, Args: submoduleUpdate},
 			},
 		},
-		{ID: "smelter-website", Name: "smelter website", Tasks: []env.SessionTask{
+		{ID: "smelter-website", Name: "smelter website", DefaultName: "smelter-website", Tasks: []env.SessionTask{
 			shell("shell", "smelter-website", 0),
 			pnpmDev("dev", "smelter-website", 1),
 			claudeIde("smelter-website"),
 		}},
-		{ID: "smelter-tools", Name: "smelter tools", Tasks: []env.SessionTask{
+		{ID: "smelter-tools", Name: "smelter tools", DefaultName: "smelter-tools", Tasks: []env.SessionTask{
 			shell("shell", "tools", 0),
 			pnpmDev("dev", "tools", 1),
 			claudeIde("tools"),
 		}},
-		{ID: "smelter-skills", Name: "smelter skills", Tasks: []env.SessionTask{
+		{ID: "smelter-skills", Name: "smelter skills", DefaultName: "smelter-skills", Tasks: []env.SessionTask{
 			shell("shell", "skills", 0),
 			claudeIde("skills"),
 		}},
-		{ID: "smelter-examples", Name: "smelter examples", Tasks: []env.SessionTask{
+		{ID: "smelter-examples", Name: "smelter examples", DefaultName: "smelter-examples", Tasks: []env.SessionTask{
 			shell("shell", "examples", 0),
 			claudeIde("examples"),
 		}},
 	}
 	// One template per existing worktree of the smelter repo (resolved
 	// dynamically), behaving like "smelter (core)" but in that worktree.
-	return append(templates, smelterWorktreeTemplates(p)...)
+	return append(smelterWorktreeTemplates(p), templates...)
 }
 
 // smelterWorktreeTemplates builds a "smelter (core)"-style template for each
@@ -95,8 +95,9 @@ func smelterWorktreeTemplates(root string) []env.SessionTemplate {
 		}
 		base := path.Base(wt)
 		result = append(result, env.SessionTemplate{
-			ID:   "worktree-" + base,
-			Name: "smelter worktree: " + base,
+			ID:          "worktree-" + base,
+			Name:        "smelter worktree: " + base,
+			DefaultName: base,
 			Tasks: []env.SessionTask{
 				{ID: "shell", Cwd: wt, Args: []string{"zsh"}, Slot: 0},
 				{ID: "shell-partner", Cwd: wt, Args: []string{"zsh"}, Slot: 1},

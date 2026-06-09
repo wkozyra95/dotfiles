@@ -46,9 +46,15 @@ type SessionTask struct {
 // SessionTemplate is a project blueprint launched into the current workspace
 // pair by the session manager.
 type SessionTemplate struct {
-	ID    string        `json:"id"`
-	Name  string        `json:"name"`
-	Tasks []SessionTask `json:"tasks"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	// DefaultName, when non-empty, is the project name claimed automatically for
+	// a freshly launched session: if no session of that name already exists it is
+	// used without prompting; only on a collision is the user asked to type one.
+	// Empty means always prompt (e.g. templates whose name must be unique per
+	// launch, such as worktree templates that derive a branch from it).
+	DefaultName string        `json:"default_name,omitempty"`
+	Tasks       []SessionTask `json:"tasks"`
 	// Prepare, when set, runs at launch with the prompted project name and
 	// returns the working directory the tasks should run in (overriding each
 	// task's Cwd). Used e.g. to create a git worktree for the project.

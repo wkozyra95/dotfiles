@@ -78,6 +78,7 @@ package session
 import (
 	"errors"
 	"fmt"
+	"path"
 	"sort"
 	"strconv"
 
@@ -305,6 +306,37 @@ func nameIsFree(name string) bool {
 	return !exists
 }
 
+// nameTaken reports whether a project name is already in use — either stashed or
+// live in some group. Used to decide whether a template's default name can be
+// claimed without prompting.
+func nameTaken(name string) bool {
+	state, err := getStateManager().GetState()
+	if err != nil {
+		return false
+	}
+	state = ensureDefault(state)
+	if _, exists := state.Sessions[name]; exists {
+		return true
+	}
+	for _, active := range state.Active {
+		if active == name {
+			return true
+		}
+	}
+	return false
+}
+
+// nameForNew resolves the project name for a freshly launched template: a
+// template's DefaultName is claimed silently when it is still free, otherwise
+// (on a collision, or when the template has no default) the user is prompted.
+// Returns "" if the prompt is dismissed.
+func nameForNew(tpl env.SessionTemplate) string {
+	if tpl.DefaultName != "" && !nameTaken(tpl.DefaultName) {
+		return tpl.DefaultName
+	}
+	return menu.Prompt("Project name: ")
+}
+
 // stashNameFor resolves the name to stash the group under: its tracked live
 // name if it has one, otherwise it prompts. Returns ErrCanceled if the prompt is
 // dismissed, or an error if the chosen name is already taken. Resolving the name
@@ -369,7 +401,7 @@ func New(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	name := menu.Prompt("Project name: ")
+	name := nameForNew(tpl)
 	if name == "" {
 		return ErrCanceled
 	}
@@ -382,6 +414,10 @@ func New(ctx context.Context) error {
 			return fmt.Errorf("template setup failed: %w", prepareErr)
 		}
 		cwd = prepared
+		// Name the session after the prepared directory (e.g. a worktree at
+		// <root>/smelter-<name>) so creating it here and later relaunching it via
+		// its per-worktree template land on the same session name.
+		name = path.Base(prepared)
 	}
 
 	// Committed: free the group (under the name resolved above), lay it out, launch.
