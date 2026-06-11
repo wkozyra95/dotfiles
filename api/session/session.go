@@ -199,6 +199,12 @@ func doRestore(sess StashedSession, target workspaceGroup, primaryOut, partnerOu
 			if err := sway.MoveWorkspaceToOutput(name, out); err != nil {
 				log.Errorf("Failed to move %s to %s: %v", name, out, err)
 			}
+			// Pulling the workspace off the park output may have emptied it,
+			// making sway auto-create a numbered workspace there that grabs the
+			// number evictNumber just freed. Sweep it away before claiming ti,
+			// or the rename fails with "Workspace already exists" and the
+			// workspace stays visible under its parked "<name>:<slot>" name.
+			sway.SweepParkOutput()
 			if err := sway.RenameWorkspace(name, strconv.Itoa(ti)); err != nil {
 				log.Errorf("Failed to rename %s to %d: %v", name, ti, err)
 			}

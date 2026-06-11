@@ -36,6 +36,8 @@ func SmelterSessionTemplates(p string) []env.SessionTemplate {
 		submoduleUpdate = append(submoduleUpdate, "--reference", ref, "--dissociate")
 	}
 	submoduleUpdate = append(submoduleUpdate, "integration-tests/snapshots")
+	// The membrane plugin repo lives outside the smelter root, in ~/membrane.
+	membranePluginDir := path.Join(homeDir, "membrane", "membrane_smelter_plugin")
 	templates := []env.SessionTemplate{
 		{ID: "smelter", Name: "smelter", DefaultName: "smelter", Tasks: []env.SessionTask{
 			shell("shell", "smelter", 0),
@@ -76,6 +78,11 @@ func SmelterSessionTemplates(p string) []env.SessionTemplate {
 		{ID: "smelter-examples", Name: "smelter examples", DefaultName: "smelter-examples", Tasks: []env.SessionTask{
 			shell("shell", "examples", 0),
 			claudeIde("examples"),
+		}},
+		{ID: "membrane-smelter-plugin", Name: "membrane smelter plugin", DefaultName: "membrane-smelter-plugin", Tasks: []env.SessionTask{
+			{ID: "shell", Cwd: membranePluginDir, Args: []string{"zsh"}, Slot: 0},
+			{ID: "shell-partner", Cwd: membranePluginDir, Args: []string{"zsh"}, Slot: 1},
+			{ID: "claude", Cwd: membranePluginDir, Args: []string{"claude", "--ide"}, Slot: 1},
 		}},
 	}
 	// One template per existing worktree of the smelter repo (resolved
