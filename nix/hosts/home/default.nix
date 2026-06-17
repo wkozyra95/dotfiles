@@ -33,6 +33,7 @@ nixpkgs.lib.nixosSystem {
     ../../nix-modules/vm.nix
     ../../nix-modules/android.nix
     ../../nix-modules/printer.nix
+    ../../nix-modules/ollama.nix
     ({ config, lib, pkgs, ... }: {
       nixpkgs.overlays = overlays;
       home-manager = {

@@ -19,7 +19,13 @@ systemModules:
       ueberzugpp
       lutris
       wine
+      opencode # terminal coding agent; talks to the local Ollama server
     ];
+
+    # Live-editable (like the nvim config); points at the local Ollama server.
+    xdg.configFile."opencode/opencode.json".source =
+      config.lib.file.mkOutOfStoreSymlink
+        "${config.home.homeDirectory}/.dotfiles/configs/opencode/opencode.json";
 
     myconfig = {
       git.signingKey = "35DF 8DFA D0E7 1E39 F047 BD01 AE51 A568 2B78 648C";
