@@ -1,4 +1,4 @@
-{ pkgs, config, ... }:
+{ pkgs, config, lib, ... }:
 let
   mkOutOfStoreSymlink = config.lib.file.mkOutOfStoreSymlink;
   dotfilesSymlink = path:
@@ -26,24 +26,42 @@ in
     history = {
       save = 1000000;
       size = 1000000;
-      share = true;
-      # SHARE_HISTORY relies on per-entry timestamps to re-find its read
-      # position after the file is rewritten by a sibling shell. Without
-      # EXTENDED_HISTORY, concurrently-launched session shells lose the spot
-      # and come up with a stale/empty history. Keep this on whenever share is.
+      # Append-only history. SHARE_HISTORY is deliberately OFF: it re-finds its
+      # read position in the file by per-entry timestamp, and when many session
+      # shells start at once — or a reseed collapses every entry onto a single
+      # timestamp (which is what enabling EXTENDED_HISTORY on a timestamp-less
+      # file did, see git history) — that positioning breaks. The result is both
+      # runaway duplication (shells re-import and re-append what they already
+      # read) and whole-file truncation (a shell with a partial in-memory view
+      # rewrites the file). append=true makes the exit-save append rather than
+      # rewrite, so a stale shell can never clobber the file; INC_APPEND_HISTORY
+      # (set in initContent) persists each command immediately. extended is safe
+      # now that share is off — it just records accurate per-command timestamps.
+      share = false;
+      append = true;
       extended = true;
     };
     shellAliases = {
       g = "git";
       ggpush = "git push --set-upstream origin $(git_current_branch)";
     };
-    initContent = ''
-      function try_source() {
-          test -s $1 && source $1
-      }
-      try_source $HOME/.zshrc.secrets
-      try_source $HOME/.cache/mycli/completion/zsh_setup
-    '';
+    initContent = lib.mkMerge [
+      ''
+        function try_source() {
+            test -s $1 && source $1
+        }
+        try_source $HOME/.zshrc.secrets
+        try_source $HOME/.cache/mycli/completion/zsh_setup
+      ''
+      (lib.mkAfter ''
+        # Persist each command to $HISTFILE the moment it runs, append-only. With
+        # share=false + append=true above, no shell ever rewrites the whole file,
+        # so a stale session can't truncate it. Not exposed as a home-manager
+        # history option, so set it here; mkAfter keeps it after oh-my-zsh and the
+        # generated history block (both of which would otherwise re-toggle opts).
+        setopt INC_APPEND_HISTORY
+      '')
+    ];
     oh-my-zsh = {
       enable = true;
       plugins = [
