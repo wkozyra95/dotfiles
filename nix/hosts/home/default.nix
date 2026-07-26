@@ -50,6 +50,7 @@ nixpkgs.lib.nixosSystem {
       environment.systemPackages = [
         pkgs.usbutils
         pkgs.tailscale
+        pkgs.sox # command-line audio recording, playback, conversion and processing
       ];
       services.tailscale.enable = true;
       services.openssh.enable = true;

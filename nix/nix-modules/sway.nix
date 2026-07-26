@@ -78,6 +78,9 @@ in
   };
 
   services.dbus.enable = true;
+  # Unlock the gnome-keyring login keyring at TTY login (same password), so the
+  # Secret Service is usable for stored creds (e.g. docker-credential-secretservice).
+  security.pam.services.login.enableGnomeKeyring = true;
   xdg.portal = {
     enable = true;
     wlr.enable = true;
@@ -87,6 +90,13 @@ in
 
   myconfig.hm-modules = [
     {
+      # gnome-keyring provides the Secret Service (org.freedesktop.secrets) that
+      # docker-credential-secretservice (installed in common.nix) talks to.
+      # Limit to the "secrets" component so it doesn't hijack the ssh-agent.
+      services.gnome-keyring = {
+        enable = true;
+        components = [ "secrets" ];
+      };
       programs.alacritty.enable = true;
       gtk = {
         enable = true;

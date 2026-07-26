@@ -3,24 +3,23 @@ local module = {}
 local workspaces = require("myconfig.workspaces")
 
 function module.gopls_config()
+    local settings = {
+        gopls = {
+            buildFlags = {"-tags=e2e"},
+            analyses = {
+                composites = false
+            }
+        }
+    }
     if workspaces.current.vim.go_efm then
         return {
             on_attach = function(client)
                 client.server_capabilities.documentFormattingProvider = false;
             end,
-            settings = {gopls = {buildFlags = {"-tags=e2e"}}},
+            settings = settings,
         }
     else
-        return {
-            settings = {
-                gopls = {
-                    buildFlags = {"-tags=e2e"},
-                    analyses = {
-                        composites = false
-                    }
-                }
-            },
-        }
+        return {settings = settings}
     end
 end
 

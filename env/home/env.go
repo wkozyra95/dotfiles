@@ -40,6 +40,25 @@ var Config = env.EnvironmentConfig{
 				},
 			},
 		},
+		{
+			Name: "goscad", Path: path.Join(homeDir, "drive/MyProjects/goscad"),
+			VimConfig: env.VimConfig{
+				// Format with gofumpt (via efm), matching the project's `make fmt`
+				// and fmt-check gate; plain gofumpt, no golines line-wrapping.
+				GoEfm: map[string]any{
+					"formatCommand": "gofumpt",
+					"formatStdin":   true,
+				},
+				Actions: []env.VimAction{
+					{
+						ID:   "goscad_check",
+						Name: "[workspace] check",
+						Args: []string{"make", "check"},
+						Cwd:  path.Join(homeDir, "drive/MyProjects/goscad"),
+					},
+				},
+			},
+		},
 		common.HomeWorkspace,
 		common.SmelterConfig.Smelter(path.Join(homeDir, "smelter/smelter")),
 		common.SmelterConfig.SmelterTypescript(path.Join(homeDir, "smelter/smelter/ts")),
