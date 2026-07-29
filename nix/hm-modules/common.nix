@@ -60,6 +60,22 @@ in
         # history option, so set it here; mkAfter keeps it after oh-my-zsh and the
         # generated history block (both of which would otherwise re-toggle opts).
         setopt INC_APPEND_HISTORY
+        # ~/.zsh_history is chattr +a (kernel append-only) since the 2026-07-27
+        # truncation: appends (O_WRONLY|O_APPEND) work, rewrites/renames get
+        # EPERM. HIST_FCNTL_LOCK must stay off under +a — its lock open is
+        # O_RDWR without O_APPEND, which EPERMs and makes zsh silently skip
+        # every history write. The fallback $HISTFILE.LOCK locking is a
+        # separate file, unaffected by the attribute.
+        unsetopt HIST_FCNTL_LOCK
+        # Even with append opts, zsh's exit-time save re-reads and REWRITES the
+        # whole histfile — normally via the shared $HISTFILE.new + rename, which
+        # is the race that truncated history on 2026-07-27 when two shells
+        # exited at once. NO_HIST_SAVE_BY_COPY makes that rewrite in-place
+        # instead, so chattr +a rejects it at open() — no .new litter, no
+        # rename race; the only trace is one "failed to write history file"
+        # stderr line per shell exit. All real data is already on disk from
+        # INC_APPEND, so nothing is lost by the rewrite failing.
+        unsetopt HIST_SAVE_BY_COPY
       '')
     ];
     oh-my-zsh = {

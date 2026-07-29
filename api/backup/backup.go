@@ -11,6 +11,7 @@ import (
 	"github.com/wkozyra95/dotfiles/tool/drive"
 	"github.com/wkozyra95/dotfiles/utils/exec"
 	"github.com/wkozyra95/dotfiles/utils/file"
+	"github.com/wkozyra95/dotfiles/utils/notify"
 )
 
 var log = logger.NamedLogger("backup")
@@ -231,7 +232,13 @@ func BackupZSHHistory(ctx context.Context) error {
 		return statBackupErr
 	}
 	if statBackupErr == nil && historyFileInfo.Size() < backupFileInfo.Size() {
-		// TODO: send desktop notification when this happens
+		notify.Notify(
+			"zsh history shrunk",
+			fmt.Sprintf(
+				"~/.zsh_history is %d bytes, backup is %d bytes — history was truncated; restore from ~/.zsh_history.backup",
+				historyFileInfo.Size(), backupFileInfo.Size(),
+			),
+		)
 		return nil
 	}
 	return file.Copy(historyFilePath, historyBackupFilePath)
