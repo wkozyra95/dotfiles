@@ -41,6 +41,11 @@ type SessionTask struct {
 	// Slot selects the target workspace within the unit: 0 = primary (focused),
 	// 1 = partner.
 	Slot int `json:"slot"`
+	// Shell keeps the terminal alive once the command exits, handing it over to
+	// an interactive zsh in the same directory and environment instead of
+	// closing the window. Set it for long-lived foreground programs you step out
+	// of and want to keep the terminal after (e.g. `claude`).
+	Shell bool `json:"shell,omitempty"`
 }
 
 // SessionTemplate is a project blueprint launched into the current workspace

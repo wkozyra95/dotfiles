@@ -275,7 +275,8 @@ func pickTemplate(ctx context.Context, u workspaceGroup) (env.SessionTemplate, e
 
 // launchTemplate spawns each of a template's tasks as a plain terminal routed to
 // the right workspace via its --class. These are ordinary windows (not
-// supervised services): if the command exits, the terminal simply closes. When
+// supervised services): if the command exits, the terminal simply closes —
+// unless the task asks for a shell to be left behind (see terminalCommand). When
 // overrideCwd is non-empty it replaces each task's Cwd.
 func launchTemplate(tpl env.SessionTemplate, u workspaceGroup, overrideCwd string) {
 	for _, task := range tpl.Tasks {
@@ -293,12 +294,62 @@ func launchTemplate(tpl env.SessionTemplate, u workspaceGroup, overrideCwd strin
 		}
 		if len(task.Args) > 0 {
 			args = append(args, "-e")
-			args = append(args, task.Args...)
+			args = append(args, terminalCommand(cwd, task)...)
 		}
 		if _, err := exec.Command().Args(args...).Start(); err != nil {
 			log.Errorf("Failed to launch template task %s: %v", task.ID, err)
 		}
 	}
+}
+
+// interactiveShells are commands that already provide everything terminalCommand
+// adds — they load direnv themselves via the hook their rc file installs, and
+// there is nothing to fall back to when they exit — so they run unwrapped.
+var interactiveShells = map[string]bool{"zsh": true, "bash": true, "sh": true, "fish": true}
+
+const (
+	// direnvLoad pulls in the working directory's direnv environment. direnv
+	// failures — a blocked .envrc, a dev shell that won't build — are swallowed:
+	// the command still starts, just without the project environment, rather
+	// than the terminal dying on the spot. The dev shell env carries no
+	// __ETC_PROFILE_NIX_SOURCED guard of its own, so it is exported here: it
+	// stops /etc/zshrc -> nix-daemon.sh from re-prepending ~/.nix-profile/bin
+	// over the dev shell in every shell started below (the trailing zsh, and
+	// claude's own shell subprocesses). See command/nix.go for the same trick.
+	direnvLoad = `eval "$(direnv export bash 2>/dev/null)"; export __ETC_PROFILE_NIX_SOURCED=1; `
+	// runCommand hands the terminal to the command itself, so the window closes
+	// when it exits.
+	runCommand = `exec "$@"`
+	// runCommandThenShell keeps the terminal after the command exits, dropping
+	// into zsh with the same directory and environment (SessionTask.Shell).
+	runCommandThenShell = `"$@"; exec zsh`
+)
+
+// terminalCommand builds what alacritty runs for a task.
+//
+// Anything that is not itself a shell gets wrapped in a bash -c script that
+// first applies the project's direnv environment (for the smelter projects: the
+// nix dev shell providing node/pnpm/ffmpeg/...). Only shells pick direnv up on
+// their own, at their first prompt; a command alacritty exec's directly —
+// `claude`, `pnpm dev` — never triggers the hook, so it (and everything it
+// spawns, e.g. claude's own shell commands) would otherwise run with the bare
+// login environment. Tasks marked Shell additionally leave an interactive zsh
+// behind instead of closing the window when the command exits.
+func terminalCommand(cwd string, task env.SessionTask) []string {
+	direnv := cwd != "" && exec.CommandExists("direnv")
+	if len(task.Args) == 0 || interactiveShells[task.Args[0]] || (!direnv && !task.Shell) {
+		return task.Args
+	}
+	script := runCommand
+	if task.Shell {
+		script = runCommandThenShell
+	}
+	if direnv {
+		script = direnvLoad + script
+	}
+	// bash -c '<script>' <$0> <$1...>: the command is passed as positional
+	// arguments, so nothing needs quoting.
+	return append([]string{"bash", "-c", script, "session-task"}, task.Args...)
 }
 
 // nameIsFree reports whether a stash name is unused.
