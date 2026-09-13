@@ -80,6 +80,8 @@
 
   services.openssh.enable = true;
   security.rtkit.enable = true;
-  hardware.bluetooth.enable = true;
-  hardware.bluetooth.powerOnBoot = true;
+  # Wired NAS: the Intel 9260 WiFi/BT card is unused, keep its radios off (~1-2 W).
+  hardware.bluetooth.enable = false;
+  hardware.bluetooth.powerOnBoot = false;
+  boot.blacklistedKernelModules = [ "iwlwifi" "btusb" ];
 }

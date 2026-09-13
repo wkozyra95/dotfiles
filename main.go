@@ -23,6 +23,7 @@ func main() {
 	command.RegisterAPICmds(rootCmd)
 	command.RegisterGitCmds(rootCmd)
 	command.RegisterNixCmds(rootCmd)
+	command.RegisterNasCmds(rootCmd)
 	command.RegisterCompletionCmds(rootCmd)
 	command.RegisterDockerCmds(rootCmd)
 

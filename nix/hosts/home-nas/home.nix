@@ -13,6 +13,7 @@ systemModules:
     home.packages = with pkgs; [
       bitwarden-cli
       gh
+      claude-code
     ];
 
     programs.gpg.enable = true;

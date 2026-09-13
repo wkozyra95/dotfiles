@@ -21,6 +21,10 @@
     };
   };
 
+  # Allow pushing locally built (unsigned) closures with
+  # `nixos-rebuild --target-host ${config.myconfig.username}@...`
+  nix.settings.trusted-users = [ "root" config.myconfig.username ];
+
   programs.zsh.enable = true;
 
   environment.systemPackages = with pkgs; [
@@ -33,11 +37,15 @@
   networking.networkmanager.insertNameservers = [ "8.8.8.8" ];
 
   networking.useDHCP = lib.mkDefault true;
+  # Keep the NIC armed for Wake-on-LAN magic packets (needs "Resume By PCI-E Device" in BIOS).
+  networking.interfaces.enp39s0.wakeOnLan.enable = true;
   #networking.interfaces.eno1.useDHCP = lib.mkDefault true;
   #networking.interfaces.wlp11s0.useDHCP = lib.mkDefault true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
+  # acpi-cpufreq + "powersave" pins the CPU at its lowest P-state (2.2 GHz) even under
+  # load; schedutil idles at the same 2.2 GHz but boosts when there is work.
+  powerManagement.cpuFreqGovernor = lib.mkDefault "schedutil";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
   hardware.amdgpu.initrd.enable = true;
