@@ -88,6 +88,11 @@ module.autoFix = function() print("autoFix not supported") end
 function module.lsp_setup(name, config)
     local capabilities = config.capabilities or vim.lsp.protocol.make_client_capabilities()
     capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
+    -- Neovim disables file watching on Linux by default, so servers do not see
+    -- changes made outside of the editor (requires inotifywait to be efficient).
+    capabilities = vim.tbl_deep_extend("force", capabilities, {
+        workspace = {didChangeWatchedFiles = {dynamicRegistration = true}},
+    })
     local default_config = {
         on_attach = function(client)
             if (config.on_attach) then
