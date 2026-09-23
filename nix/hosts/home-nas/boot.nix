@@ -46,18 +46,13 @@
         "nls_cp437"
         "nls_iso8859_1"
       ];
-      # Mount USB key before trying to decrypt root filesystem
-      postDeviceCommands = pkgs.lib.mkBefore ''
-        mkdir -m 0755 -p /usb-secrets
-        sleep 2 # To make sure the usb key has been loaded
-        mount -n -t vfat -o ro `findfs LABEL=SECRETS_USB` /usb-secrets
-      '';
       luks.devices = {
         root = {
           device = "/dev/disk/by-uuid/c55ce2d0-79c4-4e3f-af69-b9f41ee31246";
-          keyFile = "/usb-secrets/cryptlvm.keyfile";
-          fallbackToPassword = true;
-          preLVM = false;
+          # systemd-cryptsetup mounts the USB key itself (crypttab "keyfile:device"
+          # syntax) and falls back to a password prompt after the timeout.
+          keyFile = "/cryptlvm.keyfile:LABEL=SECRETS_USB";
+          keyFileTimeout = 10;
         };
       };
 

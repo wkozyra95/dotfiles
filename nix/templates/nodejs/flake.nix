@@ -18,9 +18,9 @@
                 yarn
                 npm
                 typescript
-                nodePackages.typescript-language-server
-                nodePackages.prettier
-                nodePackages.eslint
+                typescript-language-server
+                prettier
+                eslint
               ];
             };
           };

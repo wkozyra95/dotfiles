@@ -15,4 +15,8 @@ stdenv.mkDerivation {
   nativeBuildInputs = [
     cmake
   ];
+
+  # Bundled mimalloc 2.0.9 uses ATOMIC_VAR_INIT, which was removed in C23
+  # (GCC 15 default). Keep the C parts on C17.
+  cmakeFlags = [ "-DCMAKE_C_STANDARD=17" ];
 }

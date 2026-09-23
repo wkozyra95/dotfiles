@@ -5,8 +5,8 @@ pkgs.mkShell {
     nodejs
     corepack
     typescript
-    nodePackages.typescript-language-server
-    nodePackages.prettier
-    nodePackages.eslint
+    typescript-language-server
+    prettier
+    eslint
   ];
 }

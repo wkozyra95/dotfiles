@@ -48,7 +48,7 @@
       encrypted = {
         enable = true;
         blkDev = "/dev/disk/by-uuid/a2f19d9b-359f-470f-a5f6-71faf8dc6d8e";
-        keyFile = "/mnt-root/root/cryptlvm.keyfile";
+        keyFile = "/sysroot/root/cryptlvm.keyfile";
         label = "local_data_hdd";
       };
       depends = [ "/home" ];

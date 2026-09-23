@@ -29,7 +29,6 @@
         root = {
           device = "/dev/disk/by-uuid/6c560c44-363f-4e19-91a1-7709bbc0d9b6";
           keyFile = "/root/cryptlvm.keyfile";
-          fallbackToPassword = true;
         };
       };
       secrets = {

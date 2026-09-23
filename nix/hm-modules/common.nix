@@ -145,7 +145,7 @@ in
     cargo
     nil
     lua-language-server
-    nodePackages.typescript-language-server
+    typescript-language-server
     vscode-langservers-extracted
     efm-langserver
     elixir-ls

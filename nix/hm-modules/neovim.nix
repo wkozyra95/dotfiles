@@ -1,14 +1,15 @@
-{ custom, pkgs, config, ... }:
+{ pkgs, config, ... }:
 {
   programs.neovim = {
     enable = true;
     defaultEditor = true;
-    package = custom.unstable.neovim-unwrapped;
-    extraLuaConfig = ''
+    withPython3 = false;
+    withRuby = false;
+    initLua = ''
       vim.opt.rtp:prepend("${config.home.homeDirectory}/.dotfiles/configs/nvim")
       require("myconfig.main")
     '';
-    plugins = with custom.unstable.vimPlugins; [
+    plugins = with pkgs.vimPlugins; [
       popup-nvim
       nvim-web-devicons
       plenary-nvim

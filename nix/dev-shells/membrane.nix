@@ -6,14 +6,14 @@ let
 in
 pkgs.mkShell {
   env.LD_LIBRARY_PATH = lib.makeLibraryPath (with pkgs; [
-    xorg.libX11
-    xorg.libXext
-    xorg.libXrandr
-    xorg.libXfixes
-    xorg.libXi
-    xorg.libXcursor
-    xorg.libXcomposite
-    xorg.libXScrnSaver
+    libx11
+    libxext
+    libxrandr
+    libxfixes
+    libxi
+    libxcursor
+    libxcomposite
+    libxscrnsaver
     alsa-lib
     openssl
     ffmpeg

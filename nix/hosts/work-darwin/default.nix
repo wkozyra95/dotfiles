@@ -45,7 +45,6 @@ nix-darwin.lib.darwinSystem {
         overlays = overlays;
       };
 
-      services.nix-daemon.enable = true;
       users.users.${config.myconfig.username} = {
         home = "/Users/${config.myconfig.username}";
       };
