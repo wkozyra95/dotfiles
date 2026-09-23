@@ -232,13 +232,15 @@ func BackupZSHHistory(ctx context.Context) error {
 		return statBackupErr
 	}
 	if statBackupErr == nil && historyFileInfo.Size() < backupFileInfo.Size() {
-		notify.Notify(
-			"zsh history shrunk",
-			fmt.Sprintf(
+		notify.Notify(notify.Notification{
+			Title: "zsh history shrunk",
+			Message: fmt.Sprintf(
 				"~/.zsh_history is %d bytes, backup is %d bytes — history was truncated; restore from ~/.zsh_history.backup",
-				historyFileInfo.Size(), backupFileInfo.Size(),
+				historyFileInfo.Size(),
+				backupFileInfo.Size(),
 			),
-		)
+			Urgency: notify.Critical,
+		})
 		return nil
 	}
 	return file.Copy(historyFilePath, historyBackupFilePath)

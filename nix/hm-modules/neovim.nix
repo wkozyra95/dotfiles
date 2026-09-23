@@ -57,6 +57,8 @@
       claudecode-nvim
       snacks-nvim
     ];
+    # inotifywait is used by nvim as a backend for LSP file watching
+    extraPackages = pkgs.lib.optionals pkgs.stdenv.isLinux [ pkgs.inotify-tools ];
     extraLuaPackages = pkgs: [
       pkgs.lua-curl
       pkgs.xml2lua

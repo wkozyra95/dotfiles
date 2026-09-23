@@ -1,12 +1,13 @@
 module github.com/wkozyra95/dotfiles
 
-go 1.21
+go 1.23
 
 require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/davecgh/go-spew v1.1.1
 	github.com/docker/docker v23.0.0-rc.1+incompatible
 	github.com/fatih/color v1.13.0
+	github.com/go-chi/chi/v5 v5.3.2
 	github.com/google/go-github/v50 v50.2.0
 	github.com/juju/mutex v0.0.0-20180619145857-d21b13acf4bf
 	github.com/manifoldco/promptui v0.9.0

@@ -39,6 +39,9 @@ bindsym XF86AudioPlay exec playerctl play-pause
 bindsym XF86AudioNext exec playerctl next
 bindsym XF86AudioPrev exec playerctl previous
 
+# Notifications (dunst)
+bindsym $mod+n exec dunstctl context
+
 #
 # Moving around:
 #

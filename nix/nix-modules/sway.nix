@@ -38,7 +38,6 @@ in
     rhythmbox
     mpv
     vlc
-    dunst # notification daemon
   ];
   programs.sway.enable = true;
   programs.xwayland.enable = true;

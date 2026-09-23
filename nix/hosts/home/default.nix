@@ -34,6 +34,12 @@ nixpkgs.lib.nixosSystem {
     ../../nix-modules/android.nix
     ../../nix-modules/printer.nix
     ../../nix-modules/ollama.nix
+    (import ../../nix-modules/hostd.nix {
+      lanInterface = "eno1";
+      filesDir = "/var/lib/hostd-files";
+      filesLink = "/home/wojtek/Transfer";
+      sessionUser = "wojtek";
+    })
     ({ config, lib, pkgs, ... }: {
       nixpkgs.overlays = overlays;
       home-manager = {

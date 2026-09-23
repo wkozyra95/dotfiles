@@ -24,6 +24,7 @@ func main() {
 	command.RegisterGitCmds(rootCmd)
 	command.RegisterNixCmds(rootCmd)
 	command.RegisterNasCmds(rootCmd)
+	command.RegisterHostdCmds(rootCmd)
 	command.RegisterCompletionCmds(rootCmd)
 	command.RegisterDockerCmds(rootCmd)
 

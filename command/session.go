@@ -20,7 +20,7 @@ import (
 func withSessionLog(fn func() error) {
 	run := func() {
 		if err := fn(); err != nil && !errors.Is(err, session.ErrCanceled) {
-			notify.Notify("Session", err.Error())
+			notify.Notify(notify.Notification{Title: "Session", Message: err.Error(), Urgency: notify.Critical})
 		}
 	}
 	logfile := "/tmp/mycli/session.log"

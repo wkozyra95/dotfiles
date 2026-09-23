@@ -8,6 +8,7 @@ systemModules:
     ../../hm-modules/vim.nix
     ../../hm-modules/neovim.nix
     ../../hm-modules/dotfiles.nix
+    ../../hm-modules/dunst.nix
   ] ++ systemModules;
 
   config = {

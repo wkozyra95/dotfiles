@@ -28,6 +28,11 @@ nixpkgs.lib.nixosSystem {
     ./boot.nix
     ./presence-suspend.nix
     ../../nix-modules/common.nix
+    (import ../../nix-modules/hostd.nix {
+      lanInterface = "enp39s0";
+      # /storage is also mounted on the workstation (/mnt/nas)
+      filesDir = "/storage/transfer";
+    })
     ({ config, lib, pkgs, ... }: {
       nixpkgs.overlays = overlays;
       home-manager = {

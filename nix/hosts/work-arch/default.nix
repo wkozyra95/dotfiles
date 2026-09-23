@@ -31,6 +31,7 @@ inputs.home-manager.lib.homeManagerConfiguration {
     ../../hm-modules/vim.nix
     ../../hm-modules/neovim.nix
     ../../hm-modules/dotfiles.nix
+    ../../hm-modules/dunst.nix
     ({ config, lib, pkgs, ... }: {
       home.username = config.myconfig.username;
       home.homeDirectory = "/home/${config.myconfig.username}";

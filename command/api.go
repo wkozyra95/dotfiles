@@ -147,7 +147,13 @@ var endpoints = map[string]endpoint{
 			session.Reset()
 			for _, initCmd := range ctx.EnvironmentConfig.Init {
 				if _, err := exec.Command().WithCwd(initCmd.Cwd).Args(initCmd.Args...).Start(); err != nil {
-					notify.Notify("Init command failed", err.Error())
+					notify.Notify(
+						notify.Notification{
+							Title:   "Init command failed",
+							Message: err.Error(),
+							Urgency: notify.Critical,
+						},
+					)
 				}
 			}
 			// Always run the session listener (clears empty units' active tags
@@ -224,12 +230,20 @@ func RegisterAPICmds(rootCmd *cobra.Command) {
 func handleWithRealStdio(e endpoint, ctx context.Context, input map[string]any) {
 	result, commandErr := e.handler(ctx, input)
 	if commandErr != nil {
-		notify.Notify("Command failed", commandErr.Error())
+		notify.Notify(
+			notify.Notification{Title: "Command failed", Message: commandErr.Error(), Urgency: notify.Critical},
+		)
 		result = map[string]any{}
 	}
 	serialized, serializeErr := json.Marshal(result)
 	if serializeErr != nil {
-		notify.Notify("Failed to serialize api response", serializeErr.Error())
+		notify.Notify(
+			notify.Notification{
+				Title:   "Failed to serialize api response",
+				Message: serializeErr.Error(),
+				Urgency: notify.Critical,
+			},
+		)
 		panic(serializeErr)
 	}
 	fmt.Println(string(serialized))
@@ -247,17 +261,27 @@ func handleWithStdioRedirect(e endpoint, ctx context.Context, input map[string]a
 	}
 	redirects, redirectErr := term.RedirectStdioToFile(logfile)
 	if redirectErr != nil {
-		notify.Notify("Failed to redirect", redirectErr.Error())
+		notify.Notify(
+			notify.Notification{Title: "Failed to redirect", Message: redirectErr.Error(), Urgency: notify.Critical},
+		)
 		panic(redirectErr)
 	}
 	result, commandErr := e.handler(ctx, input)
 	if commandErr != nil {
-		notify.Notify("Command failed", commandErr.Error())
+		notify.Notify(
+			notify.Notification{Title: "Command failed", Message: commandErr.Error(), Urgency: notify.Critical},
+		)
 		result = map[string]any{}
 	}
 	serialized, serializeErr := json.Marshal(result)
 	if serializeErr != nil {
-		notify.Notify("Failed to serialize api response", serializeErr.Error())
+		notify.Notify(
+			notify.Notification{
+				Title:   "Failed to serialize api response",
+				Message: serializeErr.Error(),
+				Urgency: notify.Critical,
+			},
+		)
 		panic(serializeErr)
 	}
 	fmt.Fprintln(redirects.Stdout.RealStream(), string(serialized))

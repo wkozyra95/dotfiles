@@ -11,6 +11,7 @@ linters:
         - (io.Closer).Close
         - (io.Writer).Write
         - (*os.File).Close
+        - (net.Conn).Close
         - (*os.File).Write
     staticcheck:
       # Reproduce staticcheck's default exclusions (style checks that are too
