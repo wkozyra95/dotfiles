@@ -4,6 +4,11 @@ local module = {
             cargo = {
                 features = "all",
                 target = nil
+            },
+            -- Neovim's inotifywait watcher recurses into target/ and errors on
+            -- cargo's short-lived temp dirs; rust-analyzer's own watcher skips it.
+            files = {
+                watcher = "server"
             }
         }
     }

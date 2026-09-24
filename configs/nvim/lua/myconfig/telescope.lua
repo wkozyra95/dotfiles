@@ -68,7 +68,7 @@ function module.live_grep(opts)
                 table.insert(args, "**/*" .. prompt_split[2] .. "{*,*/**}")
             end
 
-            return vim.tbl_flatten {
+            return vim.iter({
                 args,
                 {
                     "--color=never",
@@ -80,7 +80,7 @@ function module.live_grep(opts)
                 },
                 no_ignore and {"--no-ignore"} or {},
                 hidden and {"--hidden"} or {},
-            }
+            }):flatten():totable()
         end,
         entry_maker = make_entry.gen_from_vimgrep(opts),
         cwd = opts.cwd,
