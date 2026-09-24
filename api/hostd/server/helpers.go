@@ -41,7 +41,7 @@ func errorResult(err error) (int, any) {
 	status := http.StatusInternalServerError
 	switch {
 	case errors.Is(err, hostd.ErrInvalidFileName), errors.Is(err, hostd.ErrIncompleteUpload),
-		errors.Is(err, notify.ErrInvalid):
+		errors.Is(err, hostd.ErrInvalidPushToken), errors.Is(err, notify.ErrInvalid):
 		status = http.StatusBadRequest
 	case errors.Is(err, hostd.ErrFileNotFound):
 		status = http.StatusNotFound

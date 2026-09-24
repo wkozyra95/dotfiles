@@ -1,5 +1,6 @@
 // Package hostd implements what the hostd server does on the host: power
-// management, file transfer directory and the token. Everything related to
+// management, file transfer directory, the registry of push tokens of mobile
+// devices (delivered to by api/mobile) and the token. Everything related to
 // HTTP lives in the server subpackage.
 package hostd
 

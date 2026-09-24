@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -21,7 +22,7 @@ func envOrDefault(name string, fallback string) string {
 func RegisterHostdCmds(rootCmd *cobra.Command) {
 	hostdCmd := &cobra.Command{
 		Use:   "hostd",
-		Short: "HTTP server for managing this host remotely (status / suspend / power off / files / notify)",
+		Short: "HTTP server for managing this host remotely (status / suspend / power off / files / notify / push tokens)",
 	}
 
 	// systemd passes it for StateDirectory=
@@ -46,21 +47,19 @@ func RegisterHostdCmds(rootCmd *cobra.Command) {
 	serveCmd.Flags().
 		BoolVar(&config.Notify, "notify", false, "enable /notify endpoint, desktop notifications in the session of the user running the service")
 
-	var tokenStateDir string
-	tokenCmd := &cobra.Command{
-		Use:   "token",
-		Short: "Print the token used to sign requests (needs root)",
+	var stateStateDir string
+	stateCmd := &cobra.Command{
+		Use:   "state",
+		Short: "Print what the service stores: the token used to sign requests and the registered push devices (needs root)",
 		Args:  cobra.ExactArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
-			token, err := hostd.ReadToken(tokenStateDir)
-			if err != nil {
-				log.Errorf("Unable to read the token, it is generated when hostd service starts [%v]", err)
+			if err := printState(stateStateDir); err != nil {
+				log.Error(err)
 				os.Exit(1)
 			}
-			fmt.Println(token)
 		},
 	}
-	tokenCmd.Flags().StringVar(&tokenStateDir, "state-dir", stateDir, "directory with the token")
+	stateCmd.Flags().StringVar(&stateStateDir, "state-dir", stateDir, "state directory of the service")
 
 	var logsLines int
 	logsCmd := &cobra.Command{
@@ -84,7 +83,54 @@ func RegisterHostdCmds(rootCmd *cobra.Command) {
 	logsCmd.Flags().IntVarP(&logsLines, "lines", "n", 100, "number of past log lines to show before following")
 
 	hostdCmd.AddCommand(serveCmd)
-	hostdCmd.AddCommand(tokenCmd)
+	hostdCmd.AddCommand(stateCmd)
 	hostdCmd.AddCommand(logsCmd)
 	rootCmd.AddCommand(hostdCmd)
+}
+
+// printState shows the token and the push devices, whichever of the two can be
+// read, and fails if either can not.
+func printState(stateDir string) error {
+	token, tokenErr := hostd.ReadToken(stateDir)
+	if tokenErr != nil {
+		fmt.Println("Token: not available, it is generated when the hostd service starts")
+	} else {
+		fmt.Printf("Token: %s\n", token)
+	}
+
+	devices, devicesErr := hostd.NewPushTokenStore(stateDir).List()
+	switch {
+	case devicesErr != nil:
+		fmt.Println("Push devices: not available")
+	case len(devices) == 0:
+		fmt.Println("Push devices: none, the app registers with POST /push-token")
+	default:
+		fmt.Printf("Push devices (%d):\n", len(devices))
+		for _, device := range devices {
+			fmt.Printf(
+				"  %-24s registered %s  token %s\n",
+				device.Name,
+				time.Unix(device.RegisteredAt, 0).Format("2006-01-02 15:04"),
+				abbreviate(device.Token),
+			)
+		}
+	}
+
+	if tokenErr != nil {
+		return fmt.Errorf("unable to read the token [%w]", tokenErr)
+	}
+	if devicesErr != nil {
+		return fmt.Errorf("unable to read the push devices [%w]", devicesErr)
+	}
+	return nil
+}
+
+// abbreviate keeps enough of an FCM token to tell devices apart, the whole
+// thing is 150+ characters.
+func abbreviate(token string) string {
+	const keep = 12
+	if len(token) <= 2*keep+1 {
+		return token
+	}
+	return token[:keep] + "…" + token[len(token)-keep:]
 }

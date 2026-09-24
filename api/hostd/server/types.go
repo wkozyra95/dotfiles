@@ -38,6 +38,18 @@ func newFileResponse(info hostd.FileInfo) fileResponse {
 	return fileResponse{Name: info.Name, Size: info.Size, Modified: info.Modified.Unix()}
 }
 
+// pushTokenRequest registers (POST) or removes (DELETE) an FCM token, the
+// device name is only needed when registering.
+type pushTokenRequest struct {
+	Token  string `json:"token"`
+	Device string `json:"device,omitempty"`
+}
+
+type pushDeviceResponse struct {
+	Device       string `json:"device"`
+	RegisteredAt int64  `json:"registeredAt"`
+}
+
 type notifyRequest struct {
 	Title   string        `json:"title"`
 	Message string        `json:"message"`

@@ -12,3 +12,6 @@ configs/nvim/spell
 .direnv
 /result
 *.qcow2
+
+# Firebase service account for `mycli mobile send`, never committed
+secret/fcm-service-account.json

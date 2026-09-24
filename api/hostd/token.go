@@ -46,6 +46,6 @@ func EnsureToken(stateDir string) (string, error) {
 	if err := os.WriteFile(path.Join(stateDir, tokenFile), []byte(token+"\n"), 0o600); err != nil {
 		return "", err
 	}
-	log.Info("Generated new token, read it with `sudo mycli hostd token`")
+	log.Info("Generated new token, read it with `sudo mycli hostd state`")
 	return token, nil
 }

@@ -28,6 +28,8 @@ func (s *server) router() http.Handler {
 	if s.config.Notify {
 		router.Post("/notify", json(s.handleNotify))
 	}
+	router.Post("/push-token", json(s.handlePushTokenRegister))
+	router.Delete("/push-token", json(s.handlePushTokenUnregister))
 	if s.files != nil {
 		router.Get("/files", json(s.handleFileList))
 		router.With(noDeadlines).Put("/files/{name}", json(s.handleFileUpload))
@@ -45,7 +47,7 @@ func (s *server) handleStatus(*http.Request) (int, any) {
 	response := statusResponse{
 		Hostname:      status.Hostname,
 		UptimeSeconds: int64(status.Uptime.Seconds()),
-		Features:      []string{},
+		Features:      []string{"push"},
 	}
 	if s.files != nil {
 		response.Features = append(response.Features, "files")
@@ -86,6 +88,32 @@ func (s *server) handleNotify(r *http.Request) (int, any) {
 	}
 	notify.Notify(notification)
 	return http.StatusAccepted, struct{}{}
+}
+
+// handlePushTokenRegister stores the FCM token of the device, `mycli mobile send`
+// on this host delivers push notifications to it. Registering again under the
+// same device name replaces the token.
+func (s *server) handlePushTokenRegister(r *http.Request) (int, any) {
+	request := pushTokenRequest{}
+	if err := decodeJSON(r, &request); err != nil {
+		return http.StatusBadRequest, errorResponse{Error: err.Error()}
+	}
+	device, err := s.push.Register(request.Token, request.Device)
+	if err != nil {
+		return errorResult(err)
+	}
+	return http.StatusOK, pushDeviceResponse{Device: device.Name, RegisteredAt: device.RegisteredAt}
+}
+
+func (s *server) handlePushTokenUnregister(r *http.Request) (int, any) {
+	request := pushTokenRequest{}
+	if err := decodeJSON(r, &request); err != nil {
+		return http.StatusBadRequest, errorResponse{Error: err.Error()}
+	}
+	if err := s.push.Unregister(request.Token); err != nil {
+		return errorResult(err)
+	}
+	return http.StatusOK, struct{}{}
 }
 
 // fileNameFromRequestPath returns the name from /files/{name}. It is taken from the decoded

@@ -1,7 +1,7 @@
 { buildGoModule }:
 buildGoModule {
   name = "mycli";
-  vendorHash = "sha256-yBcMxUX9UsBd+qB3WkILcw++ug87SdHsNlMo2ywisaI=";
+  vendorHash = "sha256-EyGVG5ZpTVU43Y2bOlqgWUSRG1/00qAr/oBd87P3wyc=";
   src = ../..;
   subPackages = [ "." ];
   postFixup = ''

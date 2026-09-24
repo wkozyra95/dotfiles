@@ -10,8 +10,10 @@
 }:
 { pkgs, lib, config, ... }:
 # `mycli hostd serve`: small HTTP API (status / suspend / power off / file
-# transfer / desktop notifications) used by the myremote phone app. Requests are HMAC-signed with a token that
-# the service generates on first start, print it with `sudo mycli hostd token`.
+# transfer / desktop notifications / push token registry) used by the myremote
+# phone app. Devices register their FCM token with POST /push-token and `mycli
+# mobile send` on this host pushes text to them. Requests are HMAC-signed with a
+# token that the service generates on first start, print it with `sudo mycli hostd state`.
 # See api/hostd/auth.go for the signing scheme.
 let
   mycli = pkgs.callPackage ../packages/mycli.nix { };
@@ -25,7 +27,7 @@ in
     group = "hostd";
   };
 
-  # Needed for `sudo mycli hostd token`, root does not have the home-manager profile.
+  # Needed for `sudo mycli hostd state`, root does not have the home-manager profile.
   environment.systemPackages = [ mycli ];
 
   systemd.services.hostd = {

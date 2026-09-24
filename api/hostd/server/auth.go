@@ -26,7 +26,7 @@ import (
 //	multipart: "request", METHOD, URI, time, nonce, "UNSIGNED-PAYLOAD"
 //	response:  "response", nonce, status, hex(sha256(body))
 //
-// The HMAC key is the token exactly as `mycli hostd token` prints it (ASCII
+// The HMAC key is the token exactly as `mycli hostd state` prints it (ASCII
 // bytes of the hex string), URI is the request target as sent (path + query),
 // time is unix seconds, nonce is chosen by the client. The response signature
 // lets the client tell this server from whatever else might answer on the same

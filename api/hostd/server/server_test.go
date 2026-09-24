@@ -42,7 +42,7 @@ type testRequest struct {
 }
 
 func newTestServer(t *testing.T, withFiles bool) *testServer {
-	s := &testServer{server: &server{auth: newAuth(testToken)}}
+	s := &testServer{server: &server{auth: newAuth(testToken), push: hostd.NewPushTokenStore(t.TempDir())}}
 	s.auth.now = func() time.Time { return testNow }
 	s.suspend = func() error { s.actions = append(s.actions, "suspend"); return nil }
 	s.powerOff = func() error { s.actions = append(s.actions, "poweroff"); return nil }
@@ -114,11 +114,72 @@ func TestStatusWithSignedResponse(t *testing.T) {
 	assert.Nil(t, json.Unmarshal(w.Body.Bytes(), &status))
 	hostname, _ := os.Hostname()
 	assert.Equal(t, hostname, status.Hostname)
-	assert.Equal(t, []string{}, status.Features)
+	assert.Equal(t, []string{"push"}, status.Features)
 
 	w = newTestServer(t, true).send(testRequest{method: "GET", uri: "/status"})
 	assert.Nil(t, json.Unmarshal(w.Body.Bytes(), &status))
-	assert.Equal(t, []string{"files"}, status.Features)
+	assert.Equal(t, []string{"push", "files"}, status.Features)
+}
+
+func TestPushToken(t *testing.T) {
+	s := newTestServer(t, false)
+	registered := func() []string {
+		devices, err := s.push.List()
+		assert.Nil(t, err)
+		names := []string{}
+		for _, device := range devices {
+			names = append(names, device.Name+"="+device.Token)
+		}
+		return names
+	}
+
+	w := s.send(testRequest{method: "POST", uri: "/push-token", body: `{"token":"fcm:token-1","device":"Phone"}`})
+	assert.Equal(t, http.StatusOK, w.Code)
+	response := pushDeviceResponse{}
+	assert.Nil(t, json.Unmarshal(w.Body.Bytes(), &response))
+	assert.Equal(t, "Phone", response.Device)
+	assert.NotZero(t, response.RegisteredAt)
+	w = s.send(testRequest{method: "POST", uri: "/push-token", body: `{"token":"fcm:token-2","device":"Tablet"}`})
+	assert.Equal(t, http.StatusOK, w.Code)
+	// rotated token
+	w = s.send(testRequest{method: "POST", uri: "/push-token", body: `{"token":"fcm:token-3","device":"Phone"}`})
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, []string{"Tablet=fcm:token-2", "Phone=fcm:token-3"}, registered())
+
+	rejected := []string{
+		`not json`,
+		`{"device":"Phone"}`,
+		`{"token":"","device":"Phone"}`,
+		`{"token":"fcm:token-4"}`,
+		`{"token":"fcm:token-4","device":"  "}`,
+		`{"token":"has space","device":"Phone"}`,
+		`{"token":"fcm:token-4","device":"Phone","extra":1}`,
+	}
+	for _, body := range rejected {
+		w = s.send(testRequest{method: "POST", uri: "/push-token", body: body})
+		assert.Equal(t, http.StatusBadRequest, w.Code, body)
+	}
+	assert.Equal(t, []string{"Tablet=fcm:token-2", "Phone=fcm:token-3"}, registered())
+
+	w = s.send(testRequest{method: "DELETE", uri: "/push-token", body: `{"token":"fcm:token-2"}`})
+	assert.Equal(t, http.StatusOK, w.Code)
+	w = s.send(testRequest{method: "DELETE", uri: "/push-token", body: `{"token":"fcm:token-2"}`})
+	assert.Equal(t, http.StatusOK, w.Code)
+	w = s.send(testRequest{method: "DELETE", uri: "/push-token", body: `{"device":"Phone"}`})
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, []string{"Phone=fcm:token-3"}, registered())
+
+	// unsigned requests never reach the store
+	w = s.send(
+		testRequest{
+			method: "POST",
+			uri:    "/push-token",
+			body:   `{"token":"fcm:token-5","device":"Evil"}`,
+			token:  "wrong",
+		},
+	)
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
+	assert.Equal(t, []string{"Phone=fcm:token-3"}, registered())
 }
 
 func TestRejectedRequests(t *testing.T) {
@@ -291,7 +352,7 @@ func TestNotify(t *testing.T) {
 	w := s.send(testRequest{method: "GET", uri: "/status"})
 	status := statusResponse{}
 	assert.Nil(t, json.Unmarshal(w.Body.Bytes(), &status))
-	assert.Equal(t, []string{"notify"}, status.Features)
+	assert.Equal(t, []string{"push", "notify"}, status.Features)
 
 	w = s.send(testRequest{method: "POST", uri: "/notify", body: `{"title":"Hi","message":"plain text"}`})
 	assert.Equal(t, http.StatusAccepted, w.Code)

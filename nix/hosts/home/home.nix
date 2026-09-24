@@ -23,6 +23,26 @@ systemModules:
       opencode # terminal coding agent; talks to the local Ollama server
     ];
 
+    # Launcher entry ($mod+p) for `mycli mobile send`: fuzzel asks for the device
+    # and the text, the push goes to the phones registered with hostd. Only works
+    # here, hostd runs as the session user on this host.
+    xdg.desktopEntries.myremote-send = {
+      name = "MyRemote Notification";
+      comment = "Push text to the phone";
+      exec = "mycli mobile send";
+      terminal = false;
+      icon = "phone";
+      categories = [ "Utility" ];
+      # listed by fuzzel as "MyRemote Notification — Send clipboard", no prompts.
+      # Exec= can not hold shell quoting, hence the script.
+      actions.clipboard = {
+        name = "Send clipboard";
+        exec = toString (pkgs.writeShellScript "myremote-send-clipboard" ''
+          exec mycli mobile send "$(wl-paste --no-newline)"
+        '');
+      };
+    };
+
     # Live-editable (like the nvim config); points at the local Ollama server.
     xdg.configFile."opencode/opencode.json".source =
       config.lib.file.mkOutOfStoreSymlink

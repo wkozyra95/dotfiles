@@ -25,6 +25,7 @@ func main() {
 	command.RegisterNixCmds(rootCmd)
 	command.RegisterNasCmds(rootCmd)
 	command.RegisterHostdCmds(rootCmd)
+	command.RegisterMobileCmds(rootCmd)
 	command.RegisterCompletionCmds(rootCmd)
 	command.RegisterDockerCmds(rootCmd)
 

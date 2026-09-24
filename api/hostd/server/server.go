@@ -18,7 +18,7 @@ const DefaultListen = ":7420"
 
 type Config struct {
 	Listen string
-	// Holds the token, StateDirectory= of the systemd unit.
+	// Holds the token and the registered push tokens, StateDirectory= of the systemd unit.
 	StateDir string
 	// Enable /files, flat directory for uploads and downloads. Disabled if empty.
 	FilesDir string
@@ -32,6 +32,7 @@ type server struct {
 	auth   *auth
 	// nil if file transfer is disabled
 	files    *hostd.FileStore
+	push     *hostd.PushTokenStore
 	suspend  func() error
 	powerOff func() error
 }
@@ -41,7 +42,13 @@ func Serve(config Config) error {
 	if err != nil {
 		return fmt.Errorf("token: %w", err)
 	}
-	s := &server{config: config, auth: newAuth(token), suspend: hostd.Suspend, powerOff: hostd.PowerOff}
+	s := &server{
+		config:   config,
+		auth:     newAuth(token),
+		push:     hostd.NewPushTokenStore(config.StateDir),
+		suspend:  hostd.Suspend,
+		powerOff: hostd.PowerOff,
+	}
 	if config.FilesDir != "" {
 		if s.files, err = hostd.NewFileStore(config.FilesDir, hostd.DefaultMinFreeSpace); err != nil {
 			return fmt.Errorf("files directory: %w", err)
