@@ -93,7 +93,10 @@ func EnsureNodePackageInstalled(pkg string, reinstall bool) error {
 
 func isVoltaPackageInstalled(pkg string) (bool, error) {
 	var stdout bytes.Buffer
-	if err := exec.Command().WithBufout(&stdout, &bytes.Buffer{}).Args("volta", "list", "--format", "plain").Run(); err != nil {
+	if err := exec.Command().
+		WithBufout(&stdout, &bytes.Buffer{}).
+		Args("volta", "list", "--format", "plain").
+		Run(); err != nil {
 		return false, err
 	}
 	isInstalled, err := regexp.MatchString(regexp.QuoteMeta(fmt.Sprintf("package %s", pkg)), stdout.String())

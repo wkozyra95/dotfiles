@@ -95,7 +95,12 @@ func updateAssets(
 	}
 	for _, asset := range oldAssetList {
 		log.Debugf("Deleting asset %s", *asset.Name)
-		if _, err := client.Repositories.DeleteReleaseAsset(gocontext.Background(), repoOwner, repoName, asset.GetID()); err != nil {
+		if _, err := client.Repositories.DeleteReleaseAsset(
+			gocontext.Background(),
+			repoOwner,
+			repoName,
+			asset.GetID(),
+		); err != nil {
 			return nil, nil, err
 		}
 	}

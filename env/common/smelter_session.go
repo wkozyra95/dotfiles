@@ -79,11 +79,16 @@ func SmelterSessionTemplates(p string) []env.SessionTemplate {
 			shell("shell", "examples", 0),
 			claudeIde("examples"),
 		}},
-		{ID: "membrane-smelter-plugin", Name: "membrane smelter plugin", DefaultName: "membrane-smelter-plugin", Tasks: []env.SessionTask{
-			{ID: "shell", Cwd: membranePluginDir, Args: []string{"zsh"}, Slot: 0},
-			{ID: "shell-partner", Cwd: membranePluginDir, Args: []string{"zsh"}, Slot: 1},
-			{ID: "claude", Cwd: membranePluginDir, Args: []string{"claude", "--ide"}, Slot: 1},
-		}},
+		{
+			ID:          "membrane-smelter-plugin",
+			Name:        "membrane smelter plugin",
+			DefaultName: "membrane-smelter-plugin",
+			Tasks: []env.SessionTask{
+				{ID: "shell", Cwd: membranePluginDir, Args: []string{"zsh"}, Slot: 0},
+				{ID: "shell-partner", Cwd: membranePluginDir, Args: []string{"zsh"}, Slot: 1},
+				{ID: "claude", Cwd: membranePluginDir, Args: []string{"claude", "--ide"}, Slot: 1},
+			},
+		},
 	}
 	// One template per existing worktree of the smelter repo (resolved
 	// dynamically), behaving like "smelter (core)" but in that worktree.

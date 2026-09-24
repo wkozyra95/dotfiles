@@ -17,7 +17,11 @@ func DockerPlaygroundCreate(playgroundPath string, image string) error {
 	if err := exec.Command().Args("mkdir", "-p", playgroundPath).Run(); err != nil {
 		return err
 	}
-	if err := os.WriteFile(path.Join(playgroundPath, "Dockerfile"), []byte(fmt.Sprintf("FROM %s", image)), 0o644); err != nil {
+	if err := os.WriteFile(
+		path.Join(playgroundPath, "Dockerfile"),
+		[]byte(fmt.Sprintf("FROM %s", image)),
+		0o644,
+	); err != nil {
 		return err
 	}
 	return nil

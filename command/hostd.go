@@ -41,8 +41,10 @@ func RegisterHostdCmds(rootCmd *cobra.Command) {
 	}
 	serveCmd.Flags().StringVar(&config.Listen, "listen", server.DefaultListen, "address to listen on")
 	serveCmd.Flags().StringVar(&config.StateDir, "state-dir", stateDir, "directory with the token")
-	serveCmd.Flags().StringVar(&config.FilesDir, "files-dir", "", "enable /files endpoints, directory for file transfers")
-	serveCmd.Flags().BoolVar(&config.Notify, "notify", false, "enable /notify endpoint, desktop notifications in the session of the user running the service")
+	serveCmd.Flags().
+		StringVar(&config.FilesDir, "files-dir", "", "enable /files endpoints, directory for file transfers")
+	serveCmd.Flags().
+		BoolVar(&config.Notify, "notify", false, "enable /notify endpoint, desktop notifications in the session of the user running the service")
 
 	var tokenStateDir string
 	tokenCmd := &cobra.Command{

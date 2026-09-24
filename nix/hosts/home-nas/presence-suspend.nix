@@ -11,7 +11,7 @@
 # Escape hatch: `touch /run/keep-awake` blocks suspending until reboot.
 let
   workstationIp = "192.168.100.9"; # give it a DHCP reservation in the router
-  graceMin = 30;                   # minutes unreachable (or since wake) before suspending
+  graceMin = 30; # minutes unreachable (or since wake) before suspending
   stateDir = "/run/presence-suspend";
 in
 {

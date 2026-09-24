@@ -74,7 +74,11 @@ func (d *dockerInstance) start() error {
 
 	if container.Status != "running" {
 		log.Info("Starting docker container")
-		if err := d.client.ContainerStart(context.Background(), container.ID, types.ContainerStartOptions{}); err != nil {
+		if err := d.client.ContainerStart(
+			context.Background(),
+			container.ID,
+			types.ContainerStartOptions{},
+		); err != nil {
 			return err
 		}
 	} else {
