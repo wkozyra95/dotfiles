@@ -33,14 +33,6 @@ systemModules:
       terminal = false;
       icon = "phone";
       categories = [ "Utility" ];
-      # listed by fuzzel as "MyRemote Notification — Send clipboard", no prompts.
-      # Exec= can not hold shell quoting, hence the script.
-      actions.clipboard = {
-        name = "Send clipboard";
-        exec = toString (pkgs.writeShellScript "myremote-send-clipboard" ''
-          exec mycli mobile send "$(wl-paste --no-newline)"
-        '');
-      };
     };
 
     # Live-editable (like the nvim config); points at the local Ollama server.
