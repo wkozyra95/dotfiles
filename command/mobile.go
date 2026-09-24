@@ -20,7 +20,7 @@ const (
 	allDevices = "All devices"
 	// Gitignored, the key of a service account that only has the "Firebase
 	// Cloud Messaging API Admin" role.
-	defaultServiceAccountFile = ".dotfiles/secret/fcm-service-account.json"
+	defaultServiceAccountFile = ".dotfiles/secrets/fcm-service-account.json"
 )
 
 func RegisterMobileCmds(rootCmd *cobra.Command) {
