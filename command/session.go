@@ -15,13 +15,20 @@ import (
 // withSessionLog runs a session action with stdout/stderr redirected to a
 // logfile (these commands are launched detached from a terminal via sway
 // `exec`, so their log output would otherwise be lost) and surfaces any error
-// as a desktop notification. A user cancellation (ErrCanceled) is a silent
-// no-op.
+// as a desktop notification: a normal one when there was nothing to do
+// (ErrNothingToDo), a critical one for anything else. A user cancellation
+// (ErrCanceled) is a silent no-op.
 func withSessionLog(fn func() error) {
 	run := func() {
-		if err := fn(); err != nil && !errors.Is(err, session.ErrCanceled) {
-			notify.Notify(notify.Notification{Title: "Session", Message: err.Error(), Urgency: notify.Critical})
+		err := fn()
+		if err == nil || errors.Is(err, session.ErrCanceled) {
+			return
 		}
+		urgency := notify.Critical
+		if errors.Is(err, session.ErrNothingToDo) {
+			urgency = notify.Normal
+		}
+		notify.Notify(notify.Notification{Title: "Session", Message: err.Error(), Urgency: urgency})
 	}
 	logfile := "/tmp/mycli/session.log"
 	if err := os.MkdirAll(path.Dir(logfile), os.ModePerm); err != nil {

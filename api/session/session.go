@@ -101,6 +101,11 @@ const closeCurrentLabel = "▸ close current"
 // command layer treats it as a silent no-op (no notification).
 var ErrCanceled = errors.New("canceled")
 
+// ErrNothingToDo is wrapped (with the specific reason) when an action has
+// nothing to act on, e.g. switching with no stashed sessions. It is an expected
+// outcome, not a failure.
+var ErrNothingToDo = errors.New("nothing to do")
+
 // stashName is the workspace name a workspace is renamed to while its project is
 // hidden, e.g. ("smelter", 0) -> "smelter:0" (slot 0 = main, 1 = secondary). The
 // name is a prefix, so it drops out of sway's numeric namespace.
@@ -489,7 +494,7 @@ func Switch() error {
 		candidates = append(candidates, stashCurrentLabel, closeCurrentLabel)
 	}
 	if len(candidates) == 0 {
-		return errors.New("no stashed sessions and nothing to stash")
+		return fmt.Errorf("%w: no stashed sessions and nothing to stash", ErrNothingToDo)
 	}
 	choice, ok := menu.Select("Switch to session:", candidates)
 	if !ok {
@@ -611,7 +616,7 @@ func Close(name string) error {
 			candidates = append(candidates, n)
 		}
 		if len(candidates) == 0 {
-			return errors.New("no stashed sessions to close")
+			return fmt.Errorf("%w: no stashed sessions to close", ErrNothingToDo)
 		}
 		chosen, ok := menu.Select("Close session:", candidates)
 		if !ok {
