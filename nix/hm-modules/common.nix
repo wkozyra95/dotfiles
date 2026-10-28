@@ -76,6 +76,34 @@ in
         # stderr line per shell exit. All real data is already on disk from
         # INC_APPEND, so nothing is lost by the rewrite failing.
         unsetopt HIST_SAVE_BY_COPY
+
+        # Session-manager tasks (api/session) launch an interactive zsh with the
+        # task's command in SESSION_CMD. Type it in and submit it on the first
+        # prompt, as if entered by hand: direnv's precmd hook has already loaded
+        # the dev shell by then, the command lands in history, and exiting it
+        # leaves this shell open. unset keeps nested shells from re-running it.
+        # This wraps the existing zle-line-init (vi-mode's) by hand, restoring
+        # it after the first prompt, instead of using add-zle-hook-widget: its
+        # dispatcher stops at the first hook returning non-zero, and vi-mode's
+        # returns 1 whenever VI_MODE_SET_CURSOR is off.
+        if [[ -n $SESSION_CMD ]]; then
+          if (( ''${+widgets[zle-line-init]} )); then
+            zle -A zle-line-init _session_cmd_orig_line_init
+          fi
+          _session_cmd_init() {
+            if (( ''${+widgets[_session_cmd_orig_line_init]} )); then
+              zle -A _session_cmd_orig_line_init zle-line-init
+              zle -D _session_cmd_orig_line_init
+              zle zle-line-init
+            else
+              zle -D zle-line-init
+            fi
+            BUFFER=$SESSION_CMD
+            unset SESSION_CMD
+            zle accept-line
+          }
+          zle -N zle-line-init _session_cmd_init
+        fi
       '')
     ];
     oh-my-zsh = {

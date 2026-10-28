@@ -46,13 +46,14 @@ type SessionTask struct {
 // SessionTemplate is a project blueprint launched into the current workspace
 // pair by the session manager.
 type SessionTemplate struct {
-	ID   string `json:"id"`
+	ID string `json:"id"`
+	// Name is the label shown in the template picker; empty means ID.
 	Name string `json:"name"`
-	// DefaultName, when non-empty, is the project name claimed automatically for
-	// a freshly launched session: if no session of that name already exists it is
-	// used without prompting; only on a collision is the user asked to type one.
-	// Empty means always prompt (e.g. templates whose name must be unique per
-	// launch, such as worktree templates that derive a branch from it).
+	// DefaultName is the project name claimed automatically for a freshly
+	// launched session; empty means ID. If no session of that name already
+	// exists it is used without prompting; only on a collision is the user asked
+	// to type one. Ignored for templates with Prepare, which always prompt since
+	// they derive something unique from the name (e.g. a worktree branch).
 	DefaultName string        `json:"default_name,omitempty"`
 	Tasks       []SessionTask `json:"tasks"`
 	// Prepare, when set, runs at launch with the prompted project name and

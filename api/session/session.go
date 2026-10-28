@@ -79,8 +79,10 @@ import (
 	"errors"
 	"fmt"
 	"path"
+	"regexp"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/wkozyra95/dotfiles/api/context"
 	"github.com/wkozyra95/dotfiles/api/sway"
@@ -278,9 +280,11 @@ func pickTemplate(ctx context.Context, u workspaceGroup) (env.SessionTemplate, e
 	return byName[choice], nil
 }
 
-// launchTemplate spawns each of a template's tasks as a plain terminal routed to
-// the right workspace via its --class. These are ordinary windows (not
-// supervised services): if the command exits, the terminal simply closes. When
+// launchTemplate spawns each of a template's tasks as a terminal routed to the
+// right workspace via its --class. Every terminal runs an interactive zsh, so
+// direnv loads the project's dev shell; a task's command (anything other than a
+// bare "zsh") is handed over via SESSION_CMD, which the zsh config types in and
+// runs on the first prompt. When the command exits the shell stays open. When
 // overrideCwd is non-empty it replaces each task's Cwd.
 func launchTemplate(tpl env.SessionTemplate, u workspaceGroup, overrideCwd string) {
 	for _, task := range tpl.Tasks {
@@ -296,14 +300,32 @@ func launchTemplate(tpl env.SessionTemplate, u workspaceGroup, overrideCwd strin
 		if cwd != "" {
 			args = append(args, "--working-directory", cwd)
 		}
-		if len(task.Args) > 0 {
-			args = append(args, "-e")
-			args = append(args, task.Args...)
+		args = append(args, "-e", "zsh")
+		cmd := exec.Command()
+		if len(task.Args) > 0 && !(len(task.Args) == 1 && task.Args[0] == "zsh") {
+			cmd = cmd.WithEnv("SESSION_CMD=" + shellJoin(task.Args))
 		}
-		if _, err := exec.Command().Args(args...).Start(); err != nil {
+		if _, err := cmd.Args(args...).Start(); err != nil {
 			log.Errorf("Failed to launch template task %s: %v", task.ID, err)
 		}
 	}
+}
+
+// shellSafeArg matches arguments that need no quoting in zsh.
+var shellSafeArg = regexp.MustCompile(`^[A-Za-z0-9_@%+=:,./-]+$`)
+
+// shellJoin renders args as a zsh command line, single-quoting only the
+// arguments that need it so the line reads naturally in shell history.
+func shellJoin(args []string) string {
+	quoted := make([]string, len(args))
+	for i, arg := range args {
+		if shellSafeArg.MatchString(arg) {
+			quoted[i] = arg
+		} else {
+			quoted[i] = "'" + strings.ReplaceAll(arg, "'", `'\''`) + "'"
+		}
+	}
+	return strings.Join(quoted, " ")
 }
 
 // nameIsFree reports whether a stash name is unused.
@@ -338,12 +360,20 @@ func nameTaken(name string) bool {
 }
 
 // nameForNew resolves the project name for a freshly launched template: a
-// template's DefaultName is claimed silently when it is still free, otherwise
-// (on a collision, or when the template has no default) the user is prompted.
+// template's default name (DefaultName, or ID when that is empty) is claimed
+// silently when it is still free, otherwise the user is prompted. Templates
+// with Prepare have no default and always prompt, since Prepare derives
+// something unique from the name (e.g. a worktree branch).
 // Returns "" if the prompt is dismissed.
 func nameForNew(tpl env.SessionTemplate) string {
-	if tpl.DefaultName != "" && !nameTaken(tpl.DefaultName) {
-		return tpl.DefaultName
+	if tpl.Prepare == nil {
+		name := tpl.DefaultName
+		if name == "" {
+			name = tpl.ID
+		}
+		if !nameTaken(name) {
+			return name
+		}
 	}
 	return menu.Prompt("Project name: ")
 }
