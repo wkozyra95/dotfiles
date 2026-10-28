@@ -35,7 +35,7 @@ type JSONSchema struct {
 
 // SessionTask is a single terminal launched by a SessionTemplate.
 type SessionTask struct {
-	ID   string   `json:"id"`
+	// Args is the command to run; required. []string{"zsh"} is a plain shell.
 	Args []string `json:"args"`
 	Cwd  string   `json:"cwd"`
 	// Slot selects the target workspace within the unit: 0 = primary (focused),
@@ -46,11 +46,10 @@ type SessionTask struct {
 // SessionTemplate is a project blueprint launched into the current workspace
 // pair by the session manager.
 type SessionTemplate struct {
-	ID string `json:"id"`
-	// Name is the label shown in the template picker; empty means ID.
+	// Name is the label shown in the template picker.
 	Name string `json:"name"`
 	// DefaultName is the project name claimed automatically for a freshly
-	// launched session; empty means ID. If no session of that name already
+	// launched session; empty means Name. If no session of that name already
 	// exists it is used without prompting; only on a collision is the user asked
 	// to type one. Ignored for templates with Prepare, which always prompt since
 	// they derive something unique from the name (e.g. a worktree branch).

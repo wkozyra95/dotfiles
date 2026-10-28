@@ -45,72 +45,72 @@ func SmelterSessionTemplates(root string) []env.SessionTemplate {
 			continue
 		}
 		templates = append(templates, env.SessionTemplate{
-			ID: path.Base(wt.path),
+			Name: path.Base(wt.path),
 			Tasks: []env.SessionTask{
-				{ID: "editor", Cwd: wt.path, Args: []string{"nvim", "."}, Slot: 0},
-				{ID: "shell", Cwd: wt.path, Slot: 1},
-				{ID: "claude", Cwd: wt.path, Args: []string{"claude", "--ide"}, Slot: 1},
+				{Slot: 0, Cwd: wt.path, Args: []string{"nvim", "."}},
+				{Slot: 1, Cwd: wt.path, Args: []string{"zsh"}},
+				{Slot: 1, Cwd: wt.path, Args: []string{"claude", "--ide"}},
 			},
 		})
 	}
 	return append(templates,
 		env.SessionTemplate{
-			ID: "smelter",
+			Name: "smelter",
 			Tasks: []env.SessionTask{
-				{ID: "editor", Cwd: smelterDir, Args: []string{"nvim", "."}, Slot: 0},
-				{ID: "shell", Cwd: smelterDir, Slot: 1},
-				{ID: "claude", Cwd: smelterDir, Args: []string{"claude", "--ide"}, Slot: 1},
+				{Slot: 0, Cwd: smelterDir, Args: []string{"nvim", "."}},
+				{Slot: 1, Cwd: smelterDir, Args: []string{"zsh"}},
+				{Slot: 1, Cwd: smelterDir, Args: []string{"claude", "--ide"}},
 			},
 		},
 		env.SessionTemplate{
 			// Like "smelter" but in a fresh worktree on branch
 			// @wkozyra95/<project-name>, created from the prompted name. Cwd is
 			// left empty: every task runs in the worktree Prepare returns.
-			ID:      "smelter-worktree",
+			Name:    "smelter-worktree",
 			Prepare: smelterWorktreePrepare(root),
 			Tasks: []env.SessionTask{
-				{ID: "editor", Args: []string{"nvim", "."}, Slot: 0},
-				{ID: "shell", Slot: 1},
-				{ID: "claude", Args: []string{"claude", "--ide"}, Slot: 1},
-				{ID: "submodules", Args: submoduleUpdate, Slot: 1},
+				{Slot: 0, Args: []string{"nvim", "."}},
+				{Slot: 1, Args: []string{"zsh"}},
+				{Slot: 1, Args: []string{"claude", "--ide"}},
+				{Slot: 1, Args: submoduleUpdate},
 			},
 		},
 		env.SessionTemplate{
-			ID: "smelter-website",
+			Name: "smelter-website",
 			Tasks: []env.SessionTask{
-				{ID: "editor", Cwd: websiteDir, Args: []string{"nvim", "."}, Slot: 0},
-				{ID: "dev", Cwd: websiteDir, Args: []string{"pnpm", "dev"}, Slot: 1},
-				{ID: "claude", Cwd: websiteDir, Args: []string{"claude", "--ide"}, Slot: 1},
+				{Slot: 0, Cwd: websiteDir, Args: []string{"nvim", "."}},
+				{Slot: 1, Cwd: websiteDir, Args: []string{"pnpm", "dev"}},
+				{Slot: 1, Cwd: websiteDir, Args: []string{"claude", "--ide"}},
 			},
 		},
 		env.SessionTemplate{
-			ID: "smelter-tools",
+			Name: "smelter-tools",
 			Tasks: []env.SessionTask{
-				{ID: "editor", Cwd: toolsDir, Args: []string{"nvim", "."}, Slot: 0},
-				{ID: "dev", Cwd: toolsDir, Args: []string{"pnpm", "dev"}, Slot: 1},
-				{ID: "claude", Cwd: toolsDir, Args: []string{"claude", "--ide"}, Slot: 1},
+				{Slot: 0, Cwd: toolsDir, Args: []string{"nvim", "."}},
+				{Slot: 1, Cwd: toolsDir, Args: []string{"pnpm", "dev"}},
+				{Slot: 1, Cwd: toolsDir, Args: []string{"claude", "--ide"}},
 			},
 		},
 		env.SessionTemplate{
-			ID: "smelter-skills",
+			Name: "smelter-skills",
 			Tasks: []env.SessionTask{
-				{ID: "editor", Cwd: skillsDir, Args: []string{"nvim", "."}, Slot: 0},
-				{ID: "claude", Cwd: skillsDir, Args: []string{"claude", "--ide"}, Slot: 1},
+				{Slot: 0, Cwd: skillsDir, Args: []string{"nvim", "."}},
+				{Slot: 1, Cwd: skillsDir, Args: []string{"claude", "--ide"}},
 			},
 		},
 		env.SessionTemplate{
-			ID: "smelter-examples",
+			Name: "smelter-examples",
 			Tasks: []env.SessionTask{
-				{ID: "editor", Cwd: examplesDir, Args: []string{"nvim", "."}, Slot: 0},
-				{ID: "claude", Cwd: examplesDir, Args: []string{"claude", "--ide"}, Slot: 1},
+				{Slot: 0, Cwd: examplesDir, Args: []string{"nvim", "."}},
+				{Slot: 1, Cwd: examplesDir, Args: []string{"claude", "--ide"}},
 			},
 		},
 		env.SessionTemplate{
-			ID: "membrane-smelter-plugin",
+			Name: "membrane-smelter-plugin",
 			Tasks: []env.SessionTask{
-				{ID: "editor", Cwd: membranePluginDir, Args: []string{"nvim", "."}, Slot: 0},
-				{ID: "shell", Cwd: membranePluginDir, Slot: 1},
-				{ID: "claude", Cwd: membranePluginDir, Args: []string{"claude", "--ide"}, Slot: 1},
+				{Slot: 0, Cwd: membranePluginDir, Args: []string{"nvim", "."}},
+				{Slot: 1, Cwd: membranePluginDir, Args: []string{"zsh"}},
+				{Slot: 1, Cwd: membranePluginDir, Args: []string{"claude", "--ide"}},
 			},
 		},
 	)

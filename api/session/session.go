@@ -262,12 +262,8 @@ func pickTemplate(ctx context.Context, u workspaceGroup) (env.SessionTemplate, e
 	names := make([]string, len(templates))
 	byName := map[string]env.SessionTemplate{}
 	for i, tpl := range templates {
-		label := tpl.Name
-		if label == "" {
-			label = tpl.ID
-		}
-		names[i] = label
-		byName[label] = tpl
+		names[i] = tpl.Name
+		byName[tpl.Name] = tpl
 	}
 	label := strconv.Itoa(u.primary)
 	if !u.standalone() {
@@ -284,10 +280,14 @@ func pickTemplate(ctx context.Context, u workspaceGroup) (env.SessionTemplate, e
 // right workspace via its --class. Every terminal runs an interactive zsh, so
 // direnv loads the project's dev shell; a task's command (anything other than a
 // bare "zsh") is handed over via SESSION_CMD, which the zsh config types in and
-// runs on the first prompt. When the command exits the shell stays open. When
+// runs on the first prompt. Tasks without Args are skipped as misconfigured. When the command exits the shell stays open. When
 // overrideCwd is non-empty it replaces each task's Cwd.
 func launchTemplate(tpl env.SessionTemplate, u workspaceGroup, overrideCwd string) {
 	for _, task := range tpl.Tasks {
+		if len(task.Args) == 0 {
+			log.Errorf("Template %s has a task without Args, skipping it", tpl.Name)
+			continue
+		}
 		ws := u.primary
 		if task.Slot == 1 {
 			ws = u.partner
@@ -302,11 +302,11 @@ func launchTemplate(tpl env.SessionTemplate, u workspaceGroup, overrideCwd strin
 		}
 		args = append(args, "-e", "zsh")
 		cmd := exec.Command()
-		if len(task.Args) > 0 && !(len(task.Args) == 1 && task.Args[0] == "zsh") {
+		if !(len(task.Args) == 1 && task.Args[0] == "zsh") {
 			cmd = cmd.WithEnv("SESSION_CMD=" + shellJoin(task.Args))
 		}
 		if _, err := cmd.Args(args...).Start(); err != nil {
-			log.Errorf("Failed to launch template task %s: %v", task.ID, err)
+			log.Errorf("Failed to launch template task %q: %v", shellJoin(task.Args), err)
 		}
 	}
 }
@@ -360,7 +360,7 @@ func nameTaken(name string) bool {
 }
 
 // nameForNew resolves the project name for a freshly launched template: a
-// template's default name (DefaultName, or ID when that is empty) is claimed
+// template's default name (DefaultName, or Name when that is empty) is claimed
 // silently when it is still free, otherwise the user is prompted. Templates
 // with Prepare have no default and always prompt, since Prepare derives
 // something unique from the name (e.g. a worktree branch).
@@ -369,7 +369,7 @@ func nameForNew(tpl env.SessionTemplate) string {
 	if tpl.Prepare == nil {
 		name := tpl.DefaultName
 		if name == "" {
-			name = tpl.ID
+			name = tpl.Name
 		}
 		if !nameTaken(name) {
 			return name
