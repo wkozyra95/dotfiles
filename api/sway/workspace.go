@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strings"
 
 	swayexec "github.com/wkozyra95/dotfiles/utils/exec"
@@ -137,6 +138,28 @@ func windowConIDs(node TreeNode) []int64 {
 		}
 	}
 	return ids
+}
+
+// WindowsByPID returns the windows owned by the given processes, in tree order
+// (left to right within a flat workspace).
+func WindowsByPID(pids []int) ([]TreeNode, error) {
+	tree, err := GetTree()
+	if err != nil {
+		return nil, err
+	}
+	return windowsByPID(tree, pids), nil
+}
+
+func windowsByPID(node TreeNode, pids []int) []TreeNode {
+	windows := []TreeNode{}
+	for _, child := range append(append([]TreeNode{}, node.Nodes...), node.FloatingNodes...) {
+		if len(child.Nodes) > 0 || len(child.FloatingNodes) > 0 {
+			windows = append(windows, windowsByPID(child, pids)...)
+		} else if (child.Type == "con" || child.Type == "floating_con") && slices.Contains(pids, child.PID) {
+			windows = append(windows, child)
+		}
+	}
+	return windows
 }
 
 func countWindows(node TreeNode) int {

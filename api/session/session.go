@@ -63,6 +63,13 @@
 // `move container to workspace number`. Primary goes to the focused output,
 // partner to the second monitor (see workspaceGroup.outputs).
 //
+// # Launching into a standalone workspace
+//
+// A standalone group has one workspace, so all of a template's tasks land on it.
+// Once their windows appear they are arranged to mirror the two monitors: primary
+// tasks in a left column, partner tasks in a right one, or a plain row when the
+// template only uses one slot (see arrangeColumns).
+//
 // # State and the bar
 //
 // State lives at /tmp/mycli-session.json (runtime only; Reset clears it at sway
@@ -281,16 +288,19 @@ func pickTemplate(ctx context.Context, u workspaceGroup) (env.SessionTemplate, e
 // direnv loads the project's dev shell; a task's command (anything other than a
 // bare "zsh") is handed over via SESSION_CMD, which the zsh config types in and
 // runs on the first prompt. Tasks without Args are skipped as misconfigured. When the command exits the shell stays open. When
-// overrideCwd is non-empty it replaces each task's Cwd.
+// overrideCwd is non-empty it replaces each task's Cwd. In a standalone group,
+// where primary and partner tasks share a workspace, the windows are then
+// arranged by slot.
 func launchTemplate(tpl env.SessionTemplate, u workspaceGroup, overrideCwd string) {
+	var pidsBySlot [2][]int
 	for _, task := range tpl.Tasks {
 		if len(task.Args) == 0 {
 			log.Errorf("Template %s has a task without Args, skipping it", tpl.Name)
 			continue
 		}
-		ws := u.primary
+		ws, slot := u.primary, 0
 		if task.Slot == 1 {
-			ws = u.partner
+			ws, slot = u.partner, 1
 		}
 		cwd := task.Cwd
 		if overrideCwd != "" {
@@ -305,9 +315,15 @@ func launchTemplate(tpl env.SessionTemplate, u workspaceGroup, overrideCwd strin
 		if !(len(task.Args) == 1 && task.Args[0] == "zsh") {
 			cmd = cmd.WithEnv("SESSION_CMD=" + shellJoin(task.Args))
 		}
-		if _, err := cmd.Args(args...).Start(); err != nil {
+		proc, err := cmd.Args(args...).Start()
+		if err != nil {
 			log.Errorf("Failed to launch template task %q: %v", shellJoin(task.Args), err)
+			continue
 		}
+		pidsBySlot[slot] = append(pidsBySlot[slot], proc.Process.Pid)
+	}
+	if u.standalone() {
+		arrangeColumns(pidsBySlot, u.primary)
 	}
 }
 
