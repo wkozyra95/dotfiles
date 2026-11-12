@@ -72,7 +72,7 @@ func SmelterSessionTemplates(root string) []env.SessionTemplate {
 				{Slot: 0, Args: []string{"nvim", "."}},
 				{Slot: 1, Args: []string{"zsh"}},
 				{Slot: 1, Args: []string{"claude", "--ide"}},
-				{Slot: 1, Args: submoduleUpdate},
+				{Slot: 1, Args: submoduleUpdate, NoShellFallback: true},
 			},
 		},
 		env.SessionTemplate{

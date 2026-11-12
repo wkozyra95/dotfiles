@@ -41,6 +41,11 @@ type SessionTask struct {
 	// Slot selects the target workspace within the unit: 0 = primary (focused),
 	// 1 = partner.
 	Slot int `json:"slot"`
+	// NoShellFallback runs Args directly in the terminal instead of inside an
+	// interactive shell, so the window closes as soon as the command exits.
+	// Meant for setup steps (e.g. populating submodules) rather than tools the
+	// user works in.
+	NoShellFallback bool `json:"no_shell_fallback,omitempty"`
 }
 
 // SessionTemplate is a project blueprint launched into the current workspace

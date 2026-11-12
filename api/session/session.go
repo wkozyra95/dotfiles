@@ -287,7 +287,10 @@ func pickTemplate(ctx context.Context, u workspaceGroup) (env.SessionTemplate, e
 // right workspace via its --class. Every terminal runs an interactive zsh, so
 // direnv loads the project's dev shell; a task's command (anything other than a
 // bare "zsh") is handed over via SESSION_CMD, which the zsh config types in and
-// runs on the first prompt. Tasks without Args are skipped as misconfigured. When the command exits the shell stays open. When
+// runs on the first prompt; when the command exits the shell stays open.
+// NoShellFallback tasks instead run their command directly, so the terminal
+// closes when it exits; they are left out of the layout since their window may
+// disappear at any time. Tasks without Args are skipped as misconfigured. When
 // overrideCwd is non-empty it replaces each task's Cwd. In a standalone group,
 // where primary and partner tasks share a workspace, the windows are then
 // arranged by slot.
@@ -310,17 +313,24 @@ func launchTemplate(tpl env.SessionTemplate, u workspaceGroup, overrideCwd strin
 		if cwd != "" {
 			args = append(args, "--working-directory", cwd)
 		}
-		args = append(args, "-e", "zsh")
 		cmd := exec.Command()
-		if !(len(task.Args) == 1 && task.Args[0] == "zsh") {
-			cmd = cmd.WithEnv("SESSION_CMD=" + shellJoin(task.Args))
+		if task.NoShellFallback {
+			args = append(args, "-e")
+			args = append(args, task.Args...)
+		} else {
+			args = append(args, "-e", "zsh")
+			if !(len(task.Args) == 1 && task.Args[0] == "zsh") {
+				cmd = cmd.WithEnv("SESSION_CMD=" + shellJoin(task.Args))
+			}
 		}
 		proc, err := cmd.Args(args...).Start()
 		if err != nil {
 			log.Errorf("Failed to launch template task %q: %v", shellJoin(task.Args), err)
 			continue
 		}
-		pidsBySlot[slot] = append(pidsBySlot[slot], proc.Process.Pid)
+		if !task.NoShellFallback {
+			pidsBySlot[slot] = append(pidsBySlot[slot], proc.Process.Pid)
+		}
 	}
 	if u.standalone() {
 		arrangeColumns(pidsBySlot, u.primary)
