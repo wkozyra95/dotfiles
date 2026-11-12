@@ -289,13 +289,12 @@ func pickTemplate(ctx context.Context, u workspaceGroup) (env.SessionTemplate, e
 // bare "zsh") is handed over via SESSION_CMD, which the zsh config types in and
 // runs on the first prompt; when the command exits the shell stays open.
 // NoShellFallback tasks instead run their command directly, so the terminal
-// closes when it exits; they are left out of the layout since their window may
-// disappear at any time. Tasks without Args are skipped as misconfigured. When
+// closes when it exits. Tasks without Args are skipped as misconfigured. When
 // overrideCwd is non-empty it replaces each task's Cwd. In a standalone group,
 // where primary and partner tasks share a workspace, the windows are then
 // arranged by slot.
 func launchTemplate(tpl env.SessionTemplate, u workspaceGroup, overrideCwd string) {
-	var pidsBySlot [2][]int
+	var launchedBySlot [2][]launchedWindow
 	for _, task := range tpl.Tasks {
 		if len(task.Args) == 0 {
 			log.Errorf("Template %s has a task without Args, skipping it", tpl.Name)
@@ -328,12 +327,17 @@ func launchTemplate(tpl env.SessionTemplate, u workspaceGroup, overrideCwd strin
 			log.Errorf("Failed to launch template task %q: %v", shellJoin(task.Args), err)
 			continue
 		}
-		if !task.NoShellFallback {
-			pidsBySlot[slot] = append(pidsBySlot[slot], proc.Process.Pid)
-		}
+		// Reap the terminal when it exits; this also tells the layout to stop
+		// waiting for a window that is already gone.
+		exited := make(chan struct{})
+		go func() {
+			_ = proc.Wait()
+			close(exited)
+		}()
+		launchedBySlot[slot] = append(launchedBySlot[slot], launchedWindow{pid: proc.Process.Pid, exited: exited})
 	}
 	if u.standalone() {
-		arrangeColumns(pidsBySlot, u.primary)
+		arrangeColumns(launchedBySlot, u.primary)
 	}
 }
 

@@ -16,20 +16,36 @@ const (
 	windowPollInterval = 100 * time.Millisecond
 )
 
-// arrangeColumns lays out freshly launched terminals, given their PIDs per slot:
-// slot 0 in a left column and slot 1 in a right one, each stacked vertically in
-// launch order, or a single row if only one slot has windows. Focus moves to the
-// first window of the left column, as long as the user is still on workspace ws.
+// launchedWindow is a freshly started terminal process awaiting layout.
+type launchedWindow struct {
+	pid int
+	// exited is closed once the process has exited (and been reaped).
+	exited <-chan struct{}
+}
+
+func (w launchedWindow) hasExited() bool {
+	select {
+	case <-w.exited:
+		return true
+	default:
+		return false
+	}
+}
+
+// arrangeColumns lays out freshly launched terminals, given per slot: slot 0 in
+// a left column and slot 1 in a right one, each stacked vertically in launch
+// order, or a single row if only one slot has windows. Focus moves to the first
+// window of the left column, as long as the user is still on workspace ws.
 //
 // Windows are arranged after launch rather than placed as they start, because
-// they map in an arbitrary order. A window that fails to appear in time is left
-// where it is.
-func arrangeColumns(pidsBySlot [2][]int, ws int) {
-	pids := append(append([]int{}, pidsBySlot[0]...), pidsBySlot[1]...)
-	if len(pids) < 2 {
+// they map in an arbitrary order. A window that fails to appear in time, or
+// whose process exits before it is arranged, is left out.
+func arrangeColumns(launchedBySlot [2][]launchedWindow, ws int) {
+	launched := append(append([]launchedWindow{}, launchedBySlot[0]...), launchedBySlot[1]...)
+	if len(launched) < 2 {
 		return
 	}
-	windows := waitForWindows(pids)
+	windows := waitForWindows(launched)
 	if len(windows) < 2 {
 		return
 	}
@@ -38,10 +54,10 @@ func arrangeColumns(pidsBySlot [2][]int, ws int) {
 		conByPID[w.PID] = w.ID
 	}
 	columns := [][]int64{}
-	for _, slotPids := range pidsBySlot {
+	for _, slotWindows := range launchedBySlot {
 		column := []int64{}
-		for _, pid := range slotPids {
-			if con, ok := conByPID[pid]; ok {
+		for _, w := range slotWindows {
+			if con, ok := conByPID[w.pid]; ok {
 				column = append(column, con)
 			}
 		}
@@ -61,11 +77,19 @@ func arrangeColumns(pidsBySlot [2][]int, ws int) {
 	}
 }
 
-// waitForWindows polls until every PID has a window or the timeout expires, and
-// returns the windows found so far, in tree order.
-func waitForWindows(pids []int) []sway.TreeNode {
+// waitForWindows polls until every still-running process has a window or the
+// timeout expires, and returns the windows found so far, in tree order. A
+// process that exits (e.g. a NoShellFallback task that finished quickly) stops
+// being waited for, and its window, if still mapped, is not returned.
+func waitForWindows(launched []launchedWindow) []sway.TreeNode {
 	deadline := time.Now().Add(windowWaitTimeout)
 	for {
+		pids := []int{}
+		for _, w := range launched {
+			if !w.hasExited() {
+				pids = append(pids, w.pid)
+			}
+		}
 		windows, err := sway.WindowsByPID(pids)
 		if err != nil {
 			log.Errorf("Failed to read tree: %v", err)
