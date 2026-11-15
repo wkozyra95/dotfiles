@@ -3,6 +3,7 @@ package sway
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"slices"
 	"strings"
@@ -293,6 +294,34 @@ func FocusWorkspaceNum(n int) error {
 // FocusOutput moves focus to the given output.
 func FocusOutput(output string) error {
 	return Command(fmt.Sprintf("focus output %q", output))
+}
+
+// FocusedOutputSize returns the size of the focused output in the logical
+// pixels windows are measured in, so after its scale and rotation.
+func FocusedOutputSize() (int, int, error) {
+	var stdout, stderr bytes.Buffer
+	err := swayexec.Command().
+		WithBufout(&stdout, &stderr).
+		Args("swaymsg", "-t", "get_outputs", "-r").Run()
+	if err != nil {
+		return 0, 0, err
+	}
+	var outputs []struct {
+		Focused bool `json:"focused"`
+		Rect    struct {
+			Width  int `json:"width"`
+			Height int `json:"height"`
+		} `json:"rect"`
+	}
+	if err := json.Unmarshal(stdout.Bytes(), &outputs); err != nil {
+		return 0, 0, err
+	}
+	for _, output := range outputs {
+		if output.Focused {
+			return output.Rect.Width, output.Rect.Height, nil
+		}
+	}
+	return 0, 0, errors.New("no focused output")
 }
 
 // RealOutputs returns the names of the connected, non-headless outputs.

@@ -9,6 +9,7 @@ systemModules:
     ../../hm-modules/neovim.nix
     ../../hm-modules/dotfiles.nix
     ../../hm-modules/dunst.nix
+    ../../hm-modules/keyboard.nix
   ] ++ systemModules;
 
   config = {

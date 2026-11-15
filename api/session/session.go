@@ -318,7 +318,7 @@ func launchTemplate(tpl env.SessionTemplate, u workspaceGroup, overrideCwd strin
 			args = append(args, task.Args...)
 		} else {
 			args = append(args, "-e", "zsh")
-			if !(len(task.Args) == 1 && task.Args[0] == "zsh") {
+			if len(task.Args) != 1 || task.Args[0] != "zsh" {
 				cmd = cmd.WithEnv("SESSION_CMD=" + shellJoin(task.Args))
 			}
 		}

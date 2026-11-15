@@ -33,6 +33,9 @@ client.placeholder      #000000  #0c0c0c  #ffffff  #ff0000    #0c0c0c
 
 font pango:SourceCodePro Medium 10
 
+# Keymap shown by `mycli keyboard preview`
+for_window [app_id="^mycli-keyboard$"] floating enable, border none
+
 client.background       #ffffff
 include /etc/sway/config.d/*
 

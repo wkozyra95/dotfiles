@@ -28,6 +28,7 @@ func main() {
 	command.RegisterMobileCmds(rootCmd)
 	command.RegisterCompletionCmds(rootCmd)
 	command.RegisterDockerCmds(rootCmd)
+	command.RegisterKeyboardCmds(rootCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		log.Error(err)
