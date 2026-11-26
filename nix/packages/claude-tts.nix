@@ -97,13 +97,19 @@ pkgs.writeShellApplication {
         --slurpfile c "${voiceConfig}" \
         '($c[0].inference.length_scale // 1) / ($s | tonumber)' 2>/dev/null)" \
         || length_scale=1
-      # No loudness boost: piper already peaks at full scale, so any gain needs
-      # a limiter, and sox's (`gain -l`) audibly degraded the voice.
+      # Loudness is left to PipeWire, not processed here (piper already peaks at
+      # full scale; a limiter audibly degraded the voice). pw-play defaults to
+      # media.role=Music, and WirePlumber restores one saved volume per role, so
+      # TTS inherited whatever Music was last set to. Accessibility (the screen
+      # reader role) gives it a volume of its own: adjust it in pavucontrol
+      # while it speaks ("Claude TTS") and WirePlumber remembers it.
       # Not a process-group leader here, so setsid execs in place: $! is the pgid.
       # All fds detached so the hook returns immediately.
       setsid bash -c '
         piper -m "$1" --length-scale "$3" --output-raw 2>/dev/null \
-          | pw-play --raw --rate "$2" --channels 1 --format s16 -
+          | pw-play --raw --rate "$2" --channels 1 --format s16 \
+              --media-role Accessibility \
+              -P "{ application.name = \"Claude TTS\" media.name = \"Claude reply\" }" -
       ' _ "${voice}/voice.onnx" \
         "$(jq -r .audio.sample_rate "${voiceConfig}")" "$length_scale" \
         <<<"$text" >/dev/null 2>&1 &
