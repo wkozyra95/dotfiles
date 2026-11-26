@@ -33,6 +33,7 @@ inputs.home-manager.lib.homeManagerConfiguration {
     ../../hm-modules/dotfiles.nix
     ../../hm-modules/dunst.nix
     ../../hm-modules/keyboard.nix
+    ../../hm-modules/claude-tts.nix
     ({ config, lib, pkgs, ... }: {
       home.username = config.myconfig.username;
       home.homeDirectory = "/home/${config.myconfig.username}";

@@ -10,6 +10,7 @@ systemModules:
     ../../hm-modules/dotfiles.nix
     ../../hm-modules/dunst.nix
     ../../hm-modules/keyboard.nix
+    ../../hm-modules/claude-tts.nix
   ] ++ systemModules;
 
   config = {
